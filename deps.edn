@@ -1,0 +1,27 @@
+{:aliases {:jar {:exec-args {:artifact-id "nuzzle",
+                             :group-id "codes.stel",
+                             :jar "codes.stel.nuzzle.jar",
+                             :jar-type :uber,
+                             :version "0.1.0"},
+                 :exec-fn hf.depstar/jar,
+                 :extra-deps {seancorfield/depstar {:mvn/version "2.0.216"}}},
+           :repl {:extra-deps {cider/cider-nrepl {:mvn/version "0.25.2"},
+                               nrepl/nrepl {:mvn/version "0.8.3"}}
+                  :extra-paths ["dev"],
+                  :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"
+                              "--interactive"]},
+           :runner {:extra-deps {com.cognitect/test-runner
+                                 {:git/url "https://github.com/cognitect-labs/test-runner",
+                                  :sha "b6b3193fcc42659d7e46ecd1884a228993441182"}},
+                    :main-opts ["-m" "cognitect.test-runner" "-d" "test"]},
+           :test {:extra-deps {org.clojure/test.check {:mvn/version "1.0.0"}},
+                  :extra-paths ["test" "resources"]}}
+ :deps {com.taoensso/timbre {:mvn/version "5.1.2"},
+        ring/ring-core {:mvn/version "1.8.2"} ,
+        http-kit/http-kit {:mvn/version "2.5.3"},
+        markdown-clj/markdown-clj {:mvn/version "1.10.5"},
+        babashka/fs {:mvn/version "0.1.2"},
+        org.clojure/clojure {:mvn/version "1.10.3"},
+        hiccup/hiccup {:mvn/version "2.0.0-alpha2"},
+        stasis/stasis {:mvn/version "2.5.1"}},
+ :paths ["src" "resources"]}
