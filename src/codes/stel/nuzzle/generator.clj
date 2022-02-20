@@ -90,3 +90,20 @@
       ;; If a resource file is defined but it can't be found, throw an Exception
       (throw (ex-info (str "Resource " resource " for id " id " not found")
                       {:id id :resource resource})))))
+
+(defn realize-pages
+  "Adds :uri, :render-resource, and :tags keys to each page in the
+  site-config."
+  [site-config]
+  {:pre [map? site-config]}
+  (reduce-kv
+   (fn [m id {:keys [resource uri tags] :as v}]
+     (if (vector? id)
+       (assoc m id
+              (merge v {;; Turn the basic tags vector into a vector of page ids
+                        :tags (vec (map #(vector :tags %) tags))
+                        :uri (or uri (util/id->uri id))
+                        :render-resource
+                        (create-render-resource-fn id resource)}))
+       (assoc m id v)))
+   {} site-config))
