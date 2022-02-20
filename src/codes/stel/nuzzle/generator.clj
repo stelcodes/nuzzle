@@ -146,3 +146,15 @@
          (util/deep-merge (create-group-index site-config))
          (util/deep-merge (create-tag-index site-config))
          (realize-pages))))
+
+(defn generate-page-list
+  [realized-site-config]
+  (->> realized-site-config
+       ;; If key is vector, then it is a page
+       (reduce-kv (fn [page-list id v]
+                    (if (vector? id)
+                      ;; Add the page id to the map
+                      (conj page-list (assoc v :id id))
+                      page-list)) [])
+       ;; Add id->info helper function to each page
+       (map #(assoc % :id->info (gen-id->info realized-site-config)))))
