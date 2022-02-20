@@ -1,11 +1,11 @@
-# Nuzzle
+# Nuzzle 🐈🌈
 A data-oriented micro-framework for quickly creating static sites with Clojure and Hiccup.
 
 ## Design Goals
 - Simple configuration
 - Turn Hiccup into static web pages
-- Support for creating subdirectory index pages
-- Support for tagging pages and creating tag index pages
+- Support for subdirectory index pages
+- Support for tagging pages and tag index pages
 - Out-of-the-box hot-reloading development server
 
 ## Interface
