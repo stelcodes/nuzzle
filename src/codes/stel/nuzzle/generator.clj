@@ -119,3 +119,15 @@
       (assoc entity :id->info id->info)
       (throw (ex-info (str "id->info error: id " id " not found")
                       {:id id})))))
+
+(defn remove-drafts
+  "Remove page entries from site-config map if they are marked as a draft with
+  :draft? true kv pair."
+  [site-config]
+  (reduce-kv
+   (fn [m id {:keys [draft?] :as v}]
+     (if (and (vector? id) draft?)
+       m
+       (assoc m id v)))
+   {}
+   site-config))
