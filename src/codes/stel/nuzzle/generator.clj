@@ -131,3 +131,18 @@
        (assoc m id v)))
    {}
    site-config))
+
+(defn realize-site-config
+  "Creates fully realized site-config datastructure with or without drafts."
+  [site-config remove-drafts?]
+  {:pre [(map? site-config) (boolean? remove-drafts?)]}
+  ;; Allow users to define their own overrides via deep-merge
+  (let [site-config (if remove-drafts?
+                      (do (log/info "Removing drafts") (remove-drafts site-config))
+                      (do (log/info "Including drafts") site-config))]
+    (->> site-config
+         ;; Make sure there is a root index.html file
+         (util/deep-merge {[] {:uri "/"}})
+         (util/deep-merge (create-group-index site-config))
+         (util/deep-merge (create-tag-index site-config))
+         (realize-pages))))
