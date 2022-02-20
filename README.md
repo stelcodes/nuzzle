@@ -52,6 +52,12 @@ Here's an example:
    :resource "markdown/learning-rust.md"
    :tags [:rust]}
 
+  [:blog-posts :how-to-install-fedora]
+  {:title "How to Install Fedora"
+   :resource "markdown/how-to-install-fedora.md"
+   :tags [:linux :fedora]
+   :draft? true}
+
   :social
   {:twitter "https://twitter.com/username"}
 }
@@ -61,10 +67,11 @@ Each key in this map is called an `id`. Each `id` can either be a keyword or a v
 
 If the `id` is a keyword like `:social`, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved in the `render` function.
 
-If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a single page of the web site. For example, the key `[:about]` translates to the URI `"/about"` and the key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. From now on we'll call these key-value pairs **pages**.
+If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a single page of the web site. For example, the key `[:about]` translates to the URI `"/about"` and the key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. From now on we'll call these values **pages**. Pages have some special keys:
 
-Nuzzle processes all pages from the `site-config` when building the static site. These keys are special:
 - `:resource`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:resource` key will have another key added called `:render-resource` whose value is a function that returns a string of raw html. Supported `:resource` filetypes are `.html`, `.md`, and `.markdown`.
+- `:tags`: a vector of keywords. Nuzzle takes the tags of all pages and adds tag index pages to the `site-config`.
+- `:draft?`: a boolean indicating whether this page is a draft or not. This key is used when the `global-config` has `:remove-drafts?` set to `true`.
 
 ## Rendering
 The function defined in the `:render-fn` field in the `global-config` is the single function responsible for producing the Hiccup for every page in the static site. The `id` of every page is attached the page under the key `:id`.
