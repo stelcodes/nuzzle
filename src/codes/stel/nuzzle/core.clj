@@ -18,7 +18,7 @@
 (defn export
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
-  [{:keys [static-dir target-dir] :as global-config}]
+  [{:keys [static-dir target-dir] :or {target-dir "dist"} :as global-config}]
   {:pre [(or (map? global-config) (string? global-config))
          (string? static-dir)
          (string? target-dir)]}
