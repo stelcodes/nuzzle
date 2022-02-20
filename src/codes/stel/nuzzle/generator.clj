@@ -107,3 +107,15 @@
                         (create-render-resource-fn id resource)}))
        (assoc m id v)))
    {} site-config))
+
+(defn gen-id->info
+  "Generate the helper function id->info from the realized-site-config. This
+  function takes a page id (vector of 0 or more keywords) and returns the page
+  information with added key :id->info with value id->info function attached."
+  [realized-site-config]
+  {:pre [(map? realized-site-config)] :post [(fn? %)]}
+  (fn id->info [id]
+    (if-let [entity (get realized-site-config id)]
+      (assoc entity :id->info id->info)
+      (throw (ex-info (str "id->info error: id " id " not found")
+                      {:id id})))))
