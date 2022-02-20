@@ -61,7 +61,7 @@ Each key in this map is called an `id`. Each `id` can either be a keyword or a v
 
 If the `id` is a keyword like `:social`, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved in the `render` function.
 
-If the `id` is a vector like `[:blog-posts :using-clojure]`, the key-value pair represents a single page of the web site. The keywords in the vector respresent the path of the webpage. For example, the key `[:about]` translates to `"/about/"` and the key `[:blog-posts :using-clojure]` translates to `"/blog-posts/using-clojure/"`. From now on we'll call these key-value pairs **pages**.
+If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a single page of the web site. For example, the key `[:about]` translates to the URI `"/about"` and the key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. From now on we'll call these key-value pairs **pages**.
 
 Nuzzle processes all pages from the `site-config` when building the static site. These keys are special:
 - `:resource`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:resource` key will have another key added called `:render-resource` whose value is a function that returns a string of raw html. Supported `:resource` filetypes are `.html`, `.md`, and `.markdown`.
