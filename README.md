@@ -1,4 +1,4 @@
-# ✨🐈 Nuzzle 
+# Nuzzle ✨🐈
 A data-oriented micro-framework for quickly creating static sites with Clojure and Hiccup.
 
 ## Design Goals
