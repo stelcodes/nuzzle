@@ -26,3 +26,17 @@
   (-> global-config
       (gen/global-config->site-index)
       (gen/export-site-index static-dir target-dir)))
+
+(defn start-server
+  "Starts a server using http-kit for development."
+  [{:keys [static-dir dev-port] :or {dev-port 5868} :as global-config}]
+  (log/info (str "✨🐈 Starting development server on port " dev-port))
+  (letfn [(maybe-wrap-resource [app static-dir]
+            (if static-dir
+              (do (log/info (str "Wrapping static resources directory: " static-dir))
+                (wrap-resource app static-dir))
+              (do (log/info "No static resource directory provided") app)))]
+    (-> (stasis/serve-pages #(gen/global-config->site-index global-config))
+        (maybe-wrap-resource static-dir)
+        (wrap-content-type)
+        (run-server {:port dev-port}))))
