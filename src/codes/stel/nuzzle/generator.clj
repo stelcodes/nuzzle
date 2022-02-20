@@ -25,3 +25,21 @@
         (throw (ex-info
                 (str "Site config file: " site-config " could not be read. Make sure the file is in your classpath and the contents are a valid EDN map.")
                 {:config site-config}))))))
+
+(defn create-tag-index
+  "Create a map of pages that are the tag index pages"
+  [site-config]
+  (->> site-config
+       ;; Create a map shaped like tag -> [page-ids]
+       (reduce-kv
+        (fn [m id {:keys [tags]}]
+          ;; merge-with is awesome!
+          (if tags (merge-with into m (zipmap tags (repeat [id]))) m))
+        {})
+       ;; Then change the val into a map with more info
+       (reduce-kv
+        (fn [m tag ids]
+          (assoc m [:tags tag] {:index ids
+                                :title (str "#" (name tag))
+                                :uri (str "/tags/" (name tag) "/")}))
+        {})))
