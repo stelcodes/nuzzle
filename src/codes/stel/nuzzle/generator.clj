@@ -158,3 +158,13 @@
                       page-list)) [])
        ;; Add id->info helper function to each page
        (map #(assoc % :id->info (gen-id->info realized-site-config)))))
+
+(defn generate-site-index
+  [page-list render-fn]
+  (->> page-list
+       (map (fn [page] (when-let [render-result (render-fn page)]
+                         [(:uri page)
+                          (fn [_]
+                            (str "<!DOCTYPE html>"
+                                 (hiccup/html render-result)))])))
+       (into {})))
