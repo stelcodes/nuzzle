@@ -1,0 +1,5 @@
+{:min-bb-version "0.4.0",
+ :tasks {format (when (seq *command-line-args*)
+                  (shell (str "zprint '{:style [:community :respect-bl :hiccup] :width 100}' -w "
+                              (clojure.string/join " " *command-line-args*)))),
+         repl (shell "rlwrap bb clojure -M:repl")}}
