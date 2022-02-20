@@ -183,3 +183,15 @@
         (fs/copy-tree assets target-dir))
       (log/info "No static directory provided"))
     (log/info (str "Build successful! Located in: " target-dir))))
+
+(defn global-config->site-index
+  "This function is a shortcut to get from a global-config to a site-index."
+  [{:keys [site-config remove-drafts? render-fn]}]
+  {:pre [(or (map? site-config) (string? site-config))
+         (boolean? remove-drafts?)
+         (fn? render-fn)]}
+  (-> site-config
+      (load-site-config)
+      (realize-site-config remove-drafts?)
+      (generate-page-list)
+      (generate-site-index render-fn)))
