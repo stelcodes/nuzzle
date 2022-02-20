@@ -168,3 +168,18 @@
                             (str "<!DOCTYPE html>"
                                  (hiccup/html render-result)))])))
        (into {})))
+
+(defn export-site-index
+  [site-index static-dir target-dir]
+  (when (and static-dir (not (io/resource static-dir)))
+    (throw (ex-info (str static-dir " is not a valid resource directory")
+                    {:static-dir static-dir})))
+  (let [assets (when static-dir (io/resource static-dir))]
+    (fs/create-dirs target-dir)
+    (stasis/empty-directory! target-dir)
+    (stasis/export-pages site-index target-dir)
+    (if assets
+      (do (log/info (str "Copying contents of static directory: " static-dir))
+        (fs/copy-tree assets target-dir))
+      (log/info "No static directory provided"))
+    (log/info (str "Build successful! Located in: " target-dir))))
