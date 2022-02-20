@@ -43,3 +43,24 @@
                                 :title (str "#" (name tag))
                                 :uri (str "/tags/" (name tag) "/")}))
         {})))
+
+(defn create-group-index
+  "Create a map of all pages that serve as a location-based index for other
+  pages. For example, if there is an entry in site-config with key
+  [:blog-posts :foo], then this function will create a map with a [:blog-posts]
+  entry and the value will be a map with :index [[:blog-posts :foo]]."
+  [config]
+  (->> config
+       ;; Create a map shaped like group -> [page-ids]
+       (reduce-kv
+        (fn [m id _]
+          (if (and (vector? id) (> (count id) 1))
+            (merge-with into m {(vec (butlast id)) [id]}) m))
+        {})
+       ;; Then change the val into a map with more info
+       (reduce-kv
+        (fn [m group-id ids]
+          (assoc m group-id {:index ids
+                             :title (util/kebab-case->title-case (last group-id))
+                             :uri (util/id->uri group-id)}))
+        {})))
