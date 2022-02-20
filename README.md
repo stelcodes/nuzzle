@@ -31,6 +31,7 @@ Nuzzle has a simple global configuration map:
 - `:render-fn`: a function that takes a single argument (map) and returns either `nil` or a Hiccup vector.
 - `:static-dir`: a path to a resource directory on the classpath that contains static assets that should be copied into the exported site.
 - `:target-dir`: a path to the directory that the site should be exported to. This path does not have to be on the classpath. Defaults to `dist`.
+- `:dev-port`: a port number for the development server to listen on. Defaults to 5868.
 
 
 ### `site-config`
