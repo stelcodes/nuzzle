@@ -64,3 +64,29 @@
                              :title (util/kebab-case->title-case (last group-id))
                              :uri (util/id->uri group-id)}))
         {})))
+
+(defn create-render-resource-fn
+  "Create a function that turned the resource into html, wrapped with the
+  hiccup raw identifier."
+  [id resource]
+  {:pre [(vector? id) (or (nil? resource) (string? resource))]}
+  (if-not resource
+    ;; If resource is not defined, just make a function that returns nil
+    (constantly nil)
+    (if-let [resource-file (io/resource resource)]
+      (let [ext (fs/extension resource-file)]
+        (cond
+         ;; If a html or svg file, just slurp it up
+         (or (= "html" ext) (= "svg" ext))
+         (fn render-html []
+           (hiccup/raw (slurp resource-file)))
+         ;; If markdown, convert to html
+         (or (= "markdown" ext) (= "md" ext))
+         (fn render-markdown []
+           (hiccup/raw (md-to-html-string (slurp resource-file))))
+         ;; If extension not recognized, throw Exception
+         :else (throw (ex-info (str "Resource " resource " filetype for id " id " not recognized")
+                      {:id id :resource resource}))))
+      ;; If a resource file is defined but it can't be found, throw an Exception
+      (throw (ex-info (str "Resource " resource " for id " id " not found")
+                      {:id id :resource resource})))))
