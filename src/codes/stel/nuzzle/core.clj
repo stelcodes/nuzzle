@@ -3,6 +3,7 @@
             [ring.middleware.resource :refer [wrap-resource]]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
+            [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [org.httpkit.server :refer [run-server]]
             [taoensso.timbre :as log]))
 
@@ -39,4 +40,5 @@
     (-> (stasis/serve-pages #(gen/global-config->site-index global-config))
         (maybe-wrap-resource static-dir)
         (wrap-content-type)
+        (wrap-stacktrace)
         (run-server {:port dev-port}))))
