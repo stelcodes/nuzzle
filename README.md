@@ -24,6 +24,7 @@ Nuzzle has a simple global configuration map:
   :render-fn <function>
   :static-dir <path>
   :target-dir <path>
+  :dev-port <int>
 }
 ```
 - `:site-config`: a path to an `.edn` resource on the classpath. Must be a map conforming to the `site-config` spec. This map defines the structure of the static site and is essential to all `nuzzle` functionality.
@@ -84,4 +85,63 @@ Here's an extremely simple rendering function:
     (= [] id) [:html [:h1 "Home Page"]]
     (= [:about] id) [:html [:h1 "About Page"]]
     :else [:html [:h1 title] (render-resource)]))
+```
+
+## A Complete Example
+`deps.edn`:
+```clojure
+{:deps {io.github.stelcodes/nuzzle {:git/url "https://github.com/stelcodes/nuzzle.git"
+                                    :git/sha "9f90e742e950cca1fed881fd482a44a1fbff1b33"}}
+ :paths ["src" "resources"]}
+```
+
+`resources/edn/site.edn`:
+```clojure
+{
+  [:about]
+  {:title "About"}
+
+  [:blog-posts :using-clojure]
+  {:title "Using Clojure"
+   :resource "markdown/using-clojure.md"
+   :tags [:clojure]}
+
+  [:blog-posts :learning-rust]
+  {:title "Learning Rust"
+   :resource "markdown/learning-rust.md"
+   :tags [:rust]}
+
+  [:blog-posts :how-to-install-fedora]
+  {:title "How to Install Fedora"
+   :resource "markdown/how-to-install-fedora.md"
+   :tags [:linux :fedora]
+   :draft? true}
+
+  :social
+  {:twitter "https://twitter.com/username"}
+}
+```
+
+`src/user.clj`:
+```clojure
+(ns user
+  (:require [codes.stel.nuzzle :as nuzz]))
+
+(defn render [{:keys [id title render-resource] :as page}]
+  (cond
+    (= [] id) [:html [:h1 "Home Page"]]
+    (= [:about] id) [:html [:h1 "About Page"]]
+    :else [:html [:h1 title] (render-resource)]))
+
+(def global-config {:site-config "edn/site.edn"
+                    :render-fn render})
+
+(defn start []
+  (nuzz/start-server global-config))
+
+(defn inspect []
+  (nuzz/inspect global-config))
+
+(defn export []
+  (nuzz/export global-config))
 ```
