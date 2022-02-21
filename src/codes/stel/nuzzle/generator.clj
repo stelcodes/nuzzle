@@ -65,46 +65,46 @@
                              :uri (util/id->uri group-id)}))
         {})))
 
-(defn create-render-resource-fn
-  "Create a function that turned the resource into html, wrapped with the
+(defn create-render-content-fn
+  "Create a function that turned the :content file into html, wrapped with the
   hiccup raw identifier."
-  [id resource]
-  {:pre [(vector? id) (or (nil? resource) (string? resource))]}
-  (if-not resource
-    ;; If resource is not defined, just make a function that returns nil
+  [id content]
+  {:pre [(vector? id) (or (nil? content) (string? content))]}
+  (if-not content
+    ;; If :content is not defined, just make a function that returns nil
     (constantly nil)
-    (if-let [resource-file (io/resource resource)]
-      (let [ext (fs/extension resource-file)]
+    (if-let [content-file (io/resource content)]
+      (let [ext (fs/extension content-file)]
         (cond
          ;; If a html or svg file, just slurp it up
          (or (= "html" ext) (= "svg" ext))
          (fn render-html []
-           (hiccup/raw (slurp resource-file)))
+           (hiccup/raw (slurp content-file)))
          ;; If markdown, convert to html
          (or (= "markdown" ext) (= "md" ext))
          (fn render-markdown []
-           (hiccup/raw (md-to-html-string (slurp resource-file))))
+           (hiccup/raw (md-to-html-string (slurp content-file))))
          ;; If extension not recognized, throw Exception
-         :else (throw (ex-info (str "Resource " resource " filetype for id " id " not recognized")
-                      {:id id :resource resource}))))
-      ;; If a resource file is defined but it can't be found, throw an Exception
-      (throw (ex-info (str "Resource " resource " for id " id " not found")
-                      {:id id :resource resource})))))
+         :else (throw (ex-info (str "Filetype of content file " content " for id " id " not recognized")
+                      {:id id :content content}))))
+      ;; If content-file is defined but it can't be found, throw an Exception
+      (throw (ex-info (str "Resource " content " for id " id " not found")
+                      {:id id :content content})))))
 
 (defn realize-pages
-  "Adds :uri, :render-resource, and :tags keys to each page in the
+  "Adds :uri, :render-content-fn, and :tags keys to each page in the
   site-config."
   [site-config]
   {:pre [map? site-config]}
   (reduce-kv
-   (fn [m id {:keys [resource uri tags] :as v}]
+   (fn [m id {:keys [content uri tags] :as v}]
      (if (vector? id)
        (assoc m id
               (merge v {;; Turn the basic tags vector into a vector of page ids
                         :tags (vec (map #(vector :tags %) tags))
                         :uri (or uri (util/id->uri id))
-                        :render-resource
-                        (create-render-resource-fn id resource)}))
+                        :render-content-fn
+                        (create-render-content-fn id content)}))
        (assoc m id v)))
    {} site-config))
 

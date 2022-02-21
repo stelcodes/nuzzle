@@ -71,8 +71,8 @@ If the `id` is a keyword like `:social`, the key-value pair is just extra inform
 
 If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a single page of the web site. For example, the key `[:about]` translates to the URI `"/about"` and the key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. From now on we'll call these values **pages**. Pages have some special keys:
 
-- `:resource`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:resource` key will have another key added called `:render-resource` whose value is a function that returns a string of raw html. Supported `:resource` filetypes are `.html`, `.md`, and `.markdown`.
-- `:tags`: a vector of keywords. Nuzzle takes the tags of all pages and adds tag index pages to the `site-config`.
+- `:content`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:content` key will have another key added called `:render-content-fn` whose value is a function that returns a string of raw html. Supported `:content` filetypes are `.html`, `.md`, and `.markdown`.
+- `:tags`: a vector of keywords. Each keyword is a tag. Nuzzle analyzes all the tags of all pages and adds tag index pages to the `site-config`. These tag index pages have ids like `[:tags :clojure]`.
 - `:draft?`: a boolean indicating whether this page is a draft or not. This key is used when the `global-config` has `:remove-drafts?` set to `true`.
 
 ## Rendering
@@ -80,11 +80,11 @@ The function defined in the `:render-fn` field in the `global-config` is the sin
 
 Here's an extremely simple rendering function:
 ```clojure
-(defn render [{:keys [id title render-resource] :as page}]
+(defn render [{:keys [id title render-content-fn] :as page}]
   (cond
     (= [] id) [:html [:h1 "Home Page"]]
     (= [:about] id) [:html [:h1 "About Page"]]
-    :else [:html [:h1 title] (render-resource)]))
+    :else [:html [:h1 title] (render-content-fn)]))
 ```
 
 ## A Complete Example
@@ -103,17 +103,17 @@ Here's an extremely simple rendering function:
 
   [:blog-posts :using-clojure]
   {:title "Using Clojure"
-   :resource "markdown/using-clojure.md"
+   :content "markdown/using-clojure.md"
    :tags [:clojure]}
 
   [:blog-posts :learning-rust]
   {:title "Learning Rust"
-   :resource "markdown/learning-rust.md"
+   :content "markdown/learning-rust.md"
    :tags [:rust]}
 
   [:blog-posts :how-to-install-fedora]
   {:title "How to Install Fedora"
-   :resource "markdown/how-to-install-fedora.md"
+   :content "markdown/how-to-install-fedora.md"
    :tags [:linux :fedora]
    :draft? true}
 
@@ -127,11 +127,11 @@ Here's an extremely simple rendering function:
 (ns user
   (:require [codes.stel.nuzzle :as nuzz]))
 
-(defn render [{:keys [id title render-resource] :as page}]
+(defn render [{:keys [id title render-content-fn] :as page}]
   (cond
     (= [] id) [:html [:h1 "Home Page"]]
     (= [:about] id) [:html [:h1 "About Page"]]
-    :else [:html [:h1 title] (render-resource)]))
+    :else [:html [:h1 title] (render-content-fn)]))
 
 (def global-config {:site-config "edn/site.edn"
                     :render-fn render})
