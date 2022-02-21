@@ -37,6 +37,7 @@
          (-> (gen/load-site-config global-config)
              (dissoc :render-fn)))))
 
+#_
 (deftest realize-site-config
   (is (= (gen/realize-site-config (:site-config global-config) (:remove-drafts? global-config)))))
 

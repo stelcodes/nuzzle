@@ -3,4 +3,4 @@
                   (shell (str "zprint '{:style [:community :respect-bl :hiccup] :width 100}' -w "
                               (clojure.string/join " " *command-line-args*)))),
          repl (shell "rlwrap bb clojure -M:repl")
-         test (shell "bb clojure -M:test -m kaocha.runner" *command-line-args*)}}
+         test (shell (clojure.string/join " " (into ["bb clojure -M:test -m kaocha.runner"] *command-line-args*)))}}
