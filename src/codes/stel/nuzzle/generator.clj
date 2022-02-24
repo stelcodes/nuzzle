@@ -92,17 +92,14 @@
                       {:id id :content content})))))
 
 (defn realize-pages
-  "Adds :uri, :render-content-fn, and :tags keys to each page in the
-  site-config."
+  "Adds :uri, :render-content-fn keys to each page in the site-config."
   [site-config]
   {:pre [map? site-config]}
   (reduce-kv
-   (fn [m id {:keys [content uri tags] :as v}]
+   (fn [m id {:keys [content uri] :as v}]
      (if (vector? id)
        (assoc m id
-              (merge v {;; Turn the basic tags vector into a vector of page ids
-                        :tags (vec (map #(vector :tags %) tags))
-                        :uri (or uri (util/id->uri id))
+              (merge v {:uri (or uri (util/id->uri id))
                         :render-content-fn
                         (create-render-content-fn id content)}))
        (assoc m id v)))
