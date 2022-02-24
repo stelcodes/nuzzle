@@ -12,7 +12,7 @@ Nuzzle aims to allow the user to...
 - enjoy extremely simple configuration requirements
 
 ## API
-All of Nuzzle's API is just three functions in the `codes.stel.nuzzle.core` namespace: `start-server`, `inspect` and `export`. All three of these functions accept one argument: the `global-config` map.
+All of Nuzzle's API is just three functions in the `codes.stel.nuzzle.api` namespace: `start-server`, `inspect` and `export`. All three of these functions accept one argument: the `global-config` map.
 - `start-server`: A helper function for development. Starts a `http-kit` server which builds each page from scratch upon each request. Returns a function to stop the server.
 - `inspect`: A helper function for development. Returns a modified `site-config` map with all the modifications Nuzzle makes before sending the page data to the user's rendering function. These additions include removing drafts, adding tag index pages, adding group index pages, and adding `:uri` and `:render-content-fn` keys where appropriate.
 - `export`: Exports the static site to disk, creating `:target-dir` if necessary. Copies the contents of `:static-dir` into `:target-dir`.

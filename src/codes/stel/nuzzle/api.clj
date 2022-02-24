@@ -1,4 +1,4 @@
-(ns codes.stel.nuzzle.core
+(ns codes.stel.nuzzle.api
   (:require [codes.stel.nuzzle.generator :as gen]
             [ring.middleware.resource :refer [wrap-resource]]
             [stasis.core :as stasis]
