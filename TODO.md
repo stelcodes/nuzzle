@@ -1,4 +1,4 @@
-- [ ] Change `:render-fn` to `:render-page`
+- [x] Change `:render-fn` to `:render-page`
 - [ ] Change `:render-content-fn` to `:render-content`
 - [ ] Give every page a `:render-content` function, defaulting to `(constantly nil)`
 - [ ] Add RSS feed using clj-rss

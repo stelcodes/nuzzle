@@ -5,7 +5,7 @@
 
 (def global-config {:site-config {[:blog :foo] {:title "Foo"} [:about] {:title "About"}}
                     :remove-drafts? false
-                    :render-fn (constantly [:h1 "Test"])
+                    :render-page (constantly [:h1 "Test"])
                     :static-dir "public"
                     :target-dir "/tmp/dist"})
 
@@ -35,7 +35,7 @@
           :static-dir "public",
           :target-dir "/tmp/dist"}
          (-> (gen/load-site-config global-config)
-             (dissoc :render-fn)))))
+             (dissoc :render-page)))))
 
 #_
 (deftest realize-site-config
@@ -44,7 +44,7 @@
 #_
 (deftest export
   (let [y {[:about] {:title "About"}}
-        x {:config y :include-drafts? true :render-fn (constantly "<h1>Test</h1>") :target-dir "/tmp/dist"}]
+        x {:config y :include-drafts? true :render-page (constantly "<h1>Test</h1>") :target-dir "/tmp/dist"}]
     (generator/export x)))
 
 (comment (run-tests))

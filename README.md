@@ -24,7 +24,7 @@ Nuzzle has a simple global configuration map that unlocks all of Nuzzle's functi
 {
   :site-config <path>
   :remove-drafts? <boolean>
-  :render-fn <function>
+  :render-page <function>
   :static-dir <path>
   :target-dir <path>
   :dev-port <int>
@@ -32,7 +32,7 @@ Nuzzle has a simple global configuration map that unlocks all of Nuzzle's functi
 ```
 - `:site-config`: a path to an `.edn` resource on the classpath. Must be a map conforming to the `site-config` spec. This map defines the structure and content of the static site.
 - `:remove-drafts?`: a boolean that indicates whether pages in the `site-config` map with `:draft? true` should be removed.
-- `:render-fn`: a function supplied by the user which is responsible for creating Hiccup for every page of the static site.
+- `:render-page`: a function supplied by the user which is responsible for creating Hiccup for every page of the static site.
 - `:static-dir`: a path to a resource directory on the classpath that contains static assets that should be copied into the exported site.
 - `:target-dir`: a path to the directory that the site should be exported to. This path does not have to be on the classpath. Defaults to `dist`.
 - `:dev-port`: a port number for the development server to listen on. Defaults to 5868.
@@ -70,7 +70,7 @@ Here's an example:
 
 Each key in this map is called an `id`. Each `id` can either be a keyword (`:social`) or a vector of keywords (`[:blog-posts :using-clojure]`).
 
-If the `id` is a keyword, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved while you're creating Hiccup inside the `:render-fn` function from our `global-config`.
+If the `id` is a keyword, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved while you're creating Hiccup inside the `:render-page` function from our `global-config`.
 
 If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a page of the web site. The key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. Cool right? From now on we'll call these **pages**. Pages have some special keys which are all optional:
 
@@ -82,14 +82,14 @@ If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a pag
 ### What is Hiccup?
 Hiccup is a method for representing HTML using Clojure datastructures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can simply use Clojure datastructures: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. As you can see, Hiccup is terse yet highly flexible. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
-### Creating a `:render-fn`
-In Nuzzle, all pages are transformed into Hiccup by a single function supplied by the user. This is the job of the `:render-fn` from the `global-config`. The user creates a single function that is capable of producing any page into Hiccup. This function takes a single argument (a map) and returns a vector of Hiccup.
+### Creating a `:render-page` Function
+In Nuzzle, all pages are transformed into Hiccup by a single function supplied by the user. This is the job of the `:render-page` function from the `global-config`. This function takes a single argument (a map) and returns a vector of Hiccup.
 
-> **Note:** Nuzzle puts the `id` of every page under the key `:id` before passing the page to the `:render-fn`.
+> **Note:** Nuzzle puts the `id` of every page under the key `:id` before passing the page to the `:render-page` function.
 
-Here's an extremely simple rendering function:
+Here's an extremely simple `:render-page` function:
 ```clojure
-(defn render [{:keys [id title render-content-fn] :as page}]
+(defn render-page [{:keys [id title render-content-fn] :as page}]
   (cond
     (= [] id) [:html [:h1 "Home Page"]]
     (= [:about] id) [:html [:h1 "About Page"]]

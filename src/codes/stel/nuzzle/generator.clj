@@ -157,9 +157,9 @@
        (map #(assoc % :id->info (gen-id->info realized-site-config)))))
 
 (defn generate-site-index
-  [page-list render-fn]
+  [page-list render-page]
   (->> page-list
-       (map (fn [page] (when-let [render-result (render-fn page)]
+       (map (fn [page] (when-let [render-result (render-page page)]
                          [(:uri page)
                           (fn [_]
                             (str "<!DOCTYPE html>"
@@ -183,12 +183,12 @@
 
 (defn global-config->site-index
   "This function is a shortcut to get from a global-config to a site-index."
-  [{:keys [site-config remove-drafts? render-fn]}]
+  [{:keys [site-config remove-drafts? render-page]}]
   {:pre [(or (map? site-config) (string? site-config))
          (boolean? remove-drafts?)
-         (fn? render-fn)]}
+         (fn? render-page)]}
   (-> site-config
       (load-site-config)
       (realize-site-config remove-drafts?)
       (generate-page-list)
-      (generate-site-index render-fn)))
+      (generate-site-index render-page)))
