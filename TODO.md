@@ -1,5 +1,7 @@
 - [x] Change `:render-fn` to `:render-page`
 - [x] Change `:render-content-fn` to `:render-content`
-- [ ] Give every page a `:render-content` function, defaulting to `(constantly nil)`
 - [ ] Add RSS feed using clj-rss
 - [ ] Do more research into other Clojure static site generators like Cryogen
+- [ ] Add server middleware to print out page map every page load
+- [ ] Change markdown parser to Cybermonday
+- [ ] Add more generator.clj tests
