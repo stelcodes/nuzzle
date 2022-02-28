@@ -20,7 +20,10 @@
 
                   [:about]
                   {:title "About"
-                   :content "markdown/about.md"}})
+                   :content "markdown/about.md"}
+
+                  :meta
+                  {:twitter "https://twitter/foobar"}})
 
 (def global-config {:site-config site-config
                     :remove-drafts? false
@@ -77,6 +80,37 @@
            (str (render-content))))
     (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
          (str ((gen/create-render-content-fn [:foo] "html/foo.html")))))))
+
+(deftest realize-pages
+  (let [realized-pages (gen/realize-pages site-config)
+        without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
+                                          {}
+                                          realized-pages)]
+    (doseq [[id info] realized-pages
+            :when (vector? id)]
+      (is (fn? (:render-content info))))
+    (is (= {[:blog :nuzzle-rocks]
+          {:title "10 Reasons Why Nuzzle Rocks",
+           :content "markdown/nuzzle-rocks.md",
+           :tags [:nuzzle],
+           :uri "/blog/nuzzle-rocks/"}
+          [:blog :why-nuzzle]
+          {:title "Why I Made Nuzzle",
+           :content "markdown/why-nuzzle.md",
+           :tags [:nuzzle],
+           :uri "/blog/why-nuzzle/"}
+          [:blog :favorite-color]
+          {:title "What's My Favorite Color? It May Suprise You.",
+           :content "markdown/favorite-color.md",
+           :tags [:colors],
+           :uri "/blog/favorite-color/"}
+          [:about]
+          {:title "About",
+           :content "markdown/about.md",
+           :uri "/about/"}
+          :meta
+          {:twitter "https://twitter/foobar"}}
+         without-render-content))))
 
 (deftest id->uri
   (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
