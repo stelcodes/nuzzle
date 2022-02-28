@@ -53,15 +53,21 @@
   (is (= "/about/" (util/id->uri [:about]))))
 
 (deftest create-group-index
-  (is (= (gen/create-group-index {[:blog :foo] {:title "Foo"} [:blog :archive :baz] {:title "Baz"} [:projects :bee] {:title "Bee"}})
-         {[:blog]
-          {:index [[:blog :foo]], :title "Blog", :uri "/blog/"},
-          [:blog :archive]
-          {:index [[:blog :archive :baz]],
+  (is (= {[:blog-posts]
+          {:index [[:blog-posts :foo]], :title "Blog Posts", :uri "/blog-posts/"},
+          [:blog-posts :archive]
+          {:index [[:blog-posts :archive :baz]],
            :title "Archive",
-           :uri "/blog/archive/"},
+           :uri "/blog-posts/archive/"},
           [:projects]
-          {:index [[:projects :bee]], :title "Projects", :uri "/projects/"}})))
+          {:index [[:projects :bee]], :title "Projects", :uri "/projects/"}}
+         (gen/create-group-index {[:blog-posts :foo] {:title "Foo"} [:blog-posts :archive :baz] {:title "Baz"} [:projects :bee] {:title "Bee"}})))
+  (is (= {[:blog]
+          {:index
+           [[:blog :nuzzle-rocks] [:blog :why-nuzzle] [:blog :favorite-color]],
+           :title "Blog",
+           :uri "/blog/"}}
+         (gen/create-group-index site-config))))
 
 (deftest load-site-config
   (is (= global-config
