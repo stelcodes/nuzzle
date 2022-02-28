@@ -69,6 +69,15 @@
            :uri "/blog/"}}
          (gen/create-group-index site-config))))
 
+(deftest create-render-content-fn
+  (let [{:keys [content]} (get site-config [:about])
+        render-content (gen/create-render-content-fn [:about] content)]
+    (is (fn? render-content))
+    (is (= "<h1>About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
+           (str (render-content))))
+    (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
+         (str ((gen/create-render-content-fn [:foo] "html/foo.html")))))))
+
 (deftest id->uri
   (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
   (is (= "/about/" (util/id->uri [:about]))))

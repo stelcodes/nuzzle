@@ -2,6 +2,7 @@
   (:require [babashka.fs :as fs]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
+            [clojure.string :as string]
             [codes.stel.nuzzle.hiccup :as hiccup]
             [codes.stel.nuzzle.util :as util]
             [markdown.core :refer [md-to-html-string]]
@@ -79,7 +80,7 @@
          ;; If a html or svg file, just slurp it up
          (or (= "html" ext) (= "svg" ext))
          (fn render-html []
-           (hiccup/raw (slurp content-file)))
+           (hiccup/raw (string/trim (slurp content-file))))
          ;; If markdown, convert to html
          (or (= "markdown" ext) (= "md" ext))
          (fn render-markdown []
