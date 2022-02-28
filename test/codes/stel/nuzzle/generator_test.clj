@@ -29,9 +29,24 @@
                     :target-dir "/tmp/nuzzle-test-dist"})
 
 (deftest create-tag-index
-  (is (= {[:tags :bar] {:index [[:blog :foo]], :title "#bar", :uri "/tags/bar/"},
-          [:tags :baz] {:index [[:blog :foo]], :title "#baz", :uri "/tags/baz/"}}
-         (gen/create-tag-index {[:blog :foo] {:tags [:bar :baz]} [:about] {} }) )))
+  (is (= {[:tags :bar]
+          {:index [[:blog :foo]],
+           :title "#bar",
+           :uri "/tags/bar/"},
+          [:tags :baz]
+          {:index [[:blog :foo]],
+           :title "#baz",
+           :uri "/tags/baz/"}}
+         (gen/create-tag-index {[:blog :foo] {:tags [:bar :baz]} [:about] {} }) ))
+  (is (= {[:tags :nuzzle]
+          {:index [[:blog :nuzzle-rocks] [:blog :why-nuzzle]],
+           :title "#nuzzle",
+           :uri "/tags/nuzzle/"},
+          [:tags :colors]
+          {:index [[:blog :favorite-color]],
+           :title "#colors",
+           :uri "/tags/colors/"}}
+         (gen/create-tag-index site-config))))
 
 (deftest id->uri
   (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
