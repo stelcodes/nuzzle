@@ -19,14 +19,21 @@
 (defn export
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
-  [{:keys [static-dir target-dir] :or {target-dir "dist"} :as global-config}]
+  [{:keys [site-config remove-drafts? static-dir target-dir render-page rss] :or {target-dir "dist"} :as global-config}]
   {:pre [(or (map? global-config) (string? global-config))
          (string? static-dir)
-         (string? target-dir)]}
+         (string? target-dir)
+         (map? rss)]}
   (log/info "🔨🐈 Exporting static site to disk")
-  (-> global-config
-      (gen/global-config->site-index)
-      (gen/export-site-index static-dir target-dir)))
+  (let [realized-site-config
+        (-> site-config
+            (gen/load-site-config)
+            (gen/realize-site-config remove-drafts?))]
+    (-> realized-site-config
+        (gen/generate-page-list)
+        (gen/generate-site-index render-page)
+        (gen/export-site-index static-dir target-dir))
+    (when rss (gen/create-rss-feed realized-site-config rss))))
 
 (defn start-server
   "Starts a server using http-kit for development."

@@ -13,6 +13,7 @@
            :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}},
                   :extra-paths ["test" "test-resources"]}}
  :deps {com.taoensso/timbre {:mvn/version "5.1.2"},
+        clj-rss/clj-rss {:mvn/version "0.3.0"}
         ring/ring-core {:mvn/version "1.9.5"} ,
         ring/ring-devel {:mvn/version "1.9.5"} ,
         http-kit/http-kit {:mvn/version "2.5.3"},

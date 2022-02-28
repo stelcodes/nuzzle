@@ -27,3 +27,12 @@
   (->> (string/split (name s) #"-")
        (map string/lower-case)
        (string/join " ")))
+
+(defn remove-nil-values
+  "Removes kv-pairs of a map where the value is nil."
+  [x]
+  {:pre [(map? x)]}
+  (reduce-kv
+   (fn [m k v] (if (nil? v) m (assoc m k v)))
+   {}
+   x))

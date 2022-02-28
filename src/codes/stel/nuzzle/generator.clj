@@ -1,5 +1,6 @@
 (ns codes.stel.nuzzle.generator
   (:require [babashka.fs :as fs]
+            [clj-rss.core :as rss]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as string]
@@ -166,6 +167,22 @@
                             (str "<!DOCTYPE html>"
                                  (hiccup/html render-result)))])))
        (into {})))
+
+(defn create-rss-feed
+  "Creates a string of XML that is a valid RSS feed"
+  ;; TODO: make sure that clj-rss baked in PermaLink=false is ok
+  [realized-site-config {:keys [author link] :as rss-opts}]
+  {:pre [(map? realized-site-config) (map? rss-opts) (string? author)]
+   :post [(string? %)]}
+  (apply rss/channel-xml
+         (dissoc rss-opts :author)
+         (->>
+          (for [[_ {:keys [uri title rss]}] realized-site-config]
+            (when rss
+              (-> {:title title :guid (str link uri) :author author}
+                  (merge (when (map? rss) rss))
+                  util/remove-nil-values)))
+          (remove nil?))))
 
 (defn export-site-index
   [site-index static-dir target-dir]
