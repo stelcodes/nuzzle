@@ -64,12 +64,8 @@
           {:index [[:projects :bee]], :title "Projects", :uri "/projects/"}})))
 
 (deftest load-site-config
-  (is (= {:site-config {[:blog :foo] {:title "Foo"}, [:about] {:title "About"}},
-          :remove-drafts? false,
-          :static-dir "public",
-          :target-dir "/tmp/dist"}
-         (-> (gen/load-site-config global-config)
-             (dissoc :render-page)))))
+  (is (= global-config
+         (gen/load-site-config global-config))))
 
 #_
 (deftest realize-site-config
