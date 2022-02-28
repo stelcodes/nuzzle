@@ -92,7 +92,7 @@
                       {:id id :content content})))))
 
 (defn realize-pages
-  "Adds :uri, :render-content-fn keys to each page in the site-config."
+  "Adds :uri, :render-content keys to each page in the site-config."
   [site-config]
   {:pre [map? site-config]}
   (reduce-kv
@@ -100,7 +100,7 @@
      (if (vector? id)
        (assoc m id
               (merge v {:uri (or uri (util/id->uri id))
-                        :render-content-fn
+                        :render-content
                         (create-render-content-fn id content)}))
        (assoc m id v)))
    {} site-config))

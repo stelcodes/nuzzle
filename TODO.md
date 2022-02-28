@@ -1,5 +1,5 @@
 - [x] Change `:render-fn` to `:render-page`
-- [ ] Change `:render-content-fn` to `:render-content`
+- [x] Change `:render-content-fn` to `:render-content`
 - [ ] Give every page a `:render-content` function, defaulting to `(constantly nil)`
 - [ ] Add RSS feed using clj-rss
 - [ ] Do more research into other Clojure static site generators like Cryogen

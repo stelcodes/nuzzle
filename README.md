@@ -14,7 +14,7 @@ Nuzzle aims to allow the user to...
 ## API
 All of Nuzzle's API is just three functions in the `codes.stel.nuzzle.api` namespace: `start-server`, `inspect` and `export`. All three of these functions accept one argument: the `global-config` map.
 - `start-server`: A helper function for development. Starts a `http-kit` server which builds each page from scratch upon each request. Returns a function to stop the server.
-- `inspect`: A helper function for development. Returns a modified `site-config` map with all the modifications Nuzzle makes before sending the page data to the user's rendering function. These additions include removing drafts, adding tag index pages, adding group index pages, and adding `:uri` and `:render-content-fn` keys where appropriate.
+- `inspect`: A helper function for development. Returns a modified `site-config` map with all the modifications Nuzzle makes before sending the page data to the user's rendering function. These additions include removing drafts, adding tag index pages, adding group index pages, and adding `:uri` and `:render-content` keys where appropriate.
 - `export`: Exports the static site to disk, creating `:target-dir` if necessary. Copies the contents of `:static-dir` into `:target-dir`.
 
 ## Configuration
@@ -74,7 +74,7 @@ If the `id` is a keyword, the key-value pair is just extra information about the
 
 If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a page of the web site. The key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. Cool right? From now on we'll call these **pages**. Pages have some special keys which are all optional:
 
-- `:content`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:content` key will have another key added called `:render-content-fn` whose value is a function that returns a string of raw html. Nuzzle figures out how to convert the resource to HTML based on the filetype extension. Supported `:content` filetypes are HTML: (`.html`) and Markdown (`.md`, `.markdown`) via [clj-markdown](https://github.com/yogthos/markdown-clj).
+- `:content`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:content` key will have another key added called `:render-content` whose value is a function that returns a string of raw html. Nuzzle figures out how to convert the resource to HTML based on the filetype extension. Supported `:content` filetypes are HTML: (`.html`) and Markdown (`.md`, `.markdown`) via [clj-markdown](https://github.com/yogthos/markdown-clj).
 - `:tags`: a vector of keywords. The keywords can be anything you like. Nuzzle analyzes all the tags of all pages and adds tag index pages to the `site-config`. For example, based on this `site-config`, Nuzzle will add these pages: `[:tags :clojure]`, `[:tags :rust]`, `[:tags :linux]`.
 - `:draft?`: a boolean indicating whether this page is a draft or not. Pages with `:draft? true` are removed when the `global-config` contains `:remove-drafts? true`.
 
@@ -89,9 +89,9 @@ In Nuzzle, all pages are transformed into Hiccup by a single function supplied b
 
 Here's an extremely simple `:render-page` function:
 ```clojure
-(defn render-page [{:keys [id title render-content-fn] :as page}]
+(defn render-page [{:keys [id title render-content] :as page}]
   (cond
     (= [] id) [:html [:h1 "Home Page"]]
     (= [:about] id) [:html [:h1 "About Page"]]
-    :else [:html [:h1 title] (render-content-fn)]))
+    :else [:html [:h1 title] (render-content)]))
 ```
