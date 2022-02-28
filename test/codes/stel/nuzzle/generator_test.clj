@@ -3,11 +3,30 @@
             [codes.stel.nuzzle.util :as util]
             [codes.stel.nuzzle.generator :as gen]))
 
-(def global-config {:site-config {[:blog :foo] {:title "Foo"} [:about] {:title "About"}}
+(def site-config {[:blog :nuzzle-rocks]
+                  {:title "10 Reasons Why Nuzzle Rocks"
+                   :content "markdown/nuzzle-rocks.md"
+                   :tags [:nuzzle]}
+
+                  [:blog :why-nuzzle]
+                  {:title "Why I Made Nuzzle"
+                   :content "markdown/why-nuzzle.md"
+                   :tags [:nuzzle]}
+
+                  [:blog :favorite-color]
+                  {:title "What's My Favorite Color? It May Suprise You."
+                   :content "markdown/favorite-color.md"
+                   :tags [:colors]}
+
+                  [:about]
+                  {:title "About"
+                   :content "markdown/about.md"}})
+
+(def global-config {:site-config site-config
                     :remove-drafts? false
                     :render-page (constantly [:h1 "Test"])
                     :static-dir "public"
-                    :target-dir "/tmp/dist"})
+                    :target-dir "/tmp/nuzzle-test-dist"})
 
 (deftest create-tag-index
   (is (= {[:tags :bar] {:index [[:blog :foo]], :title "#bar", :uri "/tags/bar/"},
