@@ -28,6 +28,10 @@
                     :static-dir "public"
                     :target-dir "/tmp/nuzzle-test-dist"})
 
+(deftest load-site-config
+  (is (= global-config
+         (gen/load-site-config global-config))))
+
 (deftest create-tag-index
   (is (= {[:tags :bar]
           {:index [[:blog :foo]],
@@ -48,10 +52,6 @@
            :uri "/tags/colors/"}}
          (gen/create-tag-index site-config))))
 
-(deftest id->uri
-  (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
-  (is (= "/about/" (util/id->uri [:about]))))
-
 (deftest create-group-index
   (is (= {[:blog-posts]
           {:index [[:blog-posts :foo]], :title "Blog Posts", :uri "/blog-posts/"},
@@ -69,9 +69,9 @@
            :uri "/blog/"}}
          (gen/create-group-index site-config))))
 
-(deftest load-site-config
-  (is (= global-config
-         (gen/load-site-config global-config))))
+(deftest id->uri
+  (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
+  (is (= "/about/" (util/id->uri [:about]))))
 
 #_
 (deftest realize-site-config
