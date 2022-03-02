@@ -1,5 +1,6 @@
 (ns codes.stel.nuzzle.api
-  (:require [codes.stel.nuzzle.generator :as gen]
+  (:require [babashka.fs :as fs]
+            [codes.stel.nuzzle.generator :as gen]
             [ring.middleware.resource :refer [wrap-resource]]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
@@ -19,21 +20,27 @@
 (defn export
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
-  [{:keys [site-config remove-drafts? static-dir target-dir render-page rss] :or {target-dir "dist"} :as global-config}]
+  [{:keys [site-config remove-drafts? static-dir target-dir render-page rss-opts]
+    :or {target-dir "dist"} :as global-config}]
   {:pre [(or (map? global-config) (string? global-config))
          (string? static-dir)
          (string? target-dir)
-         (map? rss)]}
+         (or (nil? rss-opts) (map? rss-opts))]}
   (log/info "🔨🐈 Exporting static site to disk")
   (let [realized-site-config
         (-> site-config
             (gen/load-site-config)
-            (gen/realize-site-config remove-drafts?))]
+            (gen/realize-site-config remove-drafts?))
+        rss-filename (or (:filename rss-opts) "rss.xml")
+        rss-file (fs/file target-dir rss-filename)
+        rss-feed (gen/create-rss-feed realized-site-config rss-opts)]
     (-> realized-site-config
         (gen/generate-page-list)
         (gen/generate-site-index render-page)
         (gen/export-site-index static-dir target-dir))
-    (when rss (gen/create-rss-feed realized-site-config rss))))
+    (when rss-feed
+      (do (log/info "📰🐈 Creating RSS file: " rss-filename)
+        (spit rss-file rss-feed)))))
 
 (defn start-server
   "Starts a server using http-kit for development."

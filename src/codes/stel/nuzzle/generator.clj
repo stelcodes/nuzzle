@@ -174,15 +174,16 @@
   [realized-site-config {:keys [author link] :as rss-opts}]
   {:pre [(map? realized-site-config) (map? rss-opts) (string? author)]
    :post [(string? %)]}
-  (apply rss/channel-xml
-         (dissoc rss-opts :author)
-         (->>
-          (for [[_ {:keys [uri title rss]}] realized-site-config]
-            (when rss
-              (-> {:title title :guid (str link uri) :author author}
-                  (merge (when (map? rss) rss))
-                  util/remove-nil-values)))
-          (remove nil?))))
+  (when rss-opts
+    (apply rss/channel-xml
+           (select-keys rss-opts [:title :description :link])
+           (->>
+            (for [{:keys [uri title rss]} (vals realized-site-config)]
+              (when rss
+                (-> {:title title :guid (str link uri) :author author}
+                    (merge (when (map? rss) rss))
+                    util/remove-nil-values)))
+            (remove nil?)))))
 
 (defn export-site-index
   [site-index static-dir target-dir]

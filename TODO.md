@@ -1,6 +1,6 @@
 - [x] Change `:render-fn` to `:render-page`
 - [x] Change `:render-content-fn` to `:render-content`
-- [ ] Add RSS feed using clj-rss
+- [x] Add RSS feed using clj-rss
 - [ ] Do more research into other Clojure static site generators like Cryogen
 - [ ] Add server middleware to print out page map every page load
 - [ ] Change markdown parser to Cybermonday
