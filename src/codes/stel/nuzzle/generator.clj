@@ -147,7 +147,9 @@
          (realize-pages))))
 
 (defn generate-page-list
+  "Creates a seq of maps which each represent a page in the website."
   [realized-site-config]
+  {:pre [(map? realized-site-config)] :post [(seq? %)]}
   (->> realized-site-config
        ;; If key is vector, then it is a page
        (reduce-kv (fn [page-list id v]
@@ -159,7 +161,10 @@
        (map #(assoc % :id->info (gen-id->info realized-site-config)))))
 
 (defn generate-site-index
+  "Creates a map where the keys are relative URIs and the values are maps
+  representing the web page. This datastructure is for the Stasis library."
   [page-list render-page]
+  {:pre [(seq? page-list) (fn? render-page)] :post [(map? %)]}
   (->> page-list
        (map (fn [page] (when-let [render-result (render-page page)]
                          [(:uri page)
