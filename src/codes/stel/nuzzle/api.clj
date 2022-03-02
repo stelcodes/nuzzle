@@ -1,7 +1,7 @@
 (ns codes.stel.nuzzle.api
   (:require [babashka.fs :as fs]
             [codes.stel.nuzzle.generator :as gen]
-            [ring.middleware.resource :refer [wrap-resource]]
+            [codes.stel.nuzzle.ring :as ring]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
@@ -44,15 +44,17 @@
 
 (defn start-server
   "Starts a server using http-kit for development."
-  [{:keys [static-dir dev-port] :or {dev-port 5868} :as global-config}]
+  [{:keys [static-dir dev-port remove-drafts? render-page site-config]
+    :or {dev-port 5868}}]
   (log/info (str "✨🐈 Starting development server on port " dev-port))
-  (letfn [(maybe-wrap-resource [app static-dir]
-            (if static-dir
-              (do (log/info (str "Wrapping static resources directory: " static-dir))
-                (wrap-resource app static-dir))
-              (do (log/info "No static resource directory provided") app)))]
-    (-> (stasis/serve-pages #(gen/global-config->site-index global-config))
-        (maybe-wrap-resource static-dir)
+  (when remove-drafts? (log/info "❌🐈 Removing drafts"))
+  (let [create-index #(-> site-config
+                          (gen/load-site-config)
+                          (gen/realize-site-config remove-drafts?)
+                          (gen/generate-page-list)
+                          (gen/generate-site-index render-page true))]
+    (-> (stasis/serve-pages create-index)
+        (ring/wrap-static-dir static-dir)
         (wrap-content-type)
         (wrap-stacktrace)
         (run-server {:port dev-port}))))
