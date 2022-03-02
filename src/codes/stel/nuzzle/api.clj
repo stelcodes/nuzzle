@@ -36,7 +36,7 @@
         rss-feed (gen/create-rss-feed realized-site-config rss-opts)]
     (-> realized-site-config
         (gen/generate-page-list)
-        (gen/generate-site-index render-page)
+        (gen/generate-site-index render-page false)
         (gen/export-site-index static-dir target-dir))
     (when rss-feed
       (do (log/info "📰🐈 Creating RSS file: " rss-filename)

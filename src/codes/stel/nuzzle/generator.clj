@@ -3,6 +3,7 @@
             [clj-rss.core :as rss]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
             [clojure.string :as string]
             [codes.stel.nuzzle.hiccup :as hiccup]
             [codes.stel.nuzzle.util :as util]
@@ -163,12 +164,15 @@
 (defn generate-site-index
   "Creates a map where the keys are relative URIs and the values are maps
   representing the web page. This datastructure is for the Stasis library."
-  [page-list render-page]
+  [page-list render-page debug?]
   {:pre [(seq? page-list) (fn? render-page)] :post [(map? %)]}
   (->> page-list
        (map (fn [page] (when-let [render-result (render-page page)]
                          [(:uri page)
                           (fn [_]
+                            (when debug?
+                              (log/info "Rendering page:\n"
+                                        (with-out-str (pprint page))))
                             (str "<!DOCTYPE html>"
                                  (hiccup/html render-result)))])))
        (into {})))
