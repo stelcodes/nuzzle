@@ -138,8 +138,8 @@
   {:pre [(map? site-config) (boolean? remove-drafts?)]}
   ;; Allow users to define their own overrides via deep-merge
   (let [site-config (if remove-drafts?
-                      (do (log/info "Removing drafts") (remove-drafts site-config))
-                      (do (log/info "Including drafts") site-config))]
+                      (remove-drafts site-config)
+                      site-config)]
     (->> site-config
          ;; Make sure there is a root index.html file
          (util/deep-merge {[] {:uri "/"}})
@@ -171,7 +171,7 @@
                          [(:uri page)
                           (fn [_]
                             (when debug?
-                              (log/info "Rendering page:\n"
+                              (log/info "⚡🐈 Rendering page:\n"
                                         (with-out-str (pprint page))))
                             (str "<!DOCTYPE html>"
                                  (hiccup/html render-result)))])))
@@ -203,9 +203,5 @@
     (fs/create-dirs target-dir)
     (stasis/empty-directory! target-dir)
     (stasis/export-pages site-index target-dir)
-    (if assets
-      (do (log/info (str "Copying contents of static directory: " static-dir))
-        (fs/copy-tree assets target-dir))
-      (log/info "No static directory provided"))
-    (log/info (str "Build successful! Located in: " target-dir))))
+    (when assets (fs/copy-tree assets target-dir))))
 

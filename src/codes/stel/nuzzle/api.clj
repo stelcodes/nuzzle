@@ -13,6 +13,8 @@
   drafts being optionally removed, the group and tag index pages being added,
   and :uri and :render-resource fields being added."
   [{:keys [site-config remove-drafts?]}]
+  (log/info "🔍🐈 Creating realized site config for inspection")
+  (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (-> site-config
       (gen/load-site-config)
       (gen/realize-site-config remove-drafts?)))
@@ -26,7 +28,9 @@
          (string? static-dir)
          (string? target-dir)
          (or (nil? rss-opts) (map? rss-opts))]}
-  (log/info "🔨🐈 Exporting static site to disk")
+  (log/info "🔨🐈 Exporting static site to:" target-dir)
+  (when remove-drafts? (log/info "❌🐈 Removing drafts"))
+  (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
   (let [realized-site-config
         (-> site-config
             (gen/load-site-config)
@@ -39,8 +43,9 @@
         (gen/generate-site-index render-page false)
         (gen/export-site-index static-dir target-dir))
     (when rss-feed
-      (do (log/info "📰🐈 Creating RSS file: " rss-filename)
-        (spit rss-file rss-feed)))))
+      (log/info "📰🐈 Creating RSS file:" rss-filename)
+      (spit rss-file rss-feed)))
+  (log/info "✅🐈 Export successful"))
 
 (defn start-server
   "Starts a server using http-kit for development."
@@ -48,6 +53,7 @@
     :or {dev-port 5868}}]
   (log/info (str "✨🐈 Starting development server on port " dev-port))
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
+  (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
   (let [create-index #(-> site-config
                           (gen/load-site-config)
                           (gen/realize-site-config remove-drafts?)
