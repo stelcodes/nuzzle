@@ -5,3 +5,4 @@
 - [ ] Add server middleware to print out page map every page load
 - [ ] Change markdown parser to Cybermonday
 - [ ] Add more generator.clj tests
+- [ ] Add symbol option for `:render-page`
