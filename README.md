@@ -32,6 +32,7 @@ The top-level map that unlocks all of Nuzzle's functionality:
   :site-config <path-or-fn> ; required
   :render-page <function>   ; required
   :static-dir <path>        ; defaults to nil (no static assset directory)
+  :rss-opts <map>           ; defaults to nil (no RSS feed)
   :remove-drafts? <boolean> ; defaults to false
   :target-dir <path>        ; defaults to "dist"
   :dev-port <int>           ; defaults to 5868
@@ -88,22 +89,22 @@ To reiterate, each key in this map is an `id`. An `id` can either be a vector of
 
 If the `id` is a **vector of keywords** like `[:blog-posts :using-clojure]`, it represents a **webpage**. The `id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. When the website is exported, this webpage will be located at `<target-dir>/blog-posts/using-clojure/index.html`. Webpage maps have some special keys which are all optional:
 
-- `:content`: A path to a resource file on the classpath that contains markup. Pages with a `:content` key will have another key added called `:render-content`, a function that returns a string of the markup content parsed and translated into HTML. Nuzzle figures out how to convert the resource to HTML based on the filetype suffix in the filename. Supported `:content` filetypes are HTML: (`.html`) and Markdown (`.md`, `.markdown`) via [clj-markdown](https://github.com/yogthos/markdown-clj).
+- `:content`: A path to a resource file on the classpath that contains markup. Nuzzle attaches a `:render-content` key to each webpage map. Maps without a `:content` key will have a `:render-content` function that returns `nil`. Maps with a `:content` key will have a `:render-content` function that returns the generated HTML from the markup file. Nuzzle figures out how to convert the resource to HTML based on the filename suffix. Supported `:content` filetypes are HTML: `.html` and Markdown: `.md`, `.markdown` via [clj-markdown](https://github.com/yogthos/markdown-clj).
 - `:tags`: A vector of keywords. Nuzzle analyzes all the tags of all pages and adds tag index pages to the `site-config`. For example, based on this `site-config`, Nuzzle will add these `id`s to the `site-config`: `[:tags :clojure]`, `[:tags :rust]`, `[:tags :linux]`. You can see what `id`s Nuzzle adds using the `codes.stel.nuzzle.api/inspect` function.
 - `:draft?`: A boolean indicating whether this page is a draft or not. When true and `:remove-drafts?` is also true, this webpage will not be shown.
 - `:rss`: A boolean indicating whether the webpage should be included in the optional RSS feed.
 - `:index`: A vector of `id`s. This key is included in all of the auto-generated subdirectory and tag index webpage maps Nuzzle creates on your behalf. Only include this key if you want to create index pages manually.
 
-If the `id` is a **keyword**, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved inside the `:render-page` later on.
+If the `id` is a **keyword**, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved inside the `:render-page` function later on.
 
-## Turning Pages into Hiccup
+## Creating markup with Hiccup
 ### What is Hiccup?
-Hiccup is a method for representing HTML using Clojure datastructures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can simply use Clojure datastructures: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
+Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can use Clojure data types: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. `nil` values are ignored. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
-### Creating a `:render-page` Function
-All webpages are transformed into Hiccup by a single function supplied by the user in the `global-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
+### Creating a basic `:render-page` function
+All webpages are transformed into Hiccup by a single function supplied by the user in the `global-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup. All strings in the Hiccup are escaped, so if you want to add a string of raw HTML, use the `codes.stel.nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
-> **Note:** Nuzzle puts the `id` of every webpage under the key `:id` before passing the map to the `:render-page` function.
+Nuzzle also adds a `:uri` key to each webpage map that contains the relative link to the webpage like `"/about/"` or `"blog-posts/using-clojure/"`. Nuzzle also adds the `id` of every webpage under the key `:id`. You can use the `:id` or `:uri` values to decide what Hiccup to return.
 
 Here's an example `:render-page` function:
 ```clojure
@@ -117,3 +118,33 @@ Here's an example `:render-page` function:
     (= [:about] id) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
     :else (layout title [:h1 title] (render-content)]))
 ```
+
+Here we see the `:render-content` function being used. This can always be safely called because Nuzzle guarantees that it will either return `nil` or some HTML from a file wrapped in the `codes.stel.nuzzle.hiccup/raw` wrapper.
+
+### Getting more data with `id->info`
+Along with `:render-content`, Nuzzle attaches another key to every webpage map: `:id->info`. It's value is a special function that accepts an `id` like `[:about]` and returns a webpage map corresponding to that `id`. If the `id` is not found, it will throw an `Exception`. `id->info` is all about convenience. We can use it to create index pages among many other things:
+
+```clojure
+(defn layout [title & body]
+  [:html [:head [:title title]]
+   (into [:body] body)])
+
+(defn render-index [{:keys [title index id->info]}]
+  (layout title
+          [:h1 (str "Index page for " title)]
+          (for [id index
+                :let [page (id->info id)]]
+            [:a {:href (:uri page)} (:title page)]))
+
+(defn render-page [{:keys [id title render-content] :as page}]
+  (cond
+    (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
+    (= [:about] id) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
+    (contains? page :index) (render-index page)
+    :else (layout title [:h1 title] (render-content)]))
+```
+
+A neat thing about `id->info` is that every webpage map returned will also have an `id->info` function attached to it, so any function that accepts a webpage map can rely on it being inside that map.
+
+## Generating an RSS feed
+Nuzzle comes with support for generating an RSS feed. (TODO)
