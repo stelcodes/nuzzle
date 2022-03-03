@@ -9,10 +9,10 @@
 ## Design Goals
 With Nuzzle you can...
 - create beautiful static websites
-- describe entire website structure declaratively inside an EDN map
-- plug in a single function that produces Hiccup to render every web page
+- describe the entire website structure declaratively inside an EDN map
+- plug in a single function that produces Hiccup to render every webpage
 - retrieve all website information while inside that function
-- include markdown, html files in webpage content
+- write content using markup languages (markdown, html)
 - create an RSS feed
 - tag webpages
 - create subdirectory and tag index web pages
@@ -54,7 +54,6 @@ Here's an annotated example:
   ;; Keys that are vectors define webpages
   [:about] ; <- This represents the URI "/about"
   {:title "About"} ; <- The value is a map of data associated with the webpage
-  ;; Only the :title is required
 
   [:blog-posts :using-clojure]
   {:title "Using Clojure"
@@ -99,18 +98,22 @@ If the `id` is a **keyword**, the key-value pair is just extra information about
 
 ## Turning Pages into Hiccup
 ### What is Hiccup?
-Hiccup is a method for representing HTML using Clojure datastructures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can simply use Clojure datastructures: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. As you can see, Hiccup is terse yet highly flexible. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
+Hiccup is a method for representing HTML using Clojure datastructures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can simply use Clojure datastructures: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
 ### Creating a `:render-page` Function
-In Nuzzle, all pages are transformed into Hiccup by a single function supplied by the user. This is the job of the `:render-page` function from the `global-config`. This function takes a single argument (a map) and returns a vector of Hiccup.
+All webpages are transformed into Hiccup by a single function supplied by the user in the `global-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
 
-> **Note:** Nuzzle puts the `id` of every page under the key `:id` before passing the page to the `:render-page` function.
+> **Note:** Nuzzle puts the `id` of every webpage under the key `:id` before passing the map to the `:render-page` function.
 
-Here's an extremely simple `:render-page` function:
+Here's an example `:render-page` function:
 ```clojure
+(defn layout [title & body]
+  [:html [:head [:title title]]
+   (into [:body] body)])
+
 (defn render-page [{:keys [id title render-content] :as page}]
   (cond
-    (= [] id) [:html [:h1 "Home Page"]]
-    (= [:about] id) [:html [:h1 "About Page"]]
-    :else [:html [:h1 title] (render-content)]))
+    (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
+    (= [:about] id) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
+    :else (layout title [:h1 title] (render-content)]))
 ```
