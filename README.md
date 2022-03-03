@@ -18,6 +18,9 @@ With Nuzzle you can...
 - create subdirectory and tag index web pages
 - set up a REPL-driven rapid feedback loop with built-in hot-reloading web server
 
+## Example
+Want to read some code? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build [this website](https://stel.codes).
+
 ## API
 All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace: `inspect`, `start-server`, and `export`. They all accept the same argument: the `global-config` map.
 - `inspect`: Returns a more fleshed-out version of the site configuration with Nuzzle's additions.
@@ -102,9 +105,11 @@ If the `id` is a **keyword**, the key-value pair is just extra information about
 Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can use Clojure data types: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. `nil` values are ignored. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
 ### Creating a basic `:render-page` function
-All webpages are transformed into Hiccup by a single function supplied by the user in the `global-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup. All strings in the Hiccup are escaped, so if you want to add a string of raw HTML, use the `codes.stel.nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
+All webpages are transformed into Hiccup by a single function supplied by the user in the `global-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
 
-Nuzzle also adds a `:uri` key to each webpage map that contains the relative link to the webpage like `"/about/"` or `"blog-posts/using-clojure/"`. Nuzzle also adds the `id` of every webpage under the key `:id`. You can use the `:id` or `:uri` values to decide what Hiccup to return.
+All strings in the Hiccup are escaped, so if you want to add a string of raw HTML, use the `codes.stel.nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
+
+Nuzzle adds a `:uri` key to each webpage map that contains the relative link to the webpage like `"/about/"`. Nuzzle also adds an `:id` key with the webpages `id` like `[:about]`. You can use the `:id`, `:uri`, or any other values to decide what Hiccup to return.
 
 Here's an example `:render-page` function:
 ```clojure
@@ -121,7 +126,7 @@ Here's an example `:render-page` function:
 
 Here we see the `:render-content` function being used. This can always be safely called because Nuzzle guarantees that it will either return `nil` or some HTML from a file wrapped in the `codes.stel.nuzzle.hiccup/raw` wrapper.
 
-### Getting more data with `id->info`
+### More data with `id->info`
 Along with `:render-content`, Nuzzle attaches another key to every webpage map: `:id->info`. It's value is a special function that accepts an `id` like `[:about]` and returns a webpage map corresponding to that `id`. If the `id` is not found, it will throw an `Exception`. `id->info` is all about convenience. We can use it to create index pages among many other things:
 
 ```clojure
@@ -136,9 +141,11 @@ Along with `:render-content`, Nuzzle attaches another key to every webpage map: 
                 :let [page (id->info id)]]
             [:a {:href (:uri page)} (:title page)]))
 
-(defn render-page [{:keys [id title render-content] :as page}]
+(defn render-page [{:keys [id title render-content id->info] :as page}]
   (cond
-    (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
+    (= [] id) (layout title [:h1 "Home Page"]
+                            [:a {:href (:uri (id->info [:about]))} "About"]
+                            [:a {:href (:twitter (id->info :social)} "Twitter"])
     (= [:about] id) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
     (contains? page :index) (render-index page)
     :else (layout title [:h1 title] (render-content)]))
