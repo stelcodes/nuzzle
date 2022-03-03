@@ -1,82 +1,101 @@
-# Nuzzle ✨🐈
-A data-oriented micro-framework for quickly creating static sites with Clojure and Hiccup.
+<p align="center">
+<img src="./assets/nuzzle2-with-text.svg" width="400">
+</p>
+<p align="center">
+✨ A data-oriented, REPL-driven static site generator for Clojure ✨
+</p>
+<hr>
 
 ## Design Goals
-Nuzzle aims to allow the user to...
-- describe a static web site with EDN
-- use Hiccup to make static web pages with minimal boilerplate
-- easily retrieve all website information while creating Hiccup
-- set up a REPL-based hot-reloading workflow quickly and easily
-- painlessly create subdirectory index pages
-- painlessly tag web pages and create tag index pages
-- enjoy extremely simple configuration requirements
+With Nuzzle you can...
+- create beautiful static websites
+- describe entire website structure declaratively inside an EDN map
+- plug in a single function that produces Hiccup to render every web page
+- retrieve all website information while inside that function
+- include markdown, html files in webpage content
+- create an RSS feed
+- tag webpages
+- create subdirectory and tag index web pages
+- set up a REPL-driven rapid feedback loop with built-in hot-reloading web server
 
 ## API
-All of Nuzzle's API is just three functions in the `codes.stel.nuzzle.api` namespace: `start-server`, `inspect` and `export`. All three of these functions accept one argument: the `global-config` map.
-- `start-server`: A helper function for development. Starts a `http-kit` server which builds each page from scratch upon each request. Returns a function to stop the server.
-- `inspect`: A helper function for development. Returns a modified `site-config` map with all the modifications Nuzzle makes before sending the page data to the user's rendering function. These additions include removing drafts, adding tag index pages, adding group index pages, and adding `:uri` and `:render-content` keys where appropriate.
-- `export`: Exports the static site to disk, creating `:target-dir` if necessary. Copies the contents of `:static-dir` into `:target-dir`.
+All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace: `inspect`, `start-server`, and `export`. They all accept the same argument: the `global-config` map.
+- `inspect`: Returns a more fleshed-out version of the site configuration with Nuzzle's additions.
+- `start-server`: Starts a web server (http-kit) that allows you to use a browser to preview the website. Builds each page from scratch upon each request. Gets a huge power boost when used inside an nREPL.
+- `export`: Exports the static site to disk.
 
 ## Configuration
-### `global-config`
-Nuzzle has a simple global configuration map that unlocks all of Nuzzle's functionality:
+### The `global-config` map
+The top-level map that unlocks all of Nuzzle's functionality:
 ```clojure
 {
-  :site-config <path>
-  :remove-drafts? <boolean>
-  :render-page <function>
-  :static-dir <path>
-  :target-dir <path>
-  :dev-port <int>
+  :site-config <path-or-fn> ; required
+  :render-page <function>   ; required
+  :static-dir <path>        ; defaults to nil (no static assset directory)
+  :remove-drafts? <boolean> ; defaults to false
+  :target-dir <path>        ; defaults to "dist"
+  :dev-port <int>           ; defaults to 5868
 }
 ```
-- `:site-config`: a path to an `.edn` resource on the classpath. Must be a map conforming to the `site-config` spec. This map defines the structure and content of the static site.
-- `:remove-drafts?`: a boolean that indicates whether pages in the `site-config` map with `:draft? true` should be removed.
-- `:render-page`: a function supplied by the user which is responsible for creating Hiccup for every page of the static site.
-- `:static-dir`: a path to a resource directory on the classpath that contains static assets that should be copied into the exported site.
-- `:target-dir`: a path to the directory that the site should be exported to. This path does not have to be on the classpath. Defaults to `dist`.
+- `:site-config`: A path to an EDN file on the classpath. That EDN is expected to be a `site-config` map.
+- `:remove-drafts?`: A boolean that indicates whether pages marked as a draft should be removed.
+- `:render-page`: A function supplied by the user which is responsible for creating Hiccup for every page of the static site.
+- `:static-dir`: A path to a resource directory on the classpath that contains static assets that should be copied into the exported site.
+- `:target-dir`: A path to the directory that the site should be exported to. This path does not have to be on the classpath. Defaults to `dist`.
 - `:dev-port`: a port number for the development server to listen on. Defaults to 5868.
 
 
-### `site-config`
-A `site-config` is an EDN map that is kept in an file in your `resources` directory or somwhere else on your classpath.
+### The `site-config` map
+A `site-config` is an EDN map that defines all the webpages in the website. Nuzzle called each key in this map an `id`.
 
-Here's an example:
+Here's an annotated example:
 ```clojure
 {
-  [:about]
-  {:title "About"}
+  ;; Keys that are vectors define webpages
+  [:about] ; <- This represents the URI "/about"
+  {:title "About"} ; <- The value is a map of data associated with the webpage
+  ;; Only the :title is required
 
   [:blog-posts :using-clojure]
   {:title "Using Clojure"
-   :resource "markdown/using-clojure.md"
+   ;; The special :content key points to a markup file to include
+   :content "markdown/using-clojure.md"
+   ;; The special :tags key tells Nuzzle about webpage tags
    :tags [:clojure]}
 
   [:blog-posts :learning-rust]
   {:title "How I Got Started Learning Rust"
-   :resource "markdown/learning-rust.md"
+   :content "markdown/learning-rust.md"
    :tags [:rust]
-   :draft? true}
+   ;; The special :draft? key tells Nuzzle which webpages are drafts
+   :draft? true
+   ;; The special :rss key tells Nuzzle to include the webpage in the RSS XML file
+   :rss true}
 
   [:blog-posts :clojure-on-fedora]
   {:title "How to Install Clojure on Fedora"
-   :resource "markdown/clojure-on-fedora.md"
-   :tags [:linux :clojure]}
+   :content "markdown/clojure-on-fedora.md"
+   :tags [:linux :clojure]
+   ;; Webpage maps are open, you can include any other data you like
+   :foobar "baz"}
 
+  ;; Keyword keys do not represent webpages, just extra data about the website
   :social
-  {:twitter "https://twitter.com/username"}
+  {:twitter "https://twitter.com/username"} ; <- This will be easy to retrieve later
 }
 ```
 
-Each key in this map is called an `id`. Each `id` can either be a keyword (`:social`) or a vector of keywords (`[:blog-posts :using-clojure]`).
+To reiterate, each key in this map is an `id`. An `id` can either be a vector of keywords: `[:blog-posts :using-clojure]` or a keyword: `:social`.
 
-If the `id` is a keyword, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved while you're creating Hiccup inside the `:render-page` function from our `global-config`.
+If the `id` is a **vector of keywords** like `[:blog-posts :using-clojure]`, it represents a **webpage**. The `id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. When the website is exported, this webpage will be located at `<target-dir>/blog-posts/using-clojure/index.html`. Webpage maps have some special keys which are all optional:
 
-If the `id` is a vector like `[:blog-posts :using-clojure]`, it represents a page of the web site. The key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. Cool right? From now on we'll call these **pages**. Pages have some special keys which are all optional:
+- `:content`: A path to a resource file on the classpath that contains markup. Pages with a `:content` key will have another key added called `:render-content`, a function that returns a string of the markup content parsed and translated into HTML. Nuzzle figures out how to convert the resource to HTML based on the filetype suffix in the filename. Supported `:content` filetypes are HTML: (`.html`) and Markdown (`.md`, `.markdown`) via [clj-markdown](https://github.com/yogthos/markdown-clj).
+- `:tags`: A vector of keywords. Nuzzle analyzes all the tags of all pages and adds tag index pages to the `site-config`. For example, based on this `site-config`, Nuzzle will add these `id`s to the `site-config`: `[:tags :clojure]`, `[:tags :rust]`, `[:tags :linux]`. You can see what `id`s Nuzzle adds using the `codes.stel.nuzzle.api/inspect` function.
+- `:draft?`: A boolean indicating whether this page is a draft or not. When true and `:remove-drafts?` is also true, this webpage will not be shown.
+- `:rss`: A boolean indicating whether the webpage should be included in the optional RSS feed.
+- `:index`: A vector of `id`s. This key is included in all of the auto-generated subdirectory and tag index webpage maps Nuzzle creates on your behalf. Only include this key if you want to create index pages manually.
 
-- `:content`: a path to a resource file on the classpath that contains the page's contents. Pages with a `:content` key will have another key added called `:render-content` whose value is a function that returns a string of raw html. Nuzzle figures out how to convert the resource to HTML based on the filetype extension. Supported `:content` filetypes are HTML: (`.html`) and Markdown (`.md`, `.markdown`) via [clj-markdown](https://github.com/yogthos/markdown-clj).
-- `:tags`: a vector of keywords. The keywords can be anything you like. Nuzzle analyzes all the tags of all pages and adds tag index pages to the `site-config`. For example, based on this `site-config`, Nuzzle will add these pages: `[:tags :clojure]`, `[:tags :rust]`, `[:tags :linux]`.
-- `:draft?`: a boolean indicating whether this page is a draft or not. Pages with `:draft? true` are removed when the `global-config` contains `:remove-drafts? true`.
+If the `id` is a **keyword**, the key-value pair is just extra information about the site. It has no effect on the website structure. It can easily be retrieved inside the `:render-page` later on.
 
 ## Turning Pages into Hiccup
 ### What is Hiccup?
