@@ -5,7 +5,7 @@
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
-            [org.httpkit.server :refer [run-server]]
+            [org.httpkit.server :as http]
             [taoensso.timbre :as log]))
 
 (defn inspect
@@ -63,4 +63,4 @@
         (ring/wrap-static-dir static-dir)
         (wrap-content-type)
         (wrap-stacktrace)
-        (run-server {:port dev-port}))))
+        (http/run-server {:port dev-port}))))
