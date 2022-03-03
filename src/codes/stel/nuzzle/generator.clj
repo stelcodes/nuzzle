@@ -189,7 +189,7 @@
            (->>
             (for [{:keys [uri title rss]} (vals realized-site-config)]
               (when rss
-                (-> {:title title :guid (str link uri) :author author}
+                (-> {:title (or title "Untitled") :guid (str link uri) :author author}
                     (merge (when (map? rss) rss))
                     util/remove-nil-values)))
             (remove nil?)))))
