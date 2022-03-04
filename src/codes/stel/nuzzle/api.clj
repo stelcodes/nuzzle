@@ -12,7 +12,7 @@
   "Allows the user to inspect the site-config after modifications such as the
   drafts being optionally removed, the group and tag index pages being added,
   and :uri and :render-resource fields being added."
-  [{:keys [site-config remove-drafts?]}]
+  [{:keys [site-config remove-drafts?] :or {remove-drafts? false}}]
   (log/info "🔍🐈 Creating realized site config for inspection")
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (-> site-config
@@ -23,7 +23,7 @@
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
   [{:keys [site-config remove-drafts? static-dir target-dir render-page rss-opts]
-    :or {target-dir "dist"} :as global-config}]
+    :or {target-dir "dist" remove-drafts? false} :as global-config}]
   {:pre [(or (map? global-config) (string? global-config))
          (string? static-dir)
          (string? target-dir)
@@ -50,7 +50,7 @@
 (defn start-server
   "Starts a server using http-kit for development."
   [{:keys [static-dir dev-port remove-drafts? render-page site-config]
-    :or {dev-port 5868}}]
+    :or {dev-port 5868 remove-drafts? false}}]
   (log/info (str "✨🐈 Starting development server on port " dev-port))
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
