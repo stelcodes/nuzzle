@@ -1,12 +1,12 @@
 (ns codes.stel.nuzzle.api
   (:require [babashka.fs :as fs]
             [codes.stel.nuzzle.generator :as gen]
+            [codes.stel.nuzzle.log :as log]
             [codes.stel.nuzzle.ring :as ring]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
-            [org.httpkit.server :as http]
-            [taoensso.timbre :as log]))
+            [org.httpkit.server :as http]))
 
 (defn inspect
   "Allows the user to inspect the site-config after modifications such as the

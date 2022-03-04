@@ -6,10 +6,10 @@
             [clojure.pprint :refer [pprint]]
             [clojure.string :as string]
             [codes.stel.nuzzle.hiccup :as hiccup]
+            [codes.stel.nuzzle.log :as log]
             [codes.stel.nuzzle.util :as util]
             [markdown.core :refer [md-to-html-string]]
-            [stasis.core :as stasis]
-            [taoensso.timbre :as log]))
+            [stasis.core :as stasis]))
 
 (defn load-site-config
   "Turn the site-config into a map. It can be defined as a map or a string. If
