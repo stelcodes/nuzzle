@@ -1,4 +1,5 @@
-(ns codes.stel.nuzzle.log)
+(ns codes.stel.nuzzle.log
+  (:require [clojure.string :as string]))
 
 (defn log-time []
   (let [now (java.time.LocalDateTime/now)
@@ -6,7 +7,7 @@
     (.format now formatter)))
 
 (defn info [& strs]
-  (println (apply str (log-time) " INFO " strs)))
+  (println (str (log-time) " INFO " (string/join \space strs))))
 
-(comment (info "test"))
+(comment (info "test" "ok"))
 
