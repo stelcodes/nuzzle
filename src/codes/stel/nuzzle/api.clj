@@ -24,8 +24,10 @@
   the :target-dir after the web pages have been exported."
   [{:keys [site-config remove-drafts? static-dir target-dir render-page rss-opts]
     :or {target-dir "dist" remove-drafts? false} :as global-config}]
-  {:pre [(or (map? global-config) (string? global-config))
-         (string? static-dir)
+  {:pre [(map? global-config)
+         (string? site-config)
+         (or (nil? static-dir) (string? static-dir))
+         (fn? render-page)
          (string? target-dir)
          (or (nil? rss-opts) (map? rss-opts))]}
   (log/info "🔨🐈 Exporting static site to:" target-dir)
@@ -50,7 +52,12 @@
 (defn start-server
   "Starts a server using http-kit for development."
   [{:keys [static-dir dev-port remove-drafts? render-page site-config]
-    :or {dev-port 5868 remove-drafts? false}}]
+    :or {dev-port 5868 remove-drafts? false} :as global-config}]
+  {:pre [(map? global-config)
+         (string? site-config)
+         (or (nil? static-dir) (string? static-dir))
+         (fn? render-page)
+         (int? dev-port)]}
   (log/info (str "✨🐈 Starting development server on port " dev-port))
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
