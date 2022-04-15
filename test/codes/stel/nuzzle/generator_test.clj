@@ -6,7 +6,7 @@
 
 (def site-config-path "test-resources/edn/site-config.edn")
 
-(def global-config {:site-config site-config-path
+(def nuzzle-config {:site-config site-config-path
                     :remove-drafts? false
                     :render-page (constantly [:h1 "Test"])
                     :rss-opts {:title "Foo's blog"
@@ -110,11 +110,11 @@
   (let [realized-site-config (gen/realize-site-config site-config false)]
     (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel><atom:link href=\"https://foobar.com\" rel=\"self\" type=\"application/rss+xml\"/><title>Foo's blog</title><description>Rants about foo and thoughts about bar</description><link>https://foobar.com</link><generator>clj-rss</generator><item><title>Why I Made Nuzzle</title><guid isPermaLink=\"false\">https://foobar.com/blog/why-nuzzle/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>What's My Favorite Color? It May Suprise You.</title><guid isPermaLink=\"false\">https://foobar.com/blog/favorite-color/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>10 Reasons Why Nuzzle Rocks</title><guid isPermaLink=\"false\">https://foobar.com/blog/nuzzle-rocks/</guid><author>foo@bar.com (Foo Bar)</author></item></channel></rss>"
            (gen/create-rss-feed
-            realized-site-config (:rss-opts global-config))))))
+            realized-site-config (:rss-opts nuzzle-config))))))
 
 #_
 (deftest realize-site-config
-  (is (= (gen/realize-site-config (:site-config global-config) (:remove-drafts? global-config)))))
+  (is (= (gen/realize-site-config (:site-config nuzzle-config) (:remove-drafts? nuzzle-config)))))
 
 #_
 (deftest export

@@ -23,8 +23,8 @@
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
   [{:keys [site-config remove-drafts? static-dir target-dir render-page rss-opts]
-    :or {target-dir "dist" remove-drafts? false} :as global-config}]
-  {:pre [(map? global-config)
+    :or {target-dir "dist" remove-drafts? false} :as nuzzle-config}]
+  {:pre [(map? nuzzle-config)
          (string? site-config)
          (or (nil? static-dir) (string? static-dir))
          (fn? render-page)
@@ -52,8 +52,8 @@
 (defn start-server
   "Starts a server using http-kit for development."
   [{:keys [static-dir dev-port remove-drafts? render-page site-config]
-    :or {dev-port 5868 remove-drafts? false} :as global-config}]
-  {:pre [(map? global-config)
+    :or {dev-port 5868 remove-drafts? false} :as nuzzle-config}]
+  {:pre [(map? nuzzle-config)
          (string? site-config)
          (or (nil? static-dir) (string? static-dir))
          (fn? render-page)

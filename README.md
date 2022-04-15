@@ -24,13 +24,13 @@ With Nuzzle you can...
 Want to read some code? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build [this website](https://stel.codes).
 
 ## API
-All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace: `inspect`, `start-server`, and `export`. They all accept the same argument: the `global-config` map.
+All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace: `inspect`, `start-server`, and `export`. They all accept the same argument: the `nuzzle-config` map.
 - `inspect`: Returns a more fleshed-out version of the site configuration with Nuzzle's additions.
 - `start-server`: Starts a web server (http-kit) that allows you to use a browser to preview the website. Builds each page from scratch upon each request. Gets a huge power boost when used inside an nREPL.
 - `export`: Exports the static site to disk.
 
 ## Configuration
-### The `global-config` map
+### The `nuzzle-config` map
 The top-level map that unlocks all of Nuzzle's functionality:
 ```clojure
 {
@@ -107,7 +107,7 @@ If the `id` is a **keyword**, the key-value pair is just extra information about
 Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). Instead of using clunky raw HTML strings that are hard to modify like `"<section id="blog"><h1 class="big">Foo</h1></section>"`, we can use Clojure data types: `[:section {:id "blog"} [:h1 {:class "big"} "Foo"]]`. The basic idea is that all HTML tags are represented as vectors beginning with a keyword that defines the tag's name. After the keyword we can optionally include a map that holds the tag's attributes. We can nest elements by putting a vector inside of another vector. `nil` values are ignored. There is also a shorthand for writing `class` and `id` attributes: `[:section#blog [:h1.big "Foo"]]`. For more information about Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
 ### Creating a basic `:render-page` function
-All webpages are transformed into Hiccup by a single function supplied by the user in the `global-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
+All webpages are transformed into Hiccup by a single function supplied by the user in the `nuzzle-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
 
 All strings in the Hiccup are escaped, so if you want to add a string of raw HTML, use the `codes.stel.nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
