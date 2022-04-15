@@ -29,30 +29,19 @@ All of Nuzzle's functionality is conveniently wrapped up with just three functio
 - `start-server`: Starts a web server (http-kit) that allows you to use a browser to preview the website. Builds each page from scratch upon each request. Gets a huge power boost when used inside an nREPL.
 - `export`: Exports the static site to disk.
 
-## Configuration
-### The `nuzzle-config` map
-The top-level map that unlocks all of Nuzzle's functionality:
+To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
 ```clojure
-{
-  :site-config <path>       ; required
-  :render-page <function>   ; required
-  :static-dir <path>        ; defaults to nil (no static assset directory)
-  :rss-opts <map>           ; defaults to nil (no RSS feed)
-  :remove-drafts? <boolean> ; defaults to false
-  :target-dir <path>        ; defaults to "dist"
-  :dev-port <int>           ; defaults to 5868
-}
+:site-config    ; A path to an EDN file containing a map conforming to the site-config spec. Required.
+:render-page    ; A function responsible for creating Hiccup for every webpage listed in the site-config. Required.
+:static-dir     ; A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
+:target-dir     ; A path to a directory to put the exported site into. Defaults to `dist`.
+:rss-opts       ; A map with RSS feed options. Defaults to nil (no RSS feed).
+:remove-drafts? ; A boolean that indicates whether pages marked as a draft should be removed. Defaults to false.
+:dev-port       ; A port number for the development server to listen on. Defaults to 5868.
 ```
-- `:site-config`: A path to an EDN file. Must be a `site-config` map.
-- `:remove-drafts?`: A boolean that indicates whether pages marked as a draft should be removed.
-- `:render-page`: A function supplied by the user which is responsible for creating Hiccup for every page of the static site.
-- `:static-dir`: A path to a resource directory on the classpath that contains static assets that should be copied into the exported site.
-- `:target-dir`: A path to the directory that the site should be exported to. This path does not have to be on the classpath. Defaults to `dist`.
-- `:dev-port`: a port number for the development server to listen on. Defaults to 5868.
 
-
-### The `site-config` map
-A `site-config` is an EDN map that defines all the webpages in the website. Nuzzle called each key in this map an `id`.
+## The `site-config`
+The path  `site-config` is an EDN map that defines all the webpages in the website. Nuzzle called each key in this map an `id`.
 
 Here's an annotated example:
 ```clojure
@@ -90,7 +79,7 @@ Here's an annotated example:
 }
 ```
 
-To reiterate, each key in this map is an `id`. An `id` can either be a vector of keywords: `[:blog-posts :using-clojure]` or a keyword: `:social`.
+To reiterate, each key in the `site-config` map can either be a vector of keywords: `[:blog-posts :using-clojure]` or a keyword: `:social`. Nuzzle calls these keys `id`s.
 
 If the `id` is a **vector of keywords** like `[:blog-posts :using-clojure]`, it represents a **webpage**. The `id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"`. When the website is exported, this webpage will be located at `<target-dir>/blog-posts/using-clojure/index.html`. Webpage maps have some special keys which are all optional:
 
