@@ -12,22 +12,19 @@
             [stasis.core :as stasis]))
 
 (defn load-site-config
-  "Turn the site-config into a map. It can be defined as a map or a string. If
-  it is a string, it should be a path to an edn resource. Attempt to load that
-  resource and make sure it as a map."
+  "Turn the site-config into a map. It should be a path to an edn file. Load
+  that file make sure it as a map."
   [site-config]
-  {:pre [(or (map? site-config) (string? site-config))] :post [(map? %)]}
-  (if (map? site-config)
-    site-config
-    (try
-      (-> site-config
-          (io/resource)
-          (slurp)
-          (edn/read-string))
-      (catch Throwable _
-        (throw (ex-info
-                (str "Site config file: " site-config " could not be read. Make sure the file is in your classpath and the contents are a valid EDN map.")
-                {:config site-config}))))))
+  {:pre [(string? site-config)] :post [(map? %)]}
+  (try
+    (-> site-config
+        (io/file)
+        (slurp)
+        (edn/read-string))
+    (catch Throwable _
+      (throw (ex-info
+              (str "Site config file: " site-config " could not be read. Make sure the file exists and the contents are a valid EDN map.")
+              {:config site-config})))))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"

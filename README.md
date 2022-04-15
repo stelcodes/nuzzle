@@ -34,7 +34,7 @@ All of Nuzzle's functionality is conveniently wrapped up with just three functio
 The top-level map that unlocks all of Nuzzle's functionality:
 ```clojure
 {
-  :site-config <path-or-fn> ; required
+  :site-config <path>       ; required
   :render-page <function>   ; required
   :static-dir <path>        ; defaults to nil (no static assset directory)
   :rss-opts <map>           ; defaults to nil (no RSS feed)
@@ -43,7 +43,7 @@ The top-level map that unlocks all of Nuzzle's functionality:
   :dev-port <int>           ; defaults to 5868
 }
 ```
-- `:site-config`: A path to an EDN file on the classpath. That EDN is expected to be a `site-config` map.
+- `:site-config`: A path to an EDN file. Must be a `site-config` map.
 - `:remove-drafts?`: A boolean that indicates whether pages marked as a draft should be removed.
 - `:render-page`: A function supplied by the user which is responsible for creating Hiccup for every page of the static site.
 - `:static-dir`: A path to a resource directory on the classpath that contains static assets that should be copied into the exported site.

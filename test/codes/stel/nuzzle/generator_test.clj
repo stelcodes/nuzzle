@@ -1,34 +1,12 @@
 (ns codes.stel.nuzzle.generator-test
   (:require [clojure.test :refer [deftest is run-tests]]
+            [clojure.edn :as edn]
             [codes.stel.nuzzle.util :as util]
             [codes.stel.nuzzle.generator :as gen]))
 
-(def site-config {[:blog :nuzzle-rocks]
-                  {:title "10 Reasons Why Nuzzle Rocks"
-                   :content "markdown/nuzzle-rocks.md"
-                   :rss true
-                   :tags [:nuzzle]}
+(def site-config-path "test-resources/edn/site-config.edn")
 
-                  [:blog :why-nuzzle]
-                  {:title "Why I Made Nuzzle"
-                   :content "markdown/why-nuzzle.md"
-                   :rss true
-                   :tags [:nuzzle]}
-
-                  [:blog :favorite-color]
-                  {:title "What's My Favorite Color? It May Suprise You."
-                   :content "markdown/favorite-color.md"
-                   :rss true
-                   :tags [:colors]}
-
-                  [:about]
-                  {:title "About"
-                   :content "markdown/about.md"}
-
-                  :meta
-                  {:twitter "https://twitter/foobar"}})
-
-(def global-config {:site-config site-config
+(def global-config {:site-config site-config-path
                     :remove-drafts? false
                     :render-page (constantly [:h1 "Test"])
                     :rss-opts {:title "Foo's blog"
@@ -38,9 +16,11 @@
                     :static-dir "public"
                     :target-dir "/tmp/nuzzle-test-dist"})
 
+(def site-config (gen/load-site-config site-config-path))
+
 (deftest load-site-config
-  (is (= global-config
-         (gen/load-site-config global-config))))
+  (is (= (edn/read-string (slurp site-config-path))
+         site-config)))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
