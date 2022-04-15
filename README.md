@@ -6,6 +6,8 @@
 </p>
 <hr>
 
+> **WARNING**: Nuzzle is in the alpha stage. Expect API breakages.
+
 ## Design Goals
 With Nuzzle you can...
 - create beautiful static websites
