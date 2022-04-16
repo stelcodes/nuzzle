@@ -10,7 +10,8 @@
 (defn id->uri
   [id]
   {:pre [(vector? id)]}
-  (str "/" (string/join "/" (map name id)) "/"))
+  (if (= [] id) "/"
+    (str "/" (string/join "/" (map name id)) "/")))
 
 (defn kebab-case->title-case
   [s]
