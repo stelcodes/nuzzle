@@ -25,14 +25,14 @@ Want to read some code? Check out [this repo](https://github.com/stelcodes/dev-b
 
 ## Nuzzle's API
 All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace:
-- `inspect`: Returns a more fleshed-out version of the site configuration with Nuzzle's additions.
+- `inspect`: Returns a more fleshed-out version of the site data with Nuzzle's additions.
 - `start-server`: Starts a web server (http-kit) with a live preview the website. Builds each page from scratch upon each request. Use in a REPL session for hot-reloading.
 - `export`: Exports the static site to disk.
 
 To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
 ```clojure
-:site-config    ; A path to an EDN file containing a map conforming to the site-config spec. Required.
-:render-page    ; A function responsible for creating Hiccup for every webpage listed in the site-config. Required.
+:site-data    ; A path to an EDN file containing a map conforming to the site-data spec. Required.
+:render-page    ; A function responsible for creating Hiccup for every webpage listed in the site-data. Required.
 :static-dir     ; A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
 :target-dir     ; A path to a directory to put the exported site into. Defaults to `dist`.
 :rss-opts       ; A map with RSS feed options. Defaults to nil (no RSS feed).
@@ -40,8 +40,8 @@ To keep things simple, all three functions have the exact same signature. They a
 :dev-port       ; A port number for the development server to listen on. Defaults to 5868.
 ```
 
-## The Site Config
-The `site-config` EDN file contains a map defines all the webpages in the website, plus any extra information you may need. Each key in the `site-config` map can either be a vector of keywords or a singular keyword.
+## Site Data
+The `site-data` EDN file contains a map defines all the webpages in the website, plus any extra information you may need. Each key in the `site-data` map can either be a vector of keywords or a singular keyword.
 
 If the key is a **vector of keywords**, it represents a typical **webpage**. The key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<target-dir>/blog-posts/using-clojure/index.html`. The associated value must be a map. We'll refer to these as *webpage maps*.
 
@@ -89,12 +89,12 @@ Here's an annotated example:
 ### Special Keys in Webpage Maps
 Nuzzle recognizes some special keys in webpage maps which have side-effects:
 - `:content`: A path to a file that contains markup. Nuzzle decided what kind of markup it is based on the filename suffix. Supported filetypes are HTML: `.html` and Markdown: `.md`, `.markdown`. Nuzzle will add a function that renders the markup under the key `:render-content`.
-- `:tags`: A vector of keywords. For each unique tag in the website, Nuzzle will add a tag index page to the `site-config` map under the key `[:tags <tag>]`.
+- `:tags`: A vector of keywords. For each unique tag in the website, Nuzzle will add a tag index page to the `site-data` map under the key `[:tags <tag>]`.
 - `:draft?`: A boolean indicating whether this page is a draft or not. When true and `:remove-drafts?` from the top-level config is also true, this webpage will not be passed to your `render-page` function.
 - `:rss`: A boolean indicating whether the webpage should be included in the optional RSS feed.
 
-## How Nuzzle Transforms the Site Config
-You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site config, applies some transformations, and then sends each webpage map to your page rendering function.
+## How Nuzzle Transforms the Site Data
+You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, applies some transformations, and then sends each webpage map to your page rendering function.
 
 Nuzzle's process can be visualized like so:
 ```
@@ -113,7 +113,7 @@ Nuzzle adds these keys to every webpage map:
 - `:uri`: the path of the webpage from the website's root, (ex `"/blog-posts/learning-clojure/"`)
 - `:render-content`: A function that renders the page's markup or returns `nil`.
 - `:id`: The key (vector of keywords) associated with the webpage map.
-- `:id->info`: A function that takes any `id` from the site config and returns the corresponding value.
+- `:id->info`: A function that takes any `id` from the site data and returns the corresponding value.
 
 ### Adding Index Pages
 Often you'll want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to these pages. We'll call these subdirectory index pages. Another common pattern is associating tags with webpages and having tag index pages like `"/tags/clojure"` that links to all your webpages about Clojure. We'll call these tag index pages. Nuzzle adds both subdirectory and tag index pages automatically for all subdirectories and tags present in your site data. It's up to you whether to render them or not in your page rendering function.

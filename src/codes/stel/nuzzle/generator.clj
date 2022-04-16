@@ -11,25 +11,25 @@
             [markdown.core :refer [md-to-html-string]]
             [stasis.core :as stasis]))
 
-(defn load-site-config
-  "Turn the site-config into a map. It should be a path to an edn file. Load
+(defn load-site-data
+  "Turn the site-data into a map. It should be a path to an edn file. Load
   that file make sure it as a map."
-  [site-config]
-  {:pre [(string? site-config)] :post [(map? %)]}
+  [site-data]
+  {:pre [(string? site-data)] :post [(map? %)]}
   (try
-    (-> site-config
+    (-> site-data
         (io/file)
         (slurp)
         (edn/read-string))
     (catch Throwable _
       (throw (ex-info
-              (str "Site config file: " site-config " could not be read. Make sure the file exists and the contents are a valid EDN map.")
-              {:config site-config})))))
+              (str "Site data file: " site-data " could not be read. Make sure the file exists and the contents are a valid EDN map.")
+              {:path site-data})))))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
-  [site-config]
-  (->> site-config
+  [site-data]
+  (->> site-data
        ;; Create a map shaped like tag -> [page-ids]
        (reduce-kv
         (fn [m id {:keys [tags]}]
@@ -46,11 +46,11 @@
 
 (defn create-group-index
   "Create a map of all pages that serve as a location-based index for other
-  pages. For example, if there is an entry in site-config with key
+  pages. For example, if there is an entry in site-data with key
   [:blog-posts :foo], then this function will create a map with a [:blog-posts]
   entry and the value will be a map with :index [[:blog-posts :foo]]."
-  [config]
-  (->> config
+  [site-data]
+  (->> site-data
        ;; Create a map shaped like group -> [page-ids]
        (reduce-kv
         (fn [m id _]
@@ -92,9 +92,9 @@
                       {:id id :content content})))))
 
 (defn realize-pages
-  "Adds :uri, :render-content keys to each page in the site-config."
-  [site-config]
-  {:pre [map? site-config]}
+  "Adds :uri, :render-content keys to each page in the site-data."
+  [site-data]
+  {:pre [map? site-data]}
   (reduce-kv
    (fn [m id {:keys [content uri] :as v}]
      (if (vector? id)
@@ -103,52 +103,52 @@
                         :render-content
                         (create-render-content-fn id content)}))
        (assoc m id v)))
-   {} site-config))
+   {} site-data))
 
 (defn gen-id->info
-  "Generate the helper function id->info from the realized-site-config. This
+  "Generate the helper function id->info from the realized-site-data. This
   function takes a page id (vector of 0 or more keywords) and returns the page
   information with added key :id->info with value id->info function attached."
-  [realized-site-config]
-  {:pre [(map? realized-site-config)] :post [(fn? %)]}
+  [realized-site-data]
+  {:pre [(map? realized-site-data)] :post [(fn? %)]}
   (fn id->info [id]
-    (if-let [entity (get realized-site-config id)]
+    (if-let [entity (get realized-site-data id)]
       (assoc entity :id->info id->info)
       (throw (ex-info (str "id->info error: id " id " not found")
                       {:id id})))))
 
 (defn remove-drafts
-  "Remove page entries from site-config map if they are marked as a draft with
+  "Remove page entries from site-data map if they are marked as a draft with
   :draft? true kv pair."
-  [site-config]
+  [site-data]
   (reduce-kv
    (fn [m id {:keys [draft?] :as v}]
      (if (and (vector? id) draft?)
        m
        (assoc m id v)))
    {}
-   site-config))
+   site-data))
 
-(defn realize-site-config
-  "Creates fully realized site-config datastructure with or without drafts."
-  [site-config remove-drafts?]
-  {:pre [(map? site-config) (boolean? remove-drafts?)]}
+(defn realize-site-data
+  "Creates fully realized site-data datastructure with or without drafts."
+  [site-data remove-drafts?]
+  {:pre [(map? site-data) (boolean? remove-drafts?)]}
   ;; Allow users to define their own overrides via deep-merge
-  (let [site-config (if remove-drafts?
-                      (remove-drafts site-config)
-                      site-config)]
-    (->> site-config
+  (let [site-data (if remove-drafts?
+                      (remove-drafts site-data)
+                      site-data)]
+    (->> site-data
          ;; Make sure there is a root index.html file
          (util/deep-merge {[] {:uri "/"}})
-         (util/deep-merge (create-group-index site-config))
-         (util/deep-merge (create-tag-index site-config))
+         (util/deep-merge (create-group-index site-data))
+         (util/deep-merge (create-tag-index site-data))
          (realize-pages))))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."
-  [realized-site-config]
-  {:pre [(map? realized-site-config)] :post [(seq? %)]}
-  (->> realized-site-config
+  [realized-site-data]
+  {:pre [(map? realized-site-data)] :post [(seq? %)]}
+  (->> realized-site-data
        ;; If key is vector, then it is a page
        (reduce-kv (fn [page-list id v]
                     (if (vector? id)
@@ -156,7 +156,7 @@
                       (conj page-list (assoc v :id id))
                       page-list)) [])
        ;; Add id->info helper function to each page
-       (map #(assoc % :id->info (gen-id->info realized-site-config)))))
+       (map #(assoc % :id->info (gen-id->info realized-site-data)))))
 
 (defn generate-site-index
   "Creates a map where the keys are relative URIs and the values are maps
@@ -177,14 +177,14 @@
 (defn create-rss-feed
   "Creates a string of XML that is a valid RSS feed"
   ;; TODO: make sure that clj-rss baked in PermaLink=false is ok
-  [realized-site-config {:keys [author link] :as rss-opts}]
-  {:pre [(map? realized-site-config) (map? rss-opts) (string? author)]
+  [realized-site-data {:keys [author link] :as rss-opts}]
+  {:pre [(map? realized-site-data) (map? rss-opts) (string? author)]
    :post [(string? %)]}
   (when rss-opts
     (apply rss/channel-xml
            (select-keys rss-opts [:title :description :link])
            (->>
-            (for [{:keys [uri title rss]} (vals realized-site-config)]
+            (for [{:keys [uri title rss]} (vals realized-site-data)]
               (when rss
                 (-> {:title (or title "Untitled") :guid (str link uri) :author author}
                     (merge (when (map? rss) rss))

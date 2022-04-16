@@ -4,9 +4,9 @@
             [codes.stel.nuzzle.util :as util]
             [codes.stel.nuzzle.generator :as gen]))
 
-(def site-config-path "test-resources/edn/site-config.edn")
+(def site-data-path "test-resources/edn/site-data.edn")
 
-(def nuzzle-config {:site-config site-config-path
+(def nuzzle-config {:site-data site-data-path
                     :remove-drafts? false
                     :render-page (constantly [:h1 "Test"])
                     :rss-opts {:title "Foo's blog"
@@ -16,11 +16,11 @@
                     :static-dir "public"
                     :target-dir "/tmp/nuzzle-test-dist"})
 
-(def site-config (gen/load-site-config site-config-path))
+(def site-data (gen/load-site-data site-data-path))
 
-(deftest load-site-config
-  (is (= (edn/read-string (slurp site-config-path))
-         site-config)))
+(deftest load-site-data
+  (is (= (edn/read-string (slurp site-data-path))
+         site-data)))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
@@ -40,7 +40,7 @@
           {:index [[:blog :favorite-color]],
            :title "#colors",
            :uri "/tags/colors/"}}
-         (gen/create-tag-index site-config))))
+         (gen/create-tag-index site-data))))
 
 (deftest create-group-index
   (is (= {[:blog-posts]
@@ -57,10 +57,10 @@
            [[:blog :nuzzle-rocks] [:blog :why-nuzzle] [:blog :favorite-color]],
            :title "Blog",
            :uri "/blog/"}}
-         (gen/create-group-index site-config))))
+         (gen/create-group-index site-data))))
 
 (deftest create-render-content-fn
-  (let [{:keys [content]} (get site-config [:about])
+  (let [{:keys [content]} (get site-data [:about])
         render-content (gen/create-render-content-fn [:about] content)]
     (is (fn? render-content))
     (is (= "<h1>About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
@@ -69,7 +69,7 @@
          (str ((gen/create-render-content-fn [:foo] "html/foo.html")))))))
 
 (deftest realize-pages
-  (let [realized-pages (gen/realize-pages site-config)
+  (let [realized-pages (gen/realize-pages site-data)
         without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
                                           {}
                                           realized-pages)]
@@ -107,14 +107,14 @@
   (is (= "/about/" (util/id->uri [:about]))))
 
 (deftest create-rss-feed
-  (let [realized-site-config (gen/realize-site-config site-config false)]
+  (let [realized-site-data (gen/realize-site-data site-data false)]
     (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel><atom:link href=\"https://foobar.com\" rel=\"self\" type=\"application/rss+xml\"/><title>Foo's blog</title><description>Rants about foo and thoughts about bar</description><link>https://foobar.com</link><generator>clj-rss</generator><item><title>Why I Made Nuzzle</title><guid isPermaLink=\"false\">https://foobar.com/blog/why-nuzzle/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>What's My Favorite Color? It May Suprise You.</title><guid isPermaLink=\"false\">https://foobar.com/blog/favorite-color/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>10 Reasons Why Nuzzle Rocks</title><guid isPermaLink=\"false\">https://foobar.com/blog/nuzzle-rocks/</guid><author>foo@bar.com (Foo Bar)</author></item></channel></rss>"
            (gen/create-rss-feed
-            realized-site-config (:rss-opts nuzzle-config))))))
+            realized-site-data (:rss-opts nuzzle-config))))))
 
 #_
-(deftest realize-site-config
-  (is (= (gen/realize-site-config (:site-config nuzzle-config) (:remove-drafts? nuzzle-config)))))
+(deftest realize-site-data
+  (is (= (gen/realize-site-data (:site-data nuzzle-config) (:remove-drafts? nuzzle-config)))))
 
 #_
 (deftest export

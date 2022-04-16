@@ -7,4 +7,4 @@
 - [ ] Add more generator.clj tests
 - [ ] Add symbol option for `:render-page`
 - [ ] Change `id->info` to `key->value`
-- [ ] Change `site-config` to `site-data`
+- [x] Change `site-config` to `site-data`

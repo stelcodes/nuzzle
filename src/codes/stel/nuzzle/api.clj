@@ -9,23 +9,23 @@
             [org.httpkit.server :as http]))
 
 (defn inspect
-  "Allows the user to inspect the site-config after modifications such as the
+  "Allows the user to inspect the site-data after modifications such as the
   drafts being optionally removed, the group and tag index pages being added,
   and :uri and :render-resource fields being added."
-  [{:keys [site-config remove-drafts?] :or {remove-drafts? false}}]
-  (log/info "🔍🐈 Creating realized site config for inspection")
+  [{:keys [site-data remove-drafts?] :or {remove-drafts? false}}]
+  (log/info "🔍🐈 Creating realized site data for inspection")
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
-  (-> site-config
-      (gen/load-site-config)
-      (gen/realize-site-config remove-drafts?)))
+  (-> site-data
+      (gen/load-site-data)
+      (gen/realize-site-data remove-drafts?)))
 
 (defn export
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
-  [{:keys [site-config remove-drafts? static-dir target-dir render-page rss-opts]
+  [{:keys [site-data remove-drafts? static-dir target-dir render-page rss-opts]
     :or {target-dir "dist" remove-drafts? false} :as nuzzle-config}]
   {:pre [(map? nuzzle-config)
-         (string? site-config)
+         (string? site-data)
          (or (nil? static-dir) (string? static-dir))
          (fn? render-page)
          (string? target-dir)
@@ -33,14 +33,14 @@
   (log/info "🔨🐈 Exporting static site to:" target-dir)
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
-  (let [realized-site-config
-        (-> site-config
-            (gen/load-site-config)
-            (gen/realize-site-config remove-drafts?))
+  (let [realized-site-data
+        (-> site-data
+            (gen/load-site-data)
+            (gen/realize-site-data remove-drafts?))
         rss-filename (or (:filename rss-opts) "rss.xml")
         rss-file (fs/file target-dir rss-filename)
-        rss-feed (gen/create-rss-feed realized-site-config rss-opts)]
-    (-> realized-site-config
+        rss-feed (gen/create-rss-feed realized-site-data rss-opts)]
+    (-> realized-site-data
         (gen/generate-page-list)
         (gen/generate-site-index render-page false)
         (gen/export-site-index static-dir target-dir))
@@ -51,19 +51,19 @@
 
 (defn start-server
   "Starts a server using http-kit for development."
-  [{:keys [static-dir dev-port remove-drafts? render-page site-config]
+  [{:keys [static-dir dev-port remove-drafts? render-page site-data]
     :or {dev-port 5868 remove-drafts? false} :as nuzzle-config}]
   {:pre [(map? nuzzle-config)
-         (string? site-config)
+         (string? site-data)
          (or (nil? static-dir) (string? static-dir))
          (fn? render-page)
          (int? dev-port)]}
   (log/info (str "✨🐈 Starting development server on port " dev-port))
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
-  (let [create-index #(-> site-config
-                          (gen/load-site-config)
-                          (gen/realize-site-config remove-drafts?)
+  (let [create-index #(-> site-data
+                          (gen/load-site-data)
+                          (gen/realize-site-data remove-drafts?)
                           (gen/generate-page-list)
                           (gen/generate-site-index render-page true))]
     (-> (stasis/serve-pages create-index)
