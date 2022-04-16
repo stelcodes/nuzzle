@@ -19,7 +19,7 @@
 (def site-data (gen/load-site-data site-data-path))
 
 (deftest load-site-data
-  (is (= (edn/read-string (slurp site-data-path))
+  (is (= (gen/convert-site-data-to-map (edn/read-string (slurp site-data-path)))
          site-data)))
 
 (deftest create-tag-index
@@ -76,31 +76,33 @@
     (doseq [[id info] realized-pages
             :when (vector? id)]
       (is (fn? (:render-content info))))
-    (is (= {[:blog :nuzzle-rocks]
-          {:title "10 Reasons Why Nuzzle Rocks",
-           :content "markdown/nuzzle-rocks.md",
-           :rss true
-           :tags [:nuzzle],
-           :uri "/blog/nuzzle-rocks/"}
-          [:blog :why-nuzzle]
-          {:title "Why I Made Nuzzle",
-           :content "markdown/why-nuzzle.md",
-           :rss true
-           :tags [:nuzzle],
-           :uri "/blog/why-nuzzle/"}
-          [:blog :favorite-color]
-          {:title "What's My Favorite Color? It May Suprise You.",
-           :content "markdown/favorite-color.md",
-           :rss true
-           :tags [:colors],
-           :uri "/blog/favorite-color/"}
-          [:about]
-          {:title "About",
-           :content "markdown/about.md",
-           :uri "/about/"}
-          :meta
-          {:twitter "https://twitter/foobar"}}
-         without-render-content))))
+    (is (= {[]
+            {:uri "/"}
+            [:blog :nuzzle-rocks]
+            {:title "10 Reasons Why Nuzzle Rocks",
+             :content "markdown/nuzzle-rocks.md",
+             :rss true
+             :tags [:nuzzle],
+             :uri "/blog/nuzzle-rocks/"}
+            [:blog :why-nuzzle]
+            {:title "Why I Made Nuzzle",
+             :content "markdown/why-nuzzle.md",
+             :rss true
+             :tags [:nuzzle],
+             :uri "/blog/why-nuzzle/"}
+            [:blog :favorite-color]
+            {:title "What's My Favorite Color? It May Suprise You.",
+             :content "markdown/favorite-color.md",
+             :rss true
+             :tags [:colors],
+             :uri "/blog/favorite-color/"}
+            [:about]
+            {:title "About",
+             :content "markdown/about.md",
+             :uri "/about/"}
+            :meta
+            {:twitter "https://twitter/foobar"}}
+           without-render-content))))
 
 (deftest id->uri
   (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))

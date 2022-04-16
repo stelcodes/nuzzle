@@ -31,7 +31,7 @@ All of Nuzzle's functionality is conveniently wrapped up with just three functio
 
 To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
 ```clojure
-:site-data    ; A path to an EDN file containing a map conforming to the site-data spec. Required.
+:site-data      ; A path to an EDN file containing data about the website. Required.
 :render-page    ; A function responsible for creating Hiccup for every webpage listed in the site-data. Required.
 :static-dir     ; A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
 :target-dir     ; A path to a directory to put the exported site into. Defaults to `dist`.
@@ -41,32 +41,30 @@ To keep things simple, all three functions have the exact same signature. They a
 ```
 
 ## Site Data
-The `site-data` EDN file contains a map defines all the webpages in the website, plus any extra information you may need. Each key in the `site-data` map can either be a vector of keywords or a singular keyword.
+Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It should be a vector of maps. Each map must have the key `:id`. The value of `:id` will descibes what kind of data that map holds.
 
-If the key is a **vector of keywords**, it represents a typical **webpage**. The key `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<target-dir>/blog-posts/using-clojure/index.html`. The associated value must be a map. We'll refer to these as *webpage maps*.
+If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<target-dir>/blog-posts/using-clojure/index.html`. We'll refer to these as *webpage maps*.
 
-If the key is a singular **keyword**, the corresponding value can be of any type and is just extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-page` function later on. The value can be anything you'd like.
+If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-page` function later on.
 
 Here's an annotated example:
 ```clojure
-{
+[
   ;; The homepage (required)
-  [] ; <- This represents the URI "/"
-  {}
+  {:id []} ; <- This represents the URI "/"
 
-  ;; Keys that are vectors define webpages
-  [:about] ; <- This represents the URI "/about"
-  {:title "About"} ; <- The value is a map of data associated with the webpage
+  {:id [:about] ; <- This represents the URI "/about"
+   :title "About"} ; <- Add a title if you'd like
 
-  [:blog-posts :using-clojure]
-  {:title "Using Clojure"
-   ;; The special :content key points to a markup file to include
+  {:id [:blog-posts :using-clojure]
+   :title "Using Clojure"
+   ;; The special :content key points to a markup file
    :content "markdown/using-clojure.md"
    ;; The special :tags key tells Nuzzle about webpage tags
    :tags [:clojure]}
 
-  [:blog-posts :learning-rust]
-  {:title "How I Got Started Learning Rust"
+  {:id [:blog-posts :learning-rust]
+   :title "How I Got Started Learning Rust"
    :content "markdown/learning-rust.md"
    :tags [:rust]
    ;; The special :draft? key tells Nuzzle which webpages are drafts
@@ -74,16 +72,17 @@ Here's an annotated example:
    ;; The special :rss key tells Nuzzle to include the webpage in the RSS XML file
    :rss true}
 
-  [:blog-posts :clojure-on-fedora]
-  {:title "How to Install Clojure on Fedora"
+  {:id [:blog-posts :clojure-on-fedora]
+   :title "How to Install Clojure on Fedora"
    :content "markdown/clojure-on-fedora.md"
    :tags [:linux :clojure]
    ;; Webpage maps are open, you can include any other data you like
    :foobar "baz"}
 
-  ;; Keyword keys are just extra data about the website
-  :twitter "https://twitter.com/clojurerulez" ; <- This will be easy to retrieve later
-}
+  ;; Extra information not particular to any webpage
+  {:id :social
+   :twitter "https://twitter.com/clojurerulez"} ; <- This will be easy to retrieve later
+]
 ```
 
 ### Special Keys in Webpage Maps
@@ -100,9 +99,9 @@ Nuzzle's process can be visualized like so:
 ```
    ┌───────────┐           ┌───────────┐               ┌──────────────┐
    │           │           │           │               │              │
-   │ site-data │ ────┬───► │ realized  │ ─────┬─────►  │  Hiccup that │
-   │ map from  │     │     │ site-data │      │        │ gets rendered│
-   │ EDN file  │     │     │   map     │      │        │ and exported │
+   │ site data │ ────┬───► │ realized  │ ─────┬─────►  │  Hiccup that │
+   │   from    │     │     │ site data │      │        │ gets rendered│
+   │ EDN file  │     │     │           │      │        │ and exported │
    │           │           │           │               │   to disk    │
    └───────────┘  Nuzzle   └───────────┘  render-page  │              │
               transformations              function    └──────────────┘
@@ -111,19 +110,18 @@ Nuzzle's process can be visualized like so:
 ### Adding Keys to Webpage Maps
 Nuzzle adds these keys to every webpage map:
 - `:uri`: the path of the webpage from the website's root, (ex `"/blog-posts/learning-clojure/"`)
-- `:render-content`: A function that renders the page's markup or returns `nil`.
-- `:id`: The key (vector of keywords) associated with the webpage map.
-- `:id->info`: A function that takes any `id` from the site data and returns the corresponding value.
+- `:render-content`: A function that renders the page's markup if `:content` key is present, otherwise returns `nil`.
+- `:id->info`: A function that takes any `id` from the site data and returns the corresponding map. Useful in your page rendering function.
 
 ### Adding Index Pages
-Often you'll want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to these pages. We'll call these subdirectory index pages. Another common pattern is associating tags with webpages and having tag index pages like `"/tags/clojure"` that links to all your webpages about Clojure. We'll call these tag index pages. Nuzzle adds both subdirectory and tag index pages automatically for all subdirectories and tags present in your site data. It's up to you whether to render them or not in your page rendering function.
+Often you'll want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to these pages. Let's call these subdirectory index pages. Another common pattern is associating tags with webpages and having tag index pages like `"/tags/clojure"` which links to all your webpages about Clojure. Let's call these tag index pages. Nuzzle adds both subdirectory and tag index pages automatically for all subdirectories and tags present in your site data. It's up to you whether to render them in your page rendering function.
 
-What makes these index webpage maps special is that they have an `:index` key with a value that is a vector of webpage `id`s. For example, in the previous blog posts example, the subdirectory index webpage map would have a key `:index` with a value of `[[:blog-posts :foo] [:blog-posts :bar]]`. Inside of your render function, you will be able to retrieve data for a webpage with `id->info`, and this way you can build index pages easily.
+What makes these index webpage maps special is that they have an `:index` key with a value that is a vector of webpage `id`s. For example, the subdirectory index webpage map for the above example would have a key `:index` with a value of `[[:blog-posts :foo] [:blog-posts :bar]]`. Inside of your render function, you will be able to retrieve data for a webpage given a webpage id with the function `id->info`, and this way you can easily find the title and URIs of your indexed pages.
 
-You can define index pages manually in your site data EDN, and Nuzzle will simply add the `:index` key. You can use this to, for example, add some markup to your index pages from a markdown file by including a `:content` key.
+It's worth noting that you can define index pages manually in your site data, and Nuzzle will simply append the `:index` key/value pair. You can use this to add some markup to your index pages from a markdown file by including a `:content` key.
 
 ## Creating a Page Rendering Function
-All webpages are transformed into Hiccup by a single function supplied by the user in the `nuzzle-config` map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
+All webpages are transformed into Hiccup by a single function supplied by the user in the top-level config map under the key `:render-page`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 

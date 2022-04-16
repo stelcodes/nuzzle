@@ -1,24 +1,26 @@
-{[:blog :nuzzle-rocks]
- {:title "10 Reasons Why Nuzzle Rocks"
+[{:id []}
+
+ {:id [:blog :nuzzle-rocks]
+  :title "10 Reasons Why Nuzzle Rocks"
   :content "markdown/nuzzle-rocks.md"
   :rss true
   :tags [:nuzzle]}
 
- [:blog :why-nuzzle]
- {:title "Why I Made Nuzzle"
+ {:id [:blog :why-nuzzle]
+  :title "Why I Made Nuzzle"
   :content "markdown/why-nuzzle.md"
   :rss true
   :tags [:nuzzle]}
 
- [:blog :favorite-color]
- {:title "What's My Favorite Color? It May Suprise You."
+ {:id [:blog :favorite-color]
+  :title "What's My Favorite Color? It May Suprise You."
   :content "markdown/favorite-color.md"
   :rss true
   :tags [:colors]}
 
- [:about]
- {:title "About"
+ {:id [:about]
+  :title "About"
   :content "markdown/about.md"}
 
- :meta
- {:twitter "https://twitter/foobar"}}
+ {:id :meta
+  :twitter "https://twitter/foobar"}]

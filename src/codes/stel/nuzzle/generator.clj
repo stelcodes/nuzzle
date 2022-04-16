@@ -11,20 +11,46 @@
             [markdown.core :refer [md-to-html-string]]
             [stasis.core :as stasis]))
 
+(defn convert-site-data-to-vector
+  [site-data]
+  {:pre [(map? site-data)] :post [#(vector? %)]}
+  (->> site-data
+       (reduce-kv
+        (fn [agg id m]
+          (conj agg (assoc m :id id)))
+        [])))
+
+(defn convert-site-data-to-map
+  [site-data]
+  {:pre [(vector? site-data)] :post [#(map? %)]}
+  (->> site-data
+       (reduce
+        (fn [agg {:keys [id] :as m}]
+          (assoc agg id (dissoc m :id)))
+        {})))
+
+(defn validate-site-data [site-data]
+  (let [missing-homepage? (not (some #(= [] (:id %)) site-data))]
+    (cond
+     missing-homepage?
+     (throw (ex-info "Site data is missing homepage (webpage map with an :id of [])" {}))
+     :else site-data)))
+
 (defn load-site-data
-  "Turn the site-data into a map. It should be a path to an edn file. Load
-  that file make sure it as a map."
+  "Read the site-data EDN file and validate it."
   [site-data]
   {:pre [(string? site-data)] :post [(map? %)]}
-  (try
-    (-> site-data
-        (io/file)
-        (slurp)
-        (edn/read-string))
-    (catch Throwable _
-      (throw (ex-info
-              (str "Site data file: " site-data " could not be read. Make sure the file exists and the contents are a valid EDN map.")
-              {:path site-data})))))
+  (->
+   (try
+     (-> site-data
+         slurp
+         edn/read-string)
+     (catch Throwable _
+       (throw (ex-info
+               (str "Site data file: " site-data " could not be read. Make sure the file exists and the contents are a valid EDN vector.")
+               {:path site-data}))))
+   validate-site-data
+   convert-site-data-to-map))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
@@ -139,7 +165,7 @@
                       site-data)]
     (->> site-data
          ;; Make sure there is a root index.html file
-         (util/deep-merge {[] {:uri "/"}})
+         ;; (util/deep-merge {[] {:uri "/"}})
          (util/deep-merge (create-group-index site-data))
          (util/deep-merge (create-tag-index site-data))
          (realize-pages))))
