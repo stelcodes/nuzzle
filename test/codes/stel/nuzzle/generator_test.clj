@@ -8,7 +8,7 @@
 
 (def nuzzle-config {:site-data site-data-path
                     :remove-drafts? false
-                    :render-page (constantly [:h1 "Test"])
+                    :render-webpage (constantly [:h1 "Test"])
                     :rss-opts {:title "Foo's blog"
                                :description "Rants about foo and thoughts about bar"
                                :link "https://foobar.com"
@@ -121,7 +121,7 @@
 #_
 (deftest export
   (let [y {[:about] {:title "About"}}
-        x {:config y :include-drafts? true :render-page (constantly "<h1>Test</h1>") :target-dir "/tmp/dist"}]
+        x {:config y :include-drafts? true :render-webpage (constantly "<h1>Test</h1>") :target-dir "/tmp/dist"}]
     (generator/export x)))
 
 (comment (run-tests))

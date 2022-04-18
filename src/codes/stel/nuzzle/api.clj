@@ -22,12 +22,12 @@
 (defn export
   "Exports the website to :target-dir. The :static-dir is overlayed on top of
   the :target-dir after the web pages have been exported."
-  [{:keys [site-data remove-drafts? static-dir target-dir render-page rss-opts]
+  [{:keys [site-data remove-drafts? static-dir target-dir render-webpage rss-opts]
     :or {target-dir "dist" remove-drafts? false} :as nuzzle-config}]
   {:pre [(map? nuzzle-config)
          (string? site-data)
          (or (nil? static-dir) (string? static-dir))
-         (fn? render-page)
+         (fn? render-webpage)
          (string? target-dir)
          (or (nil? rss-opts) (map? rss-opts))]}
   (log/info "🔨🐈 Exporting static site to:" target-dir)
@@ -42,7 +42,7 @@
         rss-feed (gen/create-rss-feed realized-site-data rss-opts)]
     (-> realized-site-data
         (gen/generate-page-list)
-        (gen/generate-site-index render-page false)
+        (gen/generate-site-index render-webpage false)
         (gen/export-site-index static-dir target-dir))
     (when rss-feed
       (log/info "📰🐈 Creating RSS file:" rss-filename)
@@ -51,12 +51,12 @@
 
 (defn start-server
   "Starts a server using http-kit for development."
-  [{:keys [static-dir dev-port remove-drafts? render-page site-data]
+  [{:keys [static-dir dev-port remove-drafts? render-webpage site-data]
     :or {dev-port 5868 remove-drafts? false} :as nuzzle-config}]
   {:pre [(map? nuzzle-config)
          (string? site-data)
          (or (nil? static-dir) (string? static-dir))
-         (fn? render-page)
+         (fn? render-webpage)
          (int? dev-port)]}
   (log/info (str "✨🐈 Starting development server on port " dev-port))
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
@@ -65,7 +65,7 @@
                           (gen/load-site-data)
                           (gen/realize-site-data remove-drafts?)
                           (gen/generate-page-list)
-                          (gen/generate-site-index render-page true))]
+                          (gen/generate-site-index render-webpage true))]
     (-> (stasis/serve-pages create-index)
         (ring/wrap-static-dir static-dir)
         (wrap-content-type)

@@ -187,10 +187,10 @@
 (defn generate-site-index
   "Creates a map where the keys are relative URIs and the values are maps
   representing the web page. This datastructure is for the Stasis library."
-  [page-list render-page debug?]
-  {:pre [(seq? page-list) (fn? render-page)] :post [(map? %)]}
+  [page-list render-webpage debug?]
+  {:pre [(seq? page-list) (fn? render-webpage)] :post [(map? %)]}
   (->> page-list
-       (map (fn [page] (when-let [render-result (render-page page)]
+       (map (fn [page] (when-let [render-result (render-webpage page)]
                          [(:uri page)
                           (fn [_]
                             (when debug?
