@@ -1,5 +1,7 @@
 (ns codes.stel.nuzzle.util
-  (:require [clojure.string :as string]))
+  (:require
+   [babashka.fs :as fs]
+   [clojure.string :as string]))
 
 ;; Taken from https://clojuredocs.org/clojure.core/merge
 (defn deep-merge [a & maps]
@@ -37,3 +39,10 @@
    (fn [m k v] (if (nil? v) m (assoc m k v)))
    {}
    x))
+
+(defn ensure-static-dir
+  [static-dir-path]
+  fs/canonicalize
+  (when (not (fs/directory? static-dir-path))
+    (throw (ex-info (str "Static directory " (fs/canonicalize static-dir-path) " does not exist")
+                    {:static-dir static-dir-path}))))

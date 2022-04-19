@@ -218,14 +218,11 @@
             (remove nil?)))))
 
 (defn export-site-index
-  [site-index static-dir-path target-dir]
-  (let [static-dir (when static-dir-path (io/file static-dir-path))]
-    (when (or (not static-dir)
-              (not (fs/directory? static-dir)))
-      (throw (ex-info (str "Static directory " static-dir " does not exist")
-                      {:static-dir static-dir})))
-    (fs/create-dirs target-dir)
-    (stasis/empty-directory! target-dir)
-    (stasis/export-pages site-index target-dir)
-    (when static-dir (fs/copy-tree static-dir target-dir))))
+  [site-index static-dir target-dir]
+  (fs/create-dirs target-dir)
+  (stasis/empty-directory! target-dir)
+  (stasis/export-pages site-index target-dir)
+  (when static-dir
+    (util/ensure-static-dir static-dir)
+    (fs/copy-tree static-dir target-dir)))
 
