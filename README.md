@@ -33,9 +33,9 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 
 ## Nuzzle's API
 All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace:
-- `inspect`: Returns a more fleshed-out version of the site data with Nuzzle's additions.
-- `start-server`: Starts a web server (http-kit) with a live preview the website. Builds each webpage from scratch upon each request. Use in a REPL session for hot-reloading.
 - `export`: Exports the static site to disk.
+- `start-server`: Starts a web server (http-kit) for a live preview the website, building each webpage from scratch upon each request.
+- `realize`: Returns your site data after Nuzzle's transformations. Helpful during development.
 
 To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
 ```clojure
@@ -47,6 +47,8 @@ To keep things simple, all three functions have the exact same signature. They a
 :remove-drafts? ; A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
 :dev-port       ; A port number for the development server to listen on. Defaults to 5868.
 ```
+
+This map is your *top-level config* and contains everything required to build and develop your static site.
 
 ## Site Data
 Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It is expected to be a vector of maps. Each map has just one required key: `:id`. The value of `:id` will descibes what kind of data that map holds.

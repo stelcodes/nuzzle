@@ -3,21 +3,21 @@
             [codes.stel.nuzzle.generator :as gen]
             [codes.stel.nuzzle.log :as log]
             [codes.stel.nuzzle.ring :as ring]
+            [clojure.pprint :refer [pprint]]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [org.httpkit.server :as http]))
 
-(defn inspect
-  "Allows the user to inspect the site-data after modifications such as the
-  drafts being optionally removed, the group and tag index pages being added,
-  and :uri and :render-resource fields being added."
+(defn realize
+  "Allows the user to visualize the site data after Nuzzle's modifications."
   [{:keys [site-data remove-drafts?] :or {remove-drafts? false}}]
-  (log/info "🔍🐈 Creating realized site data for inspection")
+  (log/info "🔍🐈 Printing realized site data for inspection")
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (-> site-data
       (gen/load-site-data)
-      (gen/realize-site-data remove-drafts?)))
+      (gen/realize-site-data remove-drafts?)
+      (gen/convert-site-data-to-vector)))
 
 (defn export
   "Exports the website to :output-dir. The :static-dir is overlayed on top of
