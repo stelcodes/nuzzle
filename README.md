@@ -129,7 +129,7 @@ A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle 
 Nuzzle adds these keys to every webpage map:
 - `:uri`: the path of the webpage from the website's root, (ex `"/blog-posts/learning-clojure/"`).
 - `:render-content`: A function that renders the webpage's markup if `:content` key is present, otherwise returns `nil`.
-- `:id->info`: A function that takes any `id` from the realized site data and returns the corresponding map. Very useful in your webpage rendering function.
+- `:id->data`: A function that takes any `id` from the realized site data and returns the corresponding map. Very useful in your webpage rendering function.
 
 > Nuzzle does not modify metadata maps in any way.
 
@@ -138,7 +138,7 @@ Often you'll want to create index webpages in static sites which serve as a webp
 
 > You may not want to export all the index webpages that Nuzzle adds to your site data. That's ok! You can control which webpages get exported in your webpage rendering function.
 
-What makes these index webpage maps special is that they have an `:index` key with a value that is a vector of webpage map `id`s. For example, the subdirectory index webpage map for the above example would have an `:id` `[:blog-posts]` and an `:index` `[[:blog-posts :foo] [:blog-posts :bar]]`. Inside of your webpage rendering function, you will be able to retrieve data for a webpage by passing its `id` to the function `id->info`. This way, you can retrieve the title and URIs of the indexed pages.
+What makes these index webpage maps special is that they have an `:index` key with a value that is a vector of webpage map `id`s. For example, the subdirectory index webpage map for the above example would have an `:id` `[:blog-posts]` and an `:index` `[[:blog-posts :foo] [:blog-posts :bar]]`. Inside of your webpage rendering function, you will be able to retrieve data for a webpage by passing its `id` to the function `id->data`. This way, you can retrieve the title and URIs of the indexed pages.
 
 It's worth noting that you can define index webpage maps like any other webpage in your site data. You can use this to add some markup to your index pages from a markdown file by including a `:content` key:
 
@@ -179,16 +179,16 @@ Just because a webpage exists in your realized site data doesn't mean you have t
 
 At the bottom of the function we can see the function from `:render-content` being used. It will always be present in every webpage map. It will either return `nil` or some HTML wrapped in the `codes.stel.nuzzle.hiccup/raw` wrapper. We're able to call it safely in the `:else` clause above because of this trait.
 
-### More data with `id->info`
-With many static site generators, accessing global data inside markup templates can be painful. Nuzzle strives to solve this difficult problem elegantly with a function called `id->info`. While realizing your site data, Nuzzle attaches a copy of this function to each webpage map under the key `:id->info`. This function accepts any `id` from your realized site data and returns the corresponding map.
+### More data with `id->data`
+With many static site generators, accessing global data inside markup templates can be painful. Nuzzle strives to solve this difficult problem elegantly with a function called `id->data`. While realizing your site data, Nuzzle attaches a copy of this function to each webpage map under the key `:id->data`. This function accepts any `id` from your realized site data and returns the corresponding map.
 
-In a word, `id->info` allows us to see the whole world while creating our Hiccup. Since it returns maps from our **realized** site data, all information about the site is at your fingertips. Every webpage and metadata map from your site data is always a function call away.
+In a word, `id->data` allows us to see the whole world while creating our Hiccup. Since it returns maps from our **realized** site data, all information about the site is at your fingertips. Every webpage and metadata map from your site data is always a function call away.
 
-Better yet, the `id->info` function attaches a copy of itself to each map it returns, so you can always count on it being there. This way you can write functions that accept a webpage or metadata map without having to worry about passing `id->info` along with it.
+Better yet, the `id->data` function attaches a copy of itself to each map it returns, so you can always count on it being there. This way you can write functions that accept a webpage or metadata map without having to worry about passing `id->data` along with it.
 
 If `id-info` cannot find the given `id`, it will throw an exception. This makes it easy to spot errors in your code quickly.
 
-There are many use cases for the `id->info` function. It's great for creating index webpages, accessing metadata maps, and many other things:
+There are many use cases for the `id->data` function. It's great for creating index webpages, accessing metadata maps, and many other things:
 
 ```clojure
 (defn unordered-list [& list-items]
@@ -196,9 +196,9 @@ There are many use cases for the `id->info` function. It's great for creating in
        (map (fn [item] [:li item]))
        (into [:ul])))
 
-(defn layout [{:keys [title id->info] :as _webpage} & body]
-  (let [{:keys [twitter]} (id->info :social)
-        {about-uri :uri} (id->info [:about])]
+(defn layout [{:keys [title id->data] :as _webpage} & body]
+  (let [{:keys [twitter]} (id->data :social)
+        {about-uri :uri} (id->data [:about])]
     [:html [:head [:title title]]
      (into [:body
             [:header
@@ -207,22 +207,22 @@ There are many use cases for the `id->info` function. It's great for creating in
               [:a {:href twitter} "My Tweets"])]]
            body)]))
 
-(defn render-index-webpage [{:keys [title index id->info] :as webpage}]
+(defn render-index-webpage [{:keys [title index id->data] :as webpage}]
   (layout webpage
           [:h1 (str "Index page for " title)]
           (->>
            (for [webpage-id index
-                 :let [{:keys [uri title]} (id->info webpage-id)]]
+                 :let [{:keys [uri title]} (id->data webpage-id)]]
              [:a {:href uri} title])
            (apply unordered-list))))
 
-(defn render-homepage [{:keys [id->info] :as webpage}]
+(defn render-homepage [{:keys [id->data] :as webpage}]
   (layout webpage
           [:h1 "Home Page"]
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
-            [:a {:href (id->info [:tags :clojure])} "here!"]]))
+            [:a {:href (id->data [:tags :clojure])} "here!"]]))
 
-(defn render-webpage [{:keys [id title render-content id->info] :as webpage}]
+(defn render-webpage [{:keys [id title render-content id->data] :as webpage}]
   (cond
    (= [] id) (render-homepage webpage)
    (= [:about] id) (layout webpage [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])

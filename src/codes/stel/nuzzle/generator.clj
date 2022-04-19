@@ -131,16 +131,16 @@
        (assoc m id v)))
    {} site-data))
 
-(defn gen-id->info
-  "Generate the helper function id->info from the realized-site-data. This
+(defn gen-id->data
+  "Generate the helper function id->data from the realized-site-data. This
   function takes a page id (vector of 0 or more keywords) and returns the page
-  information with added key :id->info with value id->info function attached."
+  information with added key :id->data with value id->data function attached."
   [realized-site-data]
   {:pre [(map? realized-site-data)] :post [(fn? %)]}
-  (fn id->info [id]
+  (fn id->data [id]
     (if-let [entity (get realized-site-data id)]
-      (assoc entity :id->info id->info)
-      (throw (ex-info (str "id->info error: id " id " not found")
+      (assoc entity :id->data id->data)
+      (throw (ex-info (str "id->data error: id " id " not found")
                       {:id id})))))
 
 (defn remove-drafts
@@ -181,8 +181,8 @@
                       ;; Add the page id to the map
                       (conj page-list (assoc v :id id))
                       page-list)) [])
-       ;; Add id->info helper function to each page
-       (map #(assoc % :id->info (gen-id->info realized-site-data)))))
+       ;; Add id->data helper function to each page
+       (map #(assoc % :id->data (gen-id->data realized-site-data)))))
 
 (defn generate-site-index
   "Creates a map where the keys are relative URIs and the values are maps
