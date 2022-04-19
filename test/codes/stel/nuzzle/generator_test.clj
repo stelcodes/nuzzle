@@ -66,7 +66,7 @@
     (is (= "<h1>About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
            (str (render-content))))
     (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
-         (str ((gen/create-render-content-fn [:foo] "html/foo.html")))))))
+         (str ((gen/create-render-content-fn [:foo] "test-resources/html/foo.html")))))))
 
 (deftest realize-pages
   (let [realized-pages (gen/realize-pages site-data)
@@ -80,25 +80,25 @@
             {:uri "/"}
             [:blog :nuzzle-rocks]
             {:title "10 Reasons Why Nuzzle Rocks",
-             :content "markdown/nuzzle-rocks.md",
+             :content "test-resources/markdown/nuzzle-rocks.md",
              :rss true
              :tags [:nuzzle],
              :uri "/blog/nuzzle-rocks/"}
             [:blog :why-nuzzle]
             {:title "Why I Made Nuzzle",
-             :content "markdown/why-nuzzle.md",
+             :content "test-resources/markdown/why-nuzzle.md",
              :rss true
              :tags [:nuzzle],
              :uri "/blog/why-nuzzle/"}
             [:blog :favorite-color]
             {:title "What's My Favorite Color? It May Suprise You.",
-             :content "markdown/favorite-color.md",
+             :content "test-resources/markdown/favorite-color.md",
              :rss true
              :tags [:colors],
              :uri "/blog/favorite-color/"}
             [:about]
             {:title "About",
-             :content "markdown/about.md",
+             :content "test-resources/markdown/about.md",
              :uri "/about/"}
             :meta
             {:twitter "https://twitter/foobar"}}
