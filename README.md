@@ -9,7 +9,7 @@
 > **WARNING**: Nuzzle is in the alpha stage. Expect API breakages.
 
 ## What is Nuzzle?
-Nuzzle is a static site generator that's for people who love:
+Nuzzle is a static site generator for people who love:
 - Data-oriented functional programming ✨
 - REPL-driven workflows 🔁
 - The awesome combination of Clojure and Hiccup 💞
