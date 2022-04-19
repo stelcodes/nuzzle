@@ -131,17 +131,21 @@
        (assoc m id v)))
    {} site-data))
 
-(defn gen-id->data
-  "Generate the helper function id->data from the realized-site-data. This
+(defn gen-get-site-data
+  "Generate the helper function get-site-data from the realized-site-data. This
   function takes a page id (vector of 0 or more keywords) and returns the page
-  information with added key :id->data with value id->data function attached."
+  information with added key :get-site-data with value get-site-data function attached."
   [realized-site-data]
   {:pre [(map? realized-site-data)] :post [(fn? %)]}
-  (fn id->data [id]
-    (if-let [entity (get realized-site-data id)]
-      (assoc entity :id->data id->data)
-      (throw (ex-info (str "id->data error: id " id " not found")
-                      {:id id})))))
+  (fn get-site-data
+    ([] (->> realized-site-data
+             convert-site-data-to-vector
+             (map #(assoc % :get-site-data get-site-data))))
+    ([id]
+     (if-let [entity (get realized-site-data id)]
+       (assoc entity :get-site-data get-site-data)
+       (throw (ex-info (str "get-site-data error: id " id " not found")
+                       {:id id}))))))
 
 (defn remove-drafts
   "Remove page entries from site-data map if they are marked as a draft with
@@ -181,8 +185,8 @@
                       ;; Add the page id to the map
                       (conj page-list (assoc v :id id))
                       page-list)) [])
-       ;; Add id->data helper function to each page
-       (map #(assoc % :id->data (gen-id->data realized-site-data)))))
+       ;; Add get-site-data helper function to each page
+       (map #(assoc % :get-site-data (gen-get-site-data realized-site-data)))))
 
 (defn generate-site-index
   "Creates a map where the keys are relative URIs and the values are maps
