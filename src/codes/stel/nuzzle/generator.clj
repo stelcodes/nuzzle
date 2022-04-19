@@ -218,11 +218,11 @@
             (remove nil?)))))
 
 (defn export-site-index
-  [site-index static-dir target-dir]
-  (fs/create-dirs target-dir)
-  (stasis/empty-directory! target-dir)
-  (stasis/export-pages site-index target-dir)
+  [site-index static-dir output-dir]
+  (fs/create-dirs output-dir)
+  (stasis/empty-directory! output-dir)
+  (stasis/export-pages site-index output-dir)
   (when static-dir
     (util/ensure-static-dir static-dir)
-    (fs/copy-tree static-dir target-dir)))
+    (fs/copy-tree static-dir output-dir)))
 

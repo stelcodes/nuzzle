@@ -42,7 +42,7 @@ To keep things simple, all three functions have the exact same signature. They a
 :site-data      ; A path to an EDN file containing data about the website. Required.
 :render-webpage ; A function responsible for creating Hiccup for every webpage listed in the site-data. Required.
 :static-dir     ; A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
-:target-dir     ; A path to a directory to put the exported site into. Defaults to `dist`.
+:output-dir     ; A path to a directory to put the exported site into. Defaults to `out`.
 :rss-opts       ; A map with RSS feed options. Defaults to nil (no RSS feed).
 :remove-drafts? ; A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
 :dev-port       ; A port number for the development server to listen on. Defaults to 5868.
@@ -51,7 +51,7 @@ To keep things simple, all three functions have the exact same signature. They a
 ## Site Data
 Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It is expected to be a vector of maps. Each map has just one required key: `:id`. The value of `:id` will descibes what kind of data that map holds.
 
-If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<target-dir>/blog-posts/using-clojure/index.html`. We'll refer to these as *webpage maps*.
+If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<output-dir>/blog-posts/using-clojure/index.html`. We'll refer to these as *webpage maps*.
 
 If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-webpage` function later on. We'll refer to these as *metadata maps*.
 

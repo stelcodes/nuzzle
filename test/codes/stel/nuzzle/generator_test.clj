@@ -14,7 +14,7 @@
                                :link "https://foobar.com"
                                :author "foo@bar.com (Foo Bar)"}
                     :static-dir "public"
-                    :target-dir "/tmp/nuzzle-test-dist"})
+                    :output-dir "/tmp/nuzzle-test-out"})
 
 (def site-data (gen/load-site-data site-data-path))
 
@@ -121,7 +121,7 @@
 #_
 (deftest export
   (let [y {[:about] {:title "About"}}
-        x {:config y :include-drafts? true :render-webpage (constantly "<h1>Test</h1>") :target-dir "/tmp/dist"}]
+        x {:config y :include-drafts? true :render-webpage (constantly "<h1>Test</h1>") :output-dir "/tmp/out"}]
     (generator/export x)))
 
 (comment (run-tests))

@@ -20,17 +20,17 @@
       (gen/realize-site-data remove-drafts?)))
 
 (defn export
-  "Exports the website to :target-dir. The :static-dir is overlayed on top of
-  the :target-dir after the web pages have been exported."
-  [{:keys [site-data remove-drafts? static-dir target-dir render-webpage rss-opts]
-    :or {target-dir "dist" remove-drafts? false} :as nuzzle-config}]
+  "Exports the website to :output-dir. The :static-dir is overlayed on top of
+  the :output-dir after the web pages have been exported."
+  [{:keys [site-data remove-drafts? static-dir output-dir render-webpage rss-opts]
+    :or {output-dir "out" remove-drafts? false} :as nuzzle-config}]
   {:pre [(map? nuzzle-config)
          (string? site-data)
          (or (nil? static-dir) (string? static-dir))
          (fn? render-webpage)
-         (string? target-dir)
+         (string? output-dir)
          (or (nil? rss-opts) (map? rss-opts))]}
-  (log/info "🔨🐈 Exporting static site to:" target-dir)
+  (log/info "🔨🐈 Exporting static site to:" output-dir)
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
   (let [realized-site-data
@@ -38,12 +38,12 @@
             (gen/load-site-data)
             (gen/realize-site-data remove-drafts?))
         rss-filename (or (:filename rss-opts) "rss.xml")
-        rss-file (fs/file target-dir rss-filename)
+        rss-file (fs/file output-dir rss-filename)
         rss-feed (gen/create-rss-feed realized-site-data rss-opts)]
     (-> realized-site-data
         (gen/generate-page-list)
         (gen/generate-site-index render-webpage false)
-        (gen/export-site-index static-dir target-dir))
+        (gen/export-site-index static-dir output-dir))
     (when rss-feed
       (log/info "📰🐈 Creating RSS file:" rss-filename)
       (spit rss-file rss-feed)))
