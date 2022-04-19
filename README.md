@@ -11,14 +11,14 @@
 ## Design Goals
 With Nuzzle you can...
 - create beautiful static websites
-- describe the entire website structure declaratively inside an EDN map
-- plug in a single function that produces Hiccup to render every webpage
-- retrieve all website information while inside that function
-- write content using markup languages (markdown, html)
-- create an RSS feed
+- keep all website data inside a single EDN file
+- plug in a single function that produces Hiccup for every webpage
+- retrieve all website data while inside that function
+- write content using markup languages
+- set up a REPL-driven rapid feedback loop with built-in hot-reloading web server
 - tag webpages
 - create subdirectory and tag index webpages
-- set up a REPL-driven rapid feedback loop with built-in hot-reloading web server
+- create an RSS feed
 
 ## Real World Example
 Want to read some code? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build [this website](https://stel.codes).
