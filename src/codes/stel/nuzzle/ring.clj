@@ -3,4 +3,10 @@
 
 (defn wrap-static-dir
   [app static-dir]
-  (if static-dir (wrap-file app static-dir) app))
+  (if static-dir
+    (try
+      (wrap-file app static-dir)
+      (catch Exception _
+        (throw (ex-info (str "Static directory " static-dir " does not exist")
+                        {:static-dir static-dir}))))
+    app))
