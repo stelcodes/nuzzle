@@ -99,7 +99,7 @@
   (if-not content
     ;; If :content is not defined, just make a function that returns nil
     (constantly nil)
-    (if-let [content-file (io/resource content)]
+    (if-let [content-file (io/file content)]
       (let [ext (fs/extension content-file)]
         (cond
          ;; If a html or svg file, just slurp it up
@@ -218,13 +218,14 @@
             (remove nil?)))))
 
 (defn export-site-index
-  [site-index static-dir target-dir]
-  (when (and static-dir (not (io/resource static-dir)))
-    (throw (ex-info (str static-dir " is not a valid resource directory")
-                    {:static-dir static-dir})))
-  (let [assets (when static-dir (io/resource static-dir))]
+  [site-index static-dir-path target-dir]
+  (let [static-dir (when static-dir-path (io/file static-dir-path))]
+    (when (or (not static-dir)
+              (not (fs/directory? static-dir)))
+      (throw (ex-info (str "Static directory " static-dir " does not exist")
+                      {:static-dir static-dir})))
     (fs/create-dirs target-dir)
     (stasis/empty-directory! target-dir)
     (stasis/export-pages site-index target-dir)
-    (when assets (fs/copy-tree assets target-dir))))
+    (when static-dir (fs/copy-tree static-dir target-dir))))
 
