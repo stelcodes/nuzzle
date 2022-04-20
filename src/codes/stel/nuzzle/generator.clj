@@ -11,6 +11,7 @@
             [codes.stel.nuzzle.util :as util]
             [markdown.core :refer [md-to-html-string]]
             [markdown.transformers :refer [transformer-vector]]
+            [cybermonday.core :as cm]
             [stasis.core :as stasis]))
 
 (defn convert-site-data-to-vector
@@ -93,38 +94,49 @@
                              :uri (util/id->uri group-id)}))
         {})))
 
-(defn maybe-sh [& args]
+(defn safe-sh [[command & _ :as args]]
   (try (apply sh args)
-    (catch Exception _ nil)))
+    (catch Exception _
+      {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
 
-(defn highlight-md-code [text state]
-  (log/info (clojure.pprint/pprint {:text text :state state}))
-  (if-not true #_(= :codeblock state)
-   [text state]
-   (let [commands [["chroma" "--html" text]]]
-    (loop [[next-command & rest-commands] commands]
-      (if-not next-command
-        [text state]
-        (let [{:keys [exit out]} (maybe-sh next-command)]
-          (log/info "TEXT: " text)
-          (if (= 0 exit)
-            (do (log/info "successful md code conversion!") (log/info out) [out state])
-            (do (log/info next-command "didn't work") (recur rest-commands)))))))))
+(defn highlight-code [chroma-style language code]
+  (let [code-file (fs/create-temp-file)
+        code-path (str (fs/canonicalize code-file))
+        _ (spit code-path code)
+        chroma-command ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
+                        "--html-inline-styles" (str "--style=" chroma-style) code-path]
+        {:keys [exit out err]} (safe-sh chroma-command)]
+    (if (not= 0 exit)
+      (do
+        (log/warn "Failed to highlight code:" code-path)
+        (log/warn err)
+        code)
+      (do
+        (fs/delete-if-exists code-file)
+        out))))
 
-(defn process-markdown-file [file]
-  (md-to-html-string (slurp file)
-                     :heading-anchors true
-                     :reference-style-links true
-                     :footnotes true
-                     :parse-meta? false
-                     :custom-transformers [highlight-md-code]))
+(defn code-block-highlighter [chroma-style [_tag-name {:keys [language]} body]]
+  (if chroma-style
+    [:code (hiccup/raw (highlight-code
+                        chroma-style
+                        (or language "no-highlight")
+                        body))]
+    [:code [:pre body]]))
 
-(comment (sh "chrddoma" "--help"))
+(defn process-markdown-file [chroma-style file]
+  (let [code-block-with-style (partial code-block-highlighter chroma-style)
+        lower-fns {:markdown/fenced-code-block code-block-with-style
+                   :markdown/indented-code-block code-block-with-style}
+        [_ _ & hiccup] ; Avoid the top level :div {}
+        (-> file
+            slurp
+            (cm/parse-body {:lower-fns lower-fns}))]
+    (hiccup/html hiccup)))
 
 (defn create-render-content-fn
   "Create a function that turned the :content file into html, wrapped with the
   hiccup raw identifier."
-  [id content]
+  [id content {:keys [chroma-style]}]
   {:pre [(vector? id) (or (nil? content) (string? content))]}
   (if-not content
     ;; If :content is not defined, just make a function that returns nil
@@ -139,7 +151,7 @@
          ;; If markdown, convert to html
          (or (= "markdown" ext) (= "md" ext))
          (fn render-markdown []
-           (hiccup/raw (process-markdown-file content-file)))
+           (hiccup/raw (process-markdown-file chroma-style content-file)))
          ;; If extension not recognized, throw Exception
          :else (throw (ex-info (str "Filetype of content file " content " for id " id " not recognized")
                       {:id id :content content}))))
@@ -149,7 +161,7 @@
 
 (defn realize-pages
   "Adds :uri, :render-content keys to each page in the site-data."
-  [site-data]
+  [site-data config]
   {:pre [map? site-data]}
   (reduce-kv
    (fn [m id {:keys [content uri] :as v}]
@@ -157,7 +169,7 @@
        (assoc m id
               (merge v {:uri (or uri (util/id->uri id))
                         :render-content
-                        (create-render-content-fn id content)}))
+                        (create-render-content-fn id content config)}))
        (assoc m id v)))
    {} site-data))
 
@@ -191,18 +203,18 @@
 
 (defn realize-site-data
   "Creates fully realized site-data datastructure with or without drafts."
-  [site-data remove-drafts?]
-  {:pre [(map? site-data) (boolean? remove-drafts?)]}
+  [site-data {:keys [remove-drafts?] :as config}]
+  {:pre [(map? site-data)]}
   ;; Allow users to define their own overrides via deep-merge
   (let [site-data (if remove-drafts?
-                      (remove-drafts site-data)
-                      site-data)]
-    (->> site-data
-         ;; Make sure there is a root index.html file
-         ;; (util/deep-merge {[] {:uri "/"}})
-         (util/deep-merge (create-group-index site-data))
-         (util/deep-merge (create-tag-index site-data))
-         (realize-pages))))
+                    (remove-drafts site-data)
+                    site-data)
+        site-data (->> site-data
+                       ;; Make sure there is a root index.html file
+                       ;; (util/deep-merge {[] {:uri "/"}})
+                       (util/deep-merge (create-group-index site-data))
+                       (util/deep-merge (create-tag-index site-data)))]
+    (realize-pages site-data config)))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."

@@ -17,6 +17,7 @@
         ring/ring-devel {:mvn/version "1.9.5"} ,
         http-kit/http-kit {:mvn/version "2.5.3"},
         markdown-clj/markdown-clj {:mvn/version "1.10.5"},
+        io.github.kiranshila/cybermonday {:git/sha "17bb2c412171283440276a0a8e2cfd6f252aad91"}
         babashka/fs {:mvn/version "0.1.4"},
         org.clojure/clojure {:mvn/version "1.11.1"},
         hiccup/hiccup {:mvn/version "2.0.0-alpha2"},

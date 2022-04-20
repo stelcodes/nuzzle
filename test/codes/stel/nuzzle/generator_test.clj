@@ -6,15 +6,15 @@
 
 (def site-data-path "test-resources/edn/site-data.edn")
 
-(def nuzzle-config {:site-data site-data-path
-                    :remove-drafts? false
-                    :render-webpage (constantly [:h1 "Test"])
-                    :rss-opts {:title "Foo's blog"
-                               :description "Rants about foo and thoughts about bar"
-                               :link "https://foobar.com"
-                               :author "foo@bar.com (Foo Bar)"}
-                    :static-dir "public"
-                    :output-dir "/tmp/nuzzle-test-out"})
+(def config {:site-data site-data-path
+             :remove-drafts? false
+             :render-webpage (constantly [:h1 "Test"])
+             :rss-opts {:title "Foo's blog"
+                        :description "Rants about foo and thoughts about bar"
+                        :link "https://foobar.com"
+                        :author "foo@bar.com (Foo Bar)"}
+             :static-dir "public"
+             :output-dir "/tmp/nuzzle-test-out"})
 
 (def site-data (gen/load-site-data site-data-path))
 
@@ -61,15 +61,15 @@
 
 (deftest create-render-content-fn
   (let [{:keys [content]} (get site-data [:about])
-        render-content (gen/create-render-content-fn [:about] content)]
+        render-content (gen/create-render-content-fn [:about] content nil)]
     (is (fn? render-content))
-    (is (= "<h1>About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
+    (is (= "<h1 id=\"about\">About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
            (str (render-content))))
     (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
-         (str ((gen/create-render-content-fn [:foo] "test-resources/html/foo.html")))))))
+         (str ((gen/create-render-content-fn [:foo] "test-resources/html/foo.html" nil)))))))
 
 (deftest realize-pages
-  (let [realized-pages (gen/realize-pages site-data)
+  (let [realized-pages (gen/realize-pages site-data config)
         without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
                                           {}
                                           realized-pages)]
@@ -112,7 +112,7 @@
   (let [realized-site-data (gen/realize-site-data site-data false)]
     (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel><atom:link href=\"https://foobar.com\" rel=\"self\" type=\"application/rss+xml\"/><title>Foo's blog</title><description>Rants about foo and thoughts about bar</description><link>https://foobar.com</link><generator>clj-rss</generator><item><title>Why I Made Nuzzle</title><guid isPermaLink=\"false\">https://foobar.com/blog/why-nuzzle/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>What's My Favorite Color? It May Suprise You.</title><guid isPermaLink=\"false\">https://foobar.com/blog/favorite-color/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>10 Reasons Why Nuzzle Rocks</title><guid isPermaLink=\"false\">https://foobar.com/blog/nuzzle-rocks/</guid><author>foo@bar.com (Foo Bar)</author></item></channel></rss>"
            (gen/create-rss-feed
-            realized-site-data (:rss-opts nuzzle-config))))))
+            realized-site-data (:rss-opts config))))))
 
 #_
 (deftest realize-site-data

@@ -9,5 +9,8 @@
 (defn info [& strs]
   (println (str (log-time) " INFO " (string/join \space strs))))
 
+(defn warn [& strs]
+  (println (str (log-time) " WARN " (string/join \space strs))))
+
 (comment (info "test" "ok"))
 
