@@ -12,17 +12,18 @@
 Nuzzle is a static site generator for people who love:
 - Data-oriented functional programming ✨
 - REPL-driven workflows 🔁
+- Writing prose in Markdown 📝
 - The awesome combination of Clojure and Hiccup 💞
 - Simplicity 🌷
 
-Nuzzle is a Clojure library, but you could also think about it as a micro-framework. It's goal is to define a simple yet powerful process for turning data and functions into a static site. Nuzzle aims to be the only dependency that your static site project needs. It also aims to provide a rich REPL experience that can leverage the power of nREPL clients like Cider and Conjure for extremely fast feedback loops while experimenting with your site appearance and content.
+Nuzzle is a Clojure library, but you could also think about it as a micro-framework. It's goal is to define a simple yet powerful process for turning data and functions into a static site. Nuzzle aims to be the only Clojure dependency that your project requires. It also aims to provide a rich REPL experience that can leverage the power of nREPL clients like Cider and Conjure for extremely fast feedback loops while experimenting with your site appearance and content.
 
 **With Nuzzle you can...**
-- Create beautiful static websites
 - Manage all website data inside an EDN file
-- Plug in a single function that produces Hiccup for every webpage
+- Plug in a single function to produce Hiccup
 - Retrieve all website data while inside that function
-- Keep content in markup files (Markdown, HTML)
+- Write your prose in Markdown files
+- Statically render CSS syntax highlighting for code in Markdown (requires [Chroma](https://github.com/alecthomas/chroma))
 - Utilize a built-in, REPL-driven, hot-reloading web server
 - Tag webpages
 - Create subdirectory and tag index webpages
@@ -38,15 +39,15 @@ All of Nuzzle's functionality is conveniently wrapped up with just three functio
 - `realize`: Helper function for visualizing your site data after Nuzzle's transformations.
 
 To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
-```clojure
-:site-data      ; A path to an EDN file containing data about the website. Required.
-:render-webpage ; A function responsible for creating Hiccup for every webpage listed in the site-data. Required.
-:static-dir     ; A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
-:output-dir     ; A path to a directory to put the exported site into. Defaults to `out`.
-:rss-opts       ; A map with RSS feed options. Defaults to nil (no RSS feed).
-:remove-drafts? ; A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
-:dev-port       ; A port number for the development server to listen on. Defaults to 6899.
-```
+
+- `:site-data` - A path to an EDN file containing data about the website. Required.
+- `:render-webpage` - A function responsible for creating Hiccup. Required.
+- `:static-dir` - A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
+- `:output-dir` - A path to a directory to export the site into. Defaults to `out`.
+- `:chroma-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
+- `:rss-opts` - A map with RSS feed options. Defaults to nil (no RSS feed).
+- `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
+- `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
 
 This map is your *top-level config* and contains everything required to build and develop your static site.
 
