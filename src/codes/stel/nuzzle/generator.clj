@@ -3,12 +3,14 @@
             [clj-rss.core :as rss]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
+            [clojure.java.shell :refer [sh]]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as string]
             [codes.stel.nuzzle.hiccup :as hiccup]
             [codes.stel.nuzzle.log :as log]
             [codes.stel.nuzzle.util :as util]
             [markdown.core :refer [md-to-html-string]]
+            [markdown.transformers :refer [transformer-vector]]
             [stasis.core :as stasis]))
 
 (defn convert-site-data-to-vector
@@ -91,6 +93,34 @@
                              :uri (util/id->uri group-id)}))
         {})))
 
+(defn maybe-sh [& args]
+  (try (apply sh args)
+    (catch Exception _ nil)))
+
+(defn highlight-md-code [text state]
+  (log/info (clojure.pprint/pprint {:text text :state state}))
+  (if-not true #_(= :codeblock state)
+   [text state]
+   (let [commands [["chroma" "--html" text]]]
+    (loop [[next-command & rest-commands] commands]
+      (if-not next-command
+        [text state]
+        (let [{:keys [exit out]} (maybe-sh next-command)]
+          (log/info "TEXT: " text)
+          (if (= 0 exit)
+            (do (log/info "successful md code conversion!") (log/info out) [out state])
+            (do (log/info next-command "didn't work") (recur rest-commands)))))))))
+
+(defn process-markdown-file [file]
+  (md-to-html-string (slurp file)
+                     :heading-anchors true
+                     :reference-style-links true
+                     :footnotes true
+                     :parse-meta? false
+                     :custom-transformers [highlight-md-code]))
+
+(comment (sh "chrddoma" "--help"))
+
 (defn create-render-content-fn
   "Create a function that turned the :content file into html, wrapped with the
   hiccup raw identifier."
@@ -109,7 +139,7 @@
          ;; If markdown, convert to html
          (or (= "markdown" ext) (= "md" ext))
          (fn render-markdown []
-           (hiccup/raw (md-to-html-string (slurp content-file))))
+           (hiccup/raw (process-markdown-file content-file)))
          ;; If extension not recognized, throw Exception
          :else (throw (ex-info (str "Filetype of content file " content " for id " id " not recognized")
                       {:id id :content content}))))
