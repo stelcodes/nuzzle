@@ -17,7 +17,7 @@
         ring/ring-devel {:mvn/version "1.9.5"} ,
         http-kit/http-kit {:mvn/version "2.5.3"},
         markdown-clj/markdown-clj {:mvn/version "1.10.5"},
-        babashka/fs {:mvn/version "0.1.2"},
+        babashka/fs {:mvn/version "0.1.4"},
         org.clojure/clojure {:mvn/version "1.11.1"},
         hiccup/hiccup {:mvn/version "2.0.0-alpha2"},
         stasis/stasis {:mvn/version "2.5.1"}},
