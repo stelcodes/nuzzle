@@ -35,7 +35,7 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 ## Nuzzle's API
 All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `nuzzle.api` namespace:
 - `export`: Exports the static site to disk.
-- `start-server`: Starts a web server (http-kit) for a live preview the website, building each webpage from scratch upon each request.
+- `start-server`: Starts a web server (http-kit) for a live preview of the website, building each webpage from scratch upon each request.
 - `realize`: Helper function for visualizing your site data after Nuzzle's transformations.
 
 To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
