@@ -49,7 +49,19 @@ To keep things simple, all three functions have the exact same signature. They a
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
 - `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
 
-This map is your *top-level config* and contains everything required to build and develop your static site.
+This map is your *top-level config* and contains everything required to build and develop your static site. It might look something like this:
+
+```clojure
+(def config {:site-data "edn/site.edn"
+             :static-dir "static"
+             :render-webpage views/render-webpage
+             :chroma-style "monokai"
+             :rss-opts
+             {:author "ash@ketchum.com (Ash Ketchum)"
+              :title "Ash Ketchum's Blog"
+              :description "Find out if I caught them all!"
+              :link "https://ketchum.com"}})
+```
 
 ## Site Data
 Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It is expected to be a vector of maps. Each map has just one required key: `:id`. The value of `:id` will describe what kind of data that map holds.
