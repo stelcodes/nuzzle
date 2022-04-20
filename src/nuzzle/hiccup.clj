@@ -1,4 +1,4 @@
-(ns codes.stel.nuzzle.hiccup
+(ns nuzzle.hiccup
   (:require [hiccup2.core :as hiccup]))
 
 (def raw hiccup/raw)

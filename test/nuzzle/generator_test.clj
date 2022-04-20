@@ -1,8 +1,8 @@
-(ns codes.stel.nuzzle.generator-test
+(ns nuzzle.generator-test
   (:require [clojure.test :refer [deftest is run-tests]]
             [clojure.edn :as edn]
-            [codes.stel.nuzzle.util :as util]
-            [codes.stel.nuzzle.generator :as gen]))
+            [nuzzle.util :as util]
+            [nuzzle.generator :as gen]))
 
 (def site-data-path "test-resources/edn/site-data.edn")
 

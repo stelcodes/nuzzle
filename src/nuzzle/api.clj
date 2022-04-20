@@ -1,8 +1,8 @@
-(ns codes.stel.nuzzle.api
+(ns nuzzle.api
   (:require [babashka.fs :as fs]
-            [codes.stel.nuzzle.generator :as gen]
-            [codes.stel.nuzzle.log :as log]
-            [codes.stel.nuzzle.ring :as ring]
+            [nuzzle.generator :as gen]
+            [nuzzle.log :as log]
+            [nuzzle.ring :as ring]
             [clojure.pprint :refer [pprint]]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]

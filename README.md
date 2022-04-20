@@ -32,7 +32,7 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 Want to read some code already? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build my personal developer blog deployed at [stel.codes](https://stel.codes).
 
 ## Nuzzle's API
-All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `codes.stel.nuzzle.api` namespace:
+All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `nuzzle.api` namespace:
 - `export`: Exports the static site to disk.
 - `start-server`: Starts a web server (http-kit) for a live preview the website, building each webpage from scratch upon each request.
 - `realize`: Helper function for visualizing your site data after Nuzzle's transformations.
@@ -156,7 +156,7 @@ All webpages are transformed into Hiccup by a single function supplied by the us
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
-> In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `codes.stel.nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
+> In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
 Here's an example of a webpage rendering function called `render-webpage`:
 ```clojure
@@ -177,7 +177,7 @@ The data contained in that webpage map is crucial when deciding what Hiccup to r
 
 Just because a webpage exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a webpage to be exported, simply return `nil`. The example above avoids exporting any index webpages by returning `nil` when the webpage map contains an `:index` key.
 
-At the bottom of the function we can see the function from `:render-content` being used. It will always be present in every webpage map. It will either return `nil` or some HTML wrapped in the `codes.stel.nuzzle.hiccup/raw` wrapper. We're able to call it safely in the `:else` clause above because of this trait.
+At the bottom of the function we can see the function from `:render-content` being used. It will always be present in every webpage map. It will either return `nil` or some HTML wrapped in the `nuzzle.hiccup/raw` wrapper. We're able to call it safely in the `:else` clause above because of this trait.
 
 ### Accessing Your Site Data with `get-site-data`
 With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-site-data`. While realizing your site data, Nuzzle attaches a copy of this function to each webpage map under the key `:get-site-data`.

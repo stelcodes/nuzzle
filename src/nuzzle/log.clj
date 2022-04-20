@@ -1,4 +1,4 @@
-(ns codes.stel.nuzzle.log
+(ns nuzzle.log
   (:require [clojure.string :as string]))
 
 (defn log-time []

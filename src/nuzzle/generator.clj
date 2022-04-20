@@ -1,4 +1,4 @@
-(ns codes.stel.nuzzle.generator
+(ns nuzzle.generator
   (:require [babashka.fs :as fs]
             [clj-rss.core :as rss]
             [clojure.edn :as edn]
@@ -6,11 +6,9 @@
             [clojure.java.shell :refer [sh]]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as string]
-            [codes.stel.nuzzle.hiccup :as hiccup]
-            [codes.stel.nuzzle.log :as log]
-            [codes.stel.nuzzle.util :as util]
-            [markdown.core :refer [md-to-html-string]]
-            [markdown.transformers :refer [transformer-vector]]
+            [nuzzle.hiccup :as hiccup]
+            [nuzzle.log :as log]
+            [nuzzle.util :as util]
             [cybermonday.core :as cm]
             [stasis.core :as stasis]))
 

@@ -1,4 +1,4 @@
-(ns codes.stel.nuzzle.util
+(ns nuzzle.util
   (:require
    [babashka.fs :as fs]
    [clojure.string :as string]))

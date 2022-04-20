@@ -1,6 +1,6 @@
-(ns codes.stel.nuzzle.ring
+(ns nuzzle.ring
   (:require
-   [codes.stel.nuzzle.util :as util]
+   [nuzzle.util :as util]
    [ring.middleware.file :refer [wrap-file]]))
 
 (defn wrap-static-dir
