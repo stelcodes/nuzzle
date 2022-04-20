@@ -45,7 +45,7 @@ To keep things simple, all three functions have the exact same signature. They a
 :output-dir     ; A path to a directory to put the exported site into. Defaults to `out`.
 :rss-opts       ; A map with RSS feed options. Defaults to nil (no RSS feed).
 :remove-drafts? ; A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
-:dev-port       ; A port number for the development server to listen on. Defaults to 5868.
+:dev-port       ; A port number for the development server to listen on. Defaults to 6899.
 ```
 
 This map is your *top-level config* and contains everything required to build and develop your static site.

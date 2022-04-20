@@ -59,7 +59,7 @@
   (log/info (str "✨🐈 Starting development server on port " dev-port))
   (when remove-drafts? (log/info "❌🐈 Removing drafts"))
   (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
-  (let [config (merge config {:dev-port 5868 remove-drafts? false})
+  (let [config (merge config {:dev-port 6899 remove-drafts? false})
         create-index #(-> site-data
                           (gen/load-site-data)
                           (gen/realize-site-data config)
