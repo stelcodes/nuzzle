@@ -51,7 +51,7 @@ To keep things simple, all three functions have the exact same signature. They a
 This map is your *top-level config* and contains everything required to build and develop your static site.
 
 ## Site Data
-Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It is expected to be a vector of maps. Each map has just one required key: `:id`. The value of `:id` will descibes what kind of data that map holds.
+Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It is expected to be a vector of maps. Each map has just one required key: `:id`. The value of `:id` will describe what kind of data that map holds.
 
 If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<output-dir>/blog-posts/using-clojure/index.html`. We'll refer to these as *webpage maps*.
 
@@ -129,7 +129,7 @@ A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle 
 Nuzzle adds these keys to every webpage map:
 - `:uri`: the path of the webpage from the website's root, (ex `"/blog-posts/learning-clojure/"`).
 - `:render-content`: A function that renders the webpage's markup if `:content` key is present, otherwise returns `nil`.
-- `:get-site-data`: A function that takes any `id` from the realized site data and returns the corresponding map. Very useful in your webpage rendering function.
+- `:get-site-data`: A function that allows you to reach into your realized site data inside of your webpage rendering function.
 
 > Nuzzle does not modify metadata maps in any way.
 
@@ -179,16 +179,21 @@ Just because a webpage exists in your realized site data doesn't mean you have t
 
 At the bottom of the function we can see the function from `:render-content` being used. It will always be present in every webpage map. It will either return `nil` or some HTML wrapped in the `codes.stel.nuzzle.hiccup/raw` wrapper. We're able to call it safely in the `:else` clause above because of this trait.
 
-### More data with `get-site-data`
-With many static site generators, accessing global data inside markup templates can be painful. Nuzzle strives to solve this difficult problem elegantly with a function called `get-site-data`. While realizing your site data, Nuzzle attaches a copy of this function to each webpage map under the key `:get-site-data`. This function accepts any `id` from your realized site data and returns the corresponding map. If you want the whole site data vector
+### Accessing Your Site Data with `get-site-data`
+With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-site-data`. While realizing your site data, Nuzzle attaches a copy of this function to each webpage map under the key `:get-site-data`.
 
-In a word, `get-site-data` allows us to see the whole world while creating our Hiccup. Since it returns maps from our **realized** site data, all information about the site is at your fingertips. Every webpage and metadata map from your site data is always a function call away.
+In a word, `get-site-data` allows us to see the whole world while creating our Hiccup. It has two forms:
 
-Better yet, the `get-site-data` function attaches a copy of itself to each map it returns, so you can always count on it being there. This way you can write functions that accept a webpage or metadata map without having to worry about passing `get-site-data` along with it.
+1. `(get-site-data)`: With no arguments, returns the whole realized site data vector.
+2. `(get-site-data [:blog-posts])`: With an `id` from the realized site data, return the corresponding map.
 
-If `id-info` cannot find the given `id`, it will throw an exception. This makes it easy to spot errors in your code quickly.
+Since `get-site-data` returns maps from our *realized* site data, all information about the site is at your fingertips. Every webpage and metadata map from your site data is always a function call away.
 
-There are many use cases for the `get-site-data` function. It's great for creating index webpages, accessing metadata maps, and many other things:
+To make things even more convenient, the `get-site-data` function attaches a copy of itself to each map it returns. This makes it easy to write functions that accept a webpage or metadata map without ever having to worry about passing `get-site-data` along with it. It's kind of like a self-replicating bridge between all your site data maps.
+
+> If `get-site-data` cannot find the given `id`, it will throw an exception. This makes it easy to spot errors in your code quickly.
+
+There are many use cases for the `get-site-data` function. It's great for creating index webpages, accessing metadata maps, and countless other things:
 
 ```clojure
 (defn unordered-list [& list-items]
