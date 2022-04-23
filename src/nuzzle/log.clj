@@ -6,13 +6,13 @@
     (.format now formatter)))
 
 (defn info [& strs]
-  (apply print (log-time) "INFO" strs))
+  (apply println (log-time) "INFO" strs))
 
 (defn warn [& strs]
-  (apply print (log-time) "WARN" strs))
+  (apply println (log-time) "WARN" strs))
 
 (defn error [& strs]
-  (apply print (log-time) "ERROR" strs))
+  (apply println (log-time) "ERROR" strs))
 
 (comment (info "test" "ok"))
 
