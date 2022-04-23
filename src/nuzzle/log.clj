@@ -7,10 +7,10 @@
     (.format now formatter)))
 
 (defn info [& strs]
-  (println (str (log-time) " INFO " (string/join \space strs))))
+  (apply print (log-time) "INFO" strs))
 
 (defn warn [& strs]
-  (println (str (log-time) " WARN " (string/join \space strs))))
+  (apply print (log-time) "WARN" strs))
 
 (comment (info "test" "ok"))
 
