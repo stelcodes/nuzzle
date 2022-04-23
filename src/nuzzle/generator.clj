@@ -115,12 +115,12 @@
     (catch Exception _
       {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
 
-(defn highlight-code [chroma-style language code]
+(defn highlight-code [highlight-style language code]
   (let [code-file (fs/create-temp-file)
         code-path (str (fs/canonicalize code-file))
         _ (spit code-path code)
         chroma-command ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
-                        "--html-inline-styles" (str "--style=" chroma-style) code-path]
+                        "--html-inline-styles" (str "--style=" highlight-style) code-path]
         {:keys [exit out err]} (safe-sh chroma-command)]
     (if (not= 0 exit)
       (do
@@ -131,16 +131,16 @@
         (fs/delete-if-exists code-file)
         out))))
 
-(defn code-block-highlighter [chroma-style [_tag-name {:keys [language]} body]]
-  (if chroma-style
+(defn code-block-highlighter [highlight-style [_tag-name {:keys [language]} body]]
+  (if highlight-style
     [:code (hiccup/raw (highlight-code
-                        chroma-style
+                        highlight-style
                         (or language "no-highlight")
                         body))]
     [:code [:pre body]]))
 
-(defn process-markdown-file [chroma-style file]
-  (let [code-block-with-style (partial code-block-highlighter chroma-style)
+(defn process-markdown-file [highlight-style file]
+  (let [code-block-with-style (partial code-block-highlighter highlight-style)
         lower-fns {:markdown/fenced-code-block code-block-with-style
                    :markdown/indented-code-block code-block-with-style}
         [_ _ & hiccup] ; Avoid the top level :div {}
@@ -152,7 +152,7 @@
 (defn create-render-content-fn
   "Create a function that turned the :content file into html, wrapped with the
   hiccup raw identifier."
-  [id content {:keys [chroma-style]}]
+  [id content {:keys [highlight-style]}]
   {:pre [(vector? id) (or (nil? content) (string? content))]}
   (if-not content
     ;; If :content is not defined, just make a function that returns nil
@@ -167,7 +167,7 @@
          ;; If markdown, convert to html
          (or (= "markdown" ext) (= "md" ext))
          (fn render-markdown []
-           (hiccup/raw (process-markdown-file chroma-style content-file)))
+           (hiccup/raw (process-markdown-file highlight-style content-file)))
          ;; If extension not recognized, throw Exception
          :else (throw (ex-info (str "Filetype of content file " content " for id " id " not recognized")
                       {:id id :content content}))))

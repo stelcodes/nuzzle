@@ -49,7 +49,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
 - `:static-dir` - A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
 - `:output-dir` - A path to a directory to export the site into. Defaults to `out`.
-- `:chroma-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
+- `:highlight-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
 - `:rss-opts` - A map with RSS feed options. Defaults to nil (no RSS feed).
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
 - `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
@@ -58,7 +58,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
 {:static-dir "static"
  :render-webpage views/render-webpage
- :chroma-style "monokai"
+ :highlight-style "monokai"
  :rss-opts
  {:author "ash@ketchum.com (Ash Ketchum)"
   :title "Ash Ketchum's Blog"
