@@ -3,6 +3,7 @@
             [nuzzle.generator :as gen]
             [nuzzle.log :as log]
             [nuzzle.ring :as ring]
+            [nuzzle.rss :as rss]
             [clojure.pprint :refer [pprint]]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
@@ -30,7 +31,7 @@
         (gen/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
         rss-file (fs/file output-dir "rss.xml")
-        rss-feed (gen/create-rss-feed realized-site-data rss-opts)]
+        rss-feed (rss/create-rss-feed realized-site-data rss-opts)]
     (log/info "🔨🐈 Exporting static site to:" output-dir)
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
     (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
