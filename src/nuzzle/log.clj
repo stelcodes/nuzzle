@@ -5,14 +5,17 @@
         formatter (java.time.format.DateTimeFormatter/ofPattern "HH:mm:ss")]
     (.format now formatter)))
 
-(defn info [& strs]
-  (apply println (log-time) "INFO" strs))
+(defn log-gen [level]
+  (fn [& items]
+    (->> items
+         (map str)
+         (apply println (log-time) level))))
 
-(defn warn [& strs]
-  (apply println (log-time) "WARN" strs))
+(def info (log-gen "INFO"))
 
-(defn error [& strs]
-  (apply println (log-time) "ERROR" strs))
+(def warn (log-gen "WARN"))
+
+(def error (log-gen "ERROR"))
 
 (comment (info "test" "ok"))
 
