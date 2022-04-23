@@ -30,28 +30,43 @@
           (assoc agg id (dissoc m :id)))
         {})))
 
-(defn validate-site-data [site-data]
+(defn validate-config [{:keys [site-data] :as config}]
   (let [missing-homepage? (not (some #(= [] (:id %)) site-data))]
     (cond
      missing-homepage?
      (throw (ex-info "Site data is missing homepage (webpage map with an :id of [])" {}))
-     :else site-data)))
+     :else config)))
 
-(defn load-site-data
+(defn load-config
   "Read the site-data EDN file and validate it."
-  [site-data]
-  {:pre [(string? site-data)] :post [(map? %)]}
-  (->
-   (try
-     (-> site-data
-         slurp
-         edn/read-string)
-     (catch Throwable _
-       (throw (ex-info
-               (str "Site data file: " site-data " could not be read. Make sure the file exists and the contents are a valid EDN vector.")
-               {:path site-data}))))
-   validate-site-data
-   convert-site-data-to-map))
+  [config-path config-overrides]
+  {:pre [(string? config-path) (or (nil? config-overrides) (map? config-overrides))]
+   :post [(map? %)]}
+  (let [config-defaults {:output-dir "out" :dev-port 6899}
+        edn-config
+        (try
+          (edn/read-string (slurp config-path))
+          (catch java.io.FileNotFoundException e
+            (log/error "Config file is missing or has incorrect permissions.")
+            (throw e))
+          (catch java.lang.RuntimeException e
+            (log/error "Config file contains invalid EDN.")
+            (throw e))
+          (catch Exception e
+            (log/error "Could not read config file.")
+            (throw e)))
+        {render-webpage-symbol :render-webpage :as full-config}
+        (merge config-defaults edn-config config-overrides)
+        render-webpage-fn
+        (try (var-get (requiring-resolve render-webpage-symbol))
+          (catch java.io.FileNotFoundException e
+            (log/error ":render-webpage function" render-webpage-symbol "cannot be resolved")
+            (throw e)))]
+    (-> full-config
+        (assoc :render-webpage render-webpage-fn)
+        (validate-config))))
+
+(comment (load-config "test-resources/config-1.edn" {}))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
@@ -201,10 +216,11 @@
 
 (defn realize-site-data
   "Creates fully realized site-data datastructure with or without drafts."
-  [site-data {:keys [remove-drafts?] :as config}]
-  {:pre [(map? site-data)]}
+  [{:keys [remove-drafts? site-data] :as config}]
+  {:pre [(vector? site-data)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
-  (let [site-data (if remove-drafts?
+  (let [site-data (convert-site-data-to-map site-data)
+        site-data (if remove-drafts?
                     (remove-drafts site-data)
                     site-data)
         site-data (->> site-data

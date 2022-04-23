@@ -19,11 +19,11 @@ Nuzzle is a static site generator for people who love:
 Nuzzle is a Clojure library, but you could also think about it as a micro-framework. It's goal is to define a simple yet powerful process for turning data and functions into a static site. Nuzzle aims to be the only Clojure dependency that your project requires. It also aims to provide a rich REPL experience that can leverage the power of nREPL clients like Cider and Conjure for extremely fast feedback loops while experimenting with your site appearance and content.
 
 **With Nuzzle you can...**
-- Manage all website data inside an EDN file
+- Manage all website data and structure inside an EDN file
 - Plug in a single function to produce Hiccup
 - Retrieve all website data while inside that function
 - Write your prose in Markdown files
-- Statically render CSS syntax highlighting for code in Markdown (requires [Chroma](https://github.com/alecthomas/chroma))
+- Statically render CSS syntax highlighting for Markdown code (requires [Chroma](https://github.com/alecthomas/chroma))
 - Utilize a built-in, REPL-driven, hot-reloading web server
 - Tag webpages
 - Create subdirectory and tag index webpages
@@ -33,15 +33,20 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 Want to read some code already? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build my personal developer blog deployed at [stel.codes](https://stel.codes).
 
 ## Nuzzle's API
-All of Nuzzle's functionality is conveniently wrapped up with just three functions in the `nuzzle.api` namespace:
+Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 - `export`: Exports the static site to disk.
 - `start-server`: Starts a web server (http-kit) for a live preview of the website, building each webpage from scratch upon each request.
 - `realize`: Helper function for visualizing your site data after Nuzzle's transformations.
 
-To keep things simple, all three functions have the exact same signature. They all accept a single map with the following keys:
+All three functions have exactly the same interface:
+- They require no arguments.
+- They accept keyword arguments which you can use to override the values in your configuration file.
 
-- `:site-data` - A path to an EDN file containing data about the website. Required.
-- `:render-webpage` - A function responsible for creating Hiccup. Required.
+## Configuration File
+Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory which contains some or all of these keys:
+
+- `:site-data` - A vector of maps describing the structure and content of your website. Required.
+- `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
 - `:static-dir` - A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
 - `:output-dir` - A path to a directory to export the site into. Defaults to `out`.
 - `:chroma-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
@@ -49,28 +54,43 @@ To keep things simple, all three functions have the exact same signature. They a
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
 - `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
 
-This map is your *top-level config* and contains everything required to build and develop your static site. It might look something like this:
-
+If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
-(def config {:site-data "edn/site.edn"
-             :static-dir "static"
-             :render-webpage views/render-webpage
-             :chroma-style "monokai"
-             :rss-opts
-             {:author "ash@ketchum.com (Ash Ketchum)"
-              :title "Ash Ketchum's Blog"
-              :description "Find out if I caught them all!"
-              :link "https://ketchum.com"}})
+{:static-dir "static"
+ :render-webpage views/render-webpage
+ :chroma-style "monokai"
+ :rss-opts
+ {:author "ash@ketchum.com (Ash Ketchum)"
+  :title "Ash Ketchum's Blog"
+  :description "I wanna be the very best, like no one ever was."
+  :link "https://ashketchum.com"}
+ :site-data
+ [
+  {:id []
+   :content "markdown/homepage-blurb.md"}
+  {:id [:blog-posts :catching-pikachu]
+   :title "How I Caught Pikachu"
+   :content "markdown/how-i-caught-pikachu.md"}
+  {:id [:blog-posts :defeating-misty]
+   :title "How I Defeated Misty with Pikachu"
+   :content "markdown/how-i-defeated-misty.md"}
+  {:id [:about]
+   :content "markdown/about-myself.md"}
+  {:id :crypto
+   :bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb"
+   :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979"}
+  ]
+ }
 ```
 
 ## Site Data
-Your `site-data` EDN file defines all the webpages in the website, plus any extra information you may need. It is expected to be a vector of maps. Each map has just one required key: `:id`. The value of `:id` will describe what kind of data that map holds.
+The `:site-data` value is the most crucial piece of the Nuzzle config. It defines the structure and details of all the static site's webpages as well as any supplemental information. Site data must be a vector of maps with just one required key: `:id`. The value of `:id` will describe what kind of data that map holds.
 
-If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :using-clojure]` translates to the URI `"/blog-posts/using-clojure"` and will be rendered to disk as `<output-dir>/blog-posts/using-clojure/index.html`. We'll refer to these as *webpage maps*.
+If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<output-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
 
-If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-webpage` function later on. We'll refer to these as *metadata maps*.
+If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-webpage` function later on. Nuzzle calls these *metadata maps*.
 
-Here's an annotated example:
+Here's another annotated example of a `:site-data` value:
 ```clojure
 [
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
