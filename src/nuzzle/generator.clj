@@ -273,10 +273,10 @@
     (apply rss/channel-xml
            (select-keys rss-opts [:title :description :link])
            (->>
-            (for [{:keys [uri title rss]} (vals realized-site-data)]
-              (when rss
+            (for [{:keys [uri title rss?]} (vals realized-site-data)]
+              (when rss?
                 (-> {:title (or title "Untitled") :guid (str link uri) :author author}
-                    (merge (when (map? rss) rss))
+                    (merge (when (map? rss?) rss?))
                     util/remove-nil-values)))
             (remove nil?)))))
 

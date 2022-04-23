@@ -116,7 +116,7 @@ Here's another annotated example of a `:site-data` value:
    ;; The special :draft? key tells Nuzzle which webpages are drafts
    :draft? true
    ;; The special :rss key tells Nuzzle to include the webpage in the RSS XML file
-   :rss true}
+   :rss? true}
 
   {:id [:blog-posts :clojure-on-fedora]
    :title "How to Install Clojure on Fedora"
@@ -139,7 +139,7 @@ Nuzzle recognizes some special keys in webpage maps which have side-effects:
 - `:content`: A path to a file that contains markup. Nuzzle decided what kind of markup it is based on the filename suffix. Supported filetypes are HTML (`.html`) and Markdown (`.md`, `.markdown`).
 - `:tags`: A vector of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this webpage is a draft or not.
-- `:rss`: A boolean indicating whether the webpage should be included in the optional RSS feed.
+- `:rss?`: A boolean indicating whether the webpage should be included in the optional RSS feed.
 
 ## How Nuzzle Transforms the Site Data
 You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, applies some transformations, and then sends each webpage map to your webpage rendering function.

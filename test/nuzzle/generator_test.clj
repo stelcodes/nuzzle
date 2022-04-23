@@ -28,17 +28,17 @@
            {:id [:blog :nuzzle-rocks],
             :title "10 Reasons Why Nuzzle Rocks",
             :content "test-resources/markdown/nuzzle-rocks.md",
-            :rss true,
+            :rss? true,
             :tags [:nuzzle]}
            {:id [:blog :why-nuzzle],
             :title "Why I Made Nuzzle",
             :content "test-resources/markdown/why-nuzzle.md",
-            :rss true,
+            :rss? true,
             :tags [:nuzzle]}
            {:id [:blog :favorite-color],
             :title "What's My Favorite Color? It May Suprise You.",
             :content "test-resources/markdown/favorite-color.md",
-            :rss true,
+            :rss? true,
             :tags [:colors]}
            {:id [:about],
             :title "About",
@@ -104,19 +104,19 @@
             [:blog :nuzzle-rocks]
             {:title "10 Reasons Why Nuzzle Rocks",
              :content "test-resources/markdown/nuzzle-rocks.md",
-             :rss true
+             :rss? true
              :tags [:nuzzle],
              :uri "/blog/nuzzle-rocks/"}
             [:blog :why-nuzzle]
             {:title "Why I Made Nuzzle",
              :content "test-resources/markdown/why-nuzzle.md",
-             :rss true
+             :rss? true
              :tags [:nuzzle],
              :uri "/blog/why-nuzzle/"}
             [:blog :favorite-color]
             {:title "What's My Favorite Color? It May Suprise You.",
              :content "test-resources/markdown/favorite-color.md",
-             :rss true
+             :rss? true
              :tags [:colors],
              :uri "/blog/favorite-color/"}
             [:about]
@@ -133,7 +133,7 @@
 
 (deftest create-rss-feed
   (let [realized-site-data (gen/realize-site-data config)]
-    (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel><atom:link href=\"https://foobar.com\" rel=\"self\" type=\"application/rss+xml\"/><title>Foo's blog</title><description>Rants about foo and thoughts about bar</description><link>https://foobar.com</link><generator>clj-rss</generator><item><title>Why I Made Nuzzle</title><guid isPermaLink=\"false\">https://foobar.com/blog/why-nuzzle/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>What's My Favorite Color? It May Suprise You.</title><guid isPermaLink=\"false\">https://foobar.com/blog/favorite-color/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>10 Reasons Why Nuzzle Rocks</title><guid isPermaLink=\"false\">https://foobar.com/blog/nuzzle-rocks/</guid><author>foo@bar.com (Foo Bar)</author></item></channel></rss>"
+    (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss? version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel><atom:link href=\"https://foobar.com\" rel=\"self\" type=\"application/rss+xml\"/><title>Foo's blog</title><description>Rants about foo and thoughts about bar</description><link>https://foobar.com</link><generator>clj-rss</generator><item><title>Why I Made Nuzzle</title><guid isPermaLink=\"false\">https://foobar.com/blog/why-nuzzle/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>What's My Favorite Color? It May Suprise You.</title><guid isPermaLink=\"false\">https://foobar.com/blog/favorite-color/</guid><author>foo@bar.com (Foo Bar)</author></item><item><title>10 Reasons Why Nuzzle Rocks</title><guid isPermaLink=\"false\">https://foobar.com/blog/nuzzle-rocks/</guid><author>foo@bar.com (Foo Bar)</author></item></channel></rss>"
            (gen/create-rss-feed
             realized-site-data (:rss-opts config))))))
 

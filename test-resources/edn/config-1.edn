@@ -13,19 +13,19 @@
   {:id [:blog :nuzzle-rocks]
    :title "10 Reasons Why Nuzzle Rocks"
    :content "test-resources/markdown/nuzzle-rocks.md"
-   :rss true
+   :rss? true
    :tags [:nuzzle]}
 
   {:id [:blog :why-nuzzle]
    :title "Why I Made Nuzzle"
    :content "test-resources/markdown/why-nuzzle.md"
-   :rss true
+   :rss? true
    :tags [:nuzzle]}
 
   {:id [:blog :favorite-color]
    :title "What's My Favorite Color? It May Suprise You."
    :content "test-resources/markdown/favorite-color.md"
-   :rss true
+   :rss? true
    :tags [:colors]}
 
   {:id [:about]
