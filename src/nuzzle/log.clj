@@ -12,5 +12,8 @@
 (defn warn [& strs]
   (apply print (log-time) "WARN" strs))
 
+(defn error [& strs]
+  (apply print (log-time) "ERROR" strs))
+
 (comment (info "test" "ok"))
 
