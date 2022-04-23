@@ -60,8 +60,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
  :render-webpage views/render-webpage
  :highlight-style "monokai"
  :rss-opts
- {:author "ash@ketchum.com (Ash Ketchum)"
-  :title "Ash Ketchum's Blog"
+ {:title "Ash Ketchum's Blog"
   :description "I wanna be the very best, like no one ever was."
   :link "https://ashketchum.com"}
  :site-data

@@ -29,8 +29,7 @@
   (let [{:keys [rss-opts static-dir remove-drafts? output-dir render-webpage] :as config}
         (gen/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
-        rss-filename (or (:filename rss-opts) "rss.xml")
-        rss-file (fs/file output-dir rss-filename)
+        rss-file (fs/file output-dir "rss.xml")
         rss-feed (gen/create-rss-feed realized-site-data rss-opts)]
     (log/info "🔨🐈 Exporting static site to:" output-dir)
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
@@ -40,7 +39,7 @@
         (gen/generate-site-index render-webpage false)
         (gen/export-site-index static-dir output-dir))
     (when rss-feed
-      (log/info "📰🐈 Creating RSS file:" rss-filename)
+      (log/info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file))
       (spit rss-file rss-feed))
     (log/info "✅🐈 Export successful")))
 

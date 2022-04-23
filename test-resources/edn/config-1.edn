@@ -2,8 +2,7 @@
  :render-webpage nuzzle.generator-test/render-webpage
  :rss-opts {:title "Foo's blog"
             :description "Rants about foo and thoughts about bar"
-            :link "https://foobar.com"
-            :author "foo@bar.com (Foo Bar)"}
+            :link "https://foobar.com"}
  :static-dir "public"
  :output-dir "/tmp/nuzzle-test-out"
  :site-data
