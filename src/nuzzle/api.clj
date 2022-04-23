@@ -1,5 +1,6 @@
 (ns nuzzle.api
   (:require [babashka.fs :as fs]
+            [nuzzle.config :as conf]
             [nuzzle.generator :as gen]
             [nuzzle.log :as log]
             [nuzzle.ring :as ring]
@@ -15,7 +16,7 @@
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [{:keys [remove-drafts?] :as config}
-        (gen/load-config config-overrides)]
+        (conf/load-config config-overrides)]
     (log/info "🔍🐈 Printing realized site data for inspection")
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
     (-> config
@@ -28,7 +29,7 @@
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [{:keys [rss-channel static-dir remove-drafts? output-dir render-webpage] :as config}
-        (gen/load-config config-overrides)
+        (conf/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
         rss-file (fs/file output-dir "rss.xml")
         rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
@@ -49,8 +50,8 @@
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [{:keys [render-webpage remove-drafts? static-dir dev-port] :as config}
-        (gen/load-config config-overrides)
-        create-index #(-> (gen/load-config config-overrides)
+        (conf/load-config config-overrides)
+        create-index #(-> (conf/load-config config-overrides)
                           (gen/realize-site-data)
                           (gen/generate-page-list)
                           (gen/generate-site-index render-webpage true))]

@@ -1,5 +1,5 @@
 {:remove-drafts? false
- :render-webpage nuzzle.generator-test/render-webpage
+ :render-webpage nuzzle.config-test/render-webpage
  :rss-channel {:title "Foo's blog"
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}

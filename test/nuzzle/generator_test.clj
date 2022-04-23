@@ -1,48 +1,14 @@
 (ns nuzzle.generator-test
   (:require [clojure.test :refer [deftest is run-tests]]
+            [nuzzle.config :as conf]
             [nuzzle.util :as util]
             [nuzzle.generator :as gen]))
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn render-webpage [_] (constantly [:h1 "test"]))
-
-(def config (gen/load-specified-config config-path {}))
+(def config (conf/load-specified-config config-path {}))
 
 (def site-data-map (gen/convert-site-data-to-map (:site-data config)))
-
-(deftest load-specified-config
-  (is (= (gen/load-specified-config config-path {})
-         {:output-dir "/tmp/nuzzle-test-out",
-          :dev-port 6899,
-          :remove-drafts? false,
-          :render-webpage render-webpage,
-          :rss-channel
-          {:title "Foo's blog",
-           :description "Rants about foo and thoughts about bar",
-           :link "https://foobar.com"}
-          :static-dir "public",
-          :site-data
-          [{:id []}
-           {:id [:blog :nuzzle-rocks],
-            :title "10 Reasons Why Nuzzle Rocks",
-            :content "test-resources/markdown/nuzzle-rocks.md",
-            :rss? true,
-            :tags [:nuzzle]}
-           {:id [:blog :why-nuzzle],
-            :title "Why I Made Nuzzle",
-            :content "test-resources/markdown/why-nuzzle.md",
-            :rss? true,
-            :tags [:nuzzle]}
-           {:id [:blog :favorite-color],
-            :title "What's My Favorite Color? It May Suprise You.",
-            :content "test-resources/markdown/favorite-color.md",
-            :rss? true,
-            :tags [:colors]}
-           {:id [:about],
-            :title "About",
-            :content "test-resources/markdown/about.md"}
-           {:id :meta, :twitter "https://twitter/foobar"}]})))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
