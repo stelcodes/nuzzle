@@ -50,7 +50,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:static-dir` - A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
 - `:output-dir` - A path to a directory to export the site into. Defaults to `out`.
 - `:highlight-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
-- `:rss-opts` - A map with RSS feed options. Defaults to nil (no RSS feed).
+- `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
 - `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
 
@@ -59,7 +59,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 {:static-dir "static"
  :render-webpage views/render-webpage
  :highlight-style "monokai"
- :rss-opts
+ :rss-channel
  {:title "Ash Ketchum's Blog"
   :description "I wanna be the very best, like no one ever was."
   :link "https://ashketchum.com"}

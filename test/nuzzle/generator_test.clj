@@ -17,7 +17,7 @@
           :dev-port 6899,
           :remove-drafts? false,
           :render-webpage render-webpage,
-          :rss-opts
+          :rss-channel
           {:title "Foo's blog",
            :description "Rants about foo and thoughts about bar",
            :link "https://foobar.com"}

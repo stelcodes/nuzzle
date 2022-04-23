@@ -27,11 +27,11 @@
   the :output-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [rss-opts static-dir remove-drafts? output-dir render-webpage] :as config}
+  (let [{:keys [rss-channel static-dir remove-drafts? output-dir render-webpage] :as config}
         (gen/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
         rss-file (fs/file output-dir "rss.xml")
-        rss-feed (rss/create-rss-feed realized-site-data rss-opts)]
+        rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
     (log/info "🔨🐈 Exporting static site to:" output-dir)
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
     (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
