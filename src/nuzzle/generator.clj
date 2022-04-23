@@ -277,7 +277,7 @@
               (when rss?
                 (-> {:title (or title "Untitled") :guid (str link uri) :author author}
                     (merge (when (map? rss?) rss?))
-                    util/remove-nil-values)))
+                    util/prune-map)))
             (remove nil?)))))
 
 (defn export-site-index
