@@ -88,7 +88,7 @@ The `:site-data` value is the most crucial piece of the Nuzzle config. It define
 
 If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<output-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
 
-If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-webpage` function later on. Nuzzle calls these *metadata maps*.
+If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-webpage` function later on. Nuzzle calls these *peripheral maps*.
 
 Here's another annotated example of a `:site-data` value:
 ```clojure
@@ -126,7 +126,7 @@ Here's another annotated example of a `:site-data` value:
    :foobar "baz"}
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Metadata Maps
+  ;; Peripheral Maps
 
   ;; Extra information not particular to any webpage
   {:id :social
@@ -164,7 +164,7 @@ Nuzzle adds these keys to every webpage map:
 - `:render-content`: A function that renders the webpage's markup if `:content` key is present, otherwise returns `nil`.
 - `:get-site-data`: A function that allows you to reach into your realized site data inside of your webpage rendering function.
 
-> Nuzzle does not modify metadata maps in any way.
+> Nuzzle does not modify peripheral maps in any way.
 
 ### Adding Index Pages
 Often you'll want to create index webpages in static sites which serve as a webpage that links to other webpages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Let's call these *subdirectory index webpages*. Another common pattern is associating tags with webpages. You may want to add index pages like `"/tags/clojure"` so you can link to all your webpages about Clojure. Let's call these *tag index webpages*. Nuzzle adds both subdirectory and tag index webpages automatically for all subdirectories and tags present in your site data.
@@ -220,13 +220,13 @@ In a word, `get-site-data` allows us to see the whole world while creating our H
 1. `(get-site-data)`: With no arguments, returns the whole realized site data vector.
 2. `(get-site-data [:blog-posts])`: With an `id` from the realized site data, return the corresponding map.
 
-Since `get-site-data` returns maps from our *realized* site data, all information about the site is at your fingertips. Every webpage and metadata map from your site data is always a function call away.
+Since `get-site-data` returns maps from our *realized* site data, all information about the site is at your fingertips. Every webpage and peripheral map from your site data is always a function call away.
 
-To make things even more convenient, the `get-site-data` function attaches a copy of itself to each map it returns. This makes it easy to write functions that accept a webpage or metadata map without ever having to worry about passing `get-site-data` along with it. It's kind of like a self-replicating bridge between all your site data maps.
+To make things even more convenient, the `get-site-data` function attaches a copy of itself to each map it returns. This makes it easy to write functions that accept a webpage or peripheral map without ever having to worry about passing `get-site-data` along with it. It's kind of like a self-replicating bridge between all your site data maps.
 
 > If `get-site-data` cannot find the given `id`, it will throw an exception. This makes it easy to spot errors in your code quickly.
 
-There are many use cases for the `get-site-data` function. It's great for creating index webpages, accessing metadata maps, and countless other things:
+There are many use cases for the `get-site-data` function. It's great for creating index webpages, accessing peripheral maps, and countless other things:
 
 ```clojure
 (defn unordered-list [& list-items]
