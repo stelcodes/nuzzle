@@ -37,7 +37,7 @@
      (throw (ex-info "Site data is missing homepage (webpage map with an :id of [])" {}))
      :else config)))
 
-(defn load-config
+(defn load-specified-config
   "Read the site-data EDN file and validate it."
   [config-path config-overrides]
   {:pre [(string? config-path) (or (nil? config-overrides) (map? config-overrides))]
@@ -66,7 +66,10 @@
         (assoc :render-webpage render-webpage-fn)
         (validate-config))))
 
-(comment (load-config "test-resources/config-1.edn" {}))
+(defn load-config [config-overrides]
+  (load-specified-config "nuzzle.edn" config-overrides))
+
+(comment (load-specified-config "test-resources/config-1.edn" {}))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"

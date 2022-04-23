@@ -7,12 +7,12 @@
 
 (defn render-webpage [_] (constantly [:h1 "test"]))
 
-(def config (gen/load-config config-path {}))
+(def config (gen/load-specified-config config-path {}))
 
 (def site-data-map (gen/convert-site-data-to-map (:site-data config)))
 
-(deftest load-site-data
-  (is (= (gen/load-config config-path {})
+(deftest load-specified-config
+  (is (= (gen/load-specified-config config-path {})
          {:output-dir "/tmp/nuzzle-test-out",
           :dev-port 6899,
           :remove-drafts? false,
