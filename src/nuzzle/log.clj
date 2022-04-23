@@ -1,5 +1,4 @@
-(ns nuzzle.log
-  (:require [clojure.string :as string]))
+(ns nuzzle.log)
 
 (defn log-time []
   (let [now (java.time.LocalDateTime/now)
