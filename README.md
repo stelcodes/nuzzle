@@ -51,7 +51,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:output-dir` - A path to a directory to export the site into. Defaults to `out`.
 - `:chroma-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
 - `:rss-opts` - A map with RSS feed options. Defaults to nil (no RSS feed).
-- `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to false.
+- `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
 - `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
