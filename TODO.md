@@ -2,9 +2,12 @@
 - [x] Change `:render-content-fn` to `:render-content`
 - [x] Add RSS feed using clj-rss
 - [ ] Do more research into other Clojure static site generators like Cryogen
-- [ ] Add server middleware to print out page map every page load
-- [ ] Change markdown parser to Cybermonday
-- [ ] Add more generator.clj tests
-- [ ] Add symbol option for `:render-page`
-- [ ] Change `id->info` to `key->value`
+- [x] Add server middleware to print out page map every page load
+- [x] Change markdown parser to Cybermonday
+- [x] Add more generator.clj tests
+- [x] Add symbol option for `:render-page`
 - [x] Change `site-config` to `site-data`
+- [ ] Change `content` and `render-content` to `markdown` and `render-markdown` (markdown only, no HTML)
+- [ ] Enable special `markdown` field in peripheral maps
+- [ ] Add pygment as code highlighting option
+
