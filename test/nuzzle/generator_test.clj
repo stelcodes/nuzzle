@@ -8,7 +8,7 @@
 
 (def config (conf/load-specified-config config-path {}))
 
-(def site-data-map (gen/convert-site-data-to-map (:site-data config)))
+(def site-data-map (util/convert-site-data-to-map (:site-data config)))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]

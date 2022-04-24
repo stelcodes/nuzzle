@@ -49,3 +49,21 @@
   (try (apply sh/sh args)
     (catch Exception _
       {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
+
+(defn convert-site-data-to-vector
+  [site-data]
+  {:pre [(map? site-data)] :post [#(vector? %)]}
+  (->> site-data
+       (reduce-kv
+        (fn [agg id m]
+          (conj agg (assoc m :id id)))
+        [])))
+
+(defn convert-site-data-to-map
+  [site-data]
+  {:pre [(vector? site-data)] :post [#(map? %)]}
+  (->> site-data
+       (reduce
+        (fn [agg {:keys [id] :as m}]
+          (assoc agg id (dissoc m :id)))
+        {})))

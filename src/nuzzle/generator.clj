@@ -7,24 +7,6 @@
             [nuzzle.util :as util]
             [stasis.core :as stasis]))
 
-(defn convert-site-data-to-vector
-  [site-data]
-  {:pre [(map? site-data)] :post [#(vector? %)]}
-  (->> site-data
-       (reduce-kv
-        (fn [agg id m]
-          (conj agg (assoc m :id id)))
-        [])))
-
-(defn convert-site-data-to-map
-  [site-data]
-  {:pre [(vector? site-data)] :post [#(map? %)]}
-  (->> site-data
-       (reduce
-        (fn [agg {:keys [id] :as m}]
-          (assoc agg id (dissoc m :id)))
-        {})))
-
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
   [site-data]
@@ -86,7 +68,7 @@
   {:pre [(map? realized-site-data)] :post [(fn? %)]}
   (fn get-site-data
     ([] (->> realized-site-data
-             convert-site-data-to-vector
+             util/convert-site-data-to-vector
              (map #(assoc % :get-site-data get-site-data))))
     ([id]
      (if-let [entity (get realized-site-data id)]
@@ -111,7 +93,7 @@
   [{:keys [remove-drafts? site-data] :as config}]
   {:pre [(vector? site-data)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
-  (let [site-data (convert-site-data-to-map site-data)
+  (let [site-data (util/convert-site-data-to-map site-data)
         site-data (if remove-drafts?
                     (remove-drafts site-data)
                     site-data)

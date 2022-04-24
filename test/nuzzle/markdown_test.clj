@@ -2,14 +2,14 @@
   (:require
    [clojure.test :refer [deftest is]]
    [nuzzle.config :as conf]
-   [nuzzle.generator :as gen]
-   [nuzzle.markdown :as md]))
+   [nuzzle.markdown :as md]
+   [nuzzle.util :as util]))
 
 (def config-path "test-resources/edn/config-1.edn")
 
 (def config (conf/load-specified-config config-path {}))
 
-(def site-data-map (gen/convert-site-data-to-map (:site-data config)))
+(def site-data-map (util/convert-site-data-to-map (:site-data config)))
 
 (deftest create-render-content-fn
   (let [{:keys [content]} (get site-data-map [:about])

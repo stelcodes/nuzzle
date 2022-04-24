@@ -5,6 +5,7 @@
             [nuzzle.log :as log]
             [nuzzle.ring :as ring]
             [nuzzle.rss :as rss]
+            [nuzzle.util :as util]
             [clojure.pprint :refer [pprint]]
             [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
@@ -21,7 +22,7 @@
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
     (-> config
         (gen/realize-site-data)
-        (gen/convert-site-data-to-vector))))
+        (util/convert-site-data-to-vector))))
 
 (defn export
   "Exports the website to :output-dir. The :static-dir is overlayed on top of
