@@ -12,7 +12,8 @@
         code-path (str (fs/canonicalize code-file))
         _ (spit code-path code)
         chroma-command ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
-                        "--html-inline-styles" (str "--style=" highlight-style) code-path]
+                        "--html-inline-styles" "--html-prevent-surrounding-pre"
+                        (str "--style=" highlight-style) code-path]
         {:keys [exit out err]} (util/safe-sh chroma-command)]
     (if (not= 0 exit)
       (do
@@ -25,10 +26,10 @@
 
 (defn code-block-highlighter [highlight-style [_tag-name {:keys [language]} body]]
   (if highlight-style
-    [:code (hiccup/raw (highlight-code
-                        highlight-style
-                        (or language "no-highlight")
-                        body))]
+    [:code [:pre (hiccup/raw
+                  (highlight-code highlight-style
+                                  (or language "no-highlight")
+                                  body))]]
     [:code [:pre body]]))
 
 (defn process-markdown-file [highlight-style file]
