@@ -47,15 +47,6 @@
            :uri "/blog/"}}
          (gen/create-group-index site-data-map))))
 
-(deftest create-render-content-fn
-  (let [{:keys [content]} (get site-data-map [:about])
-        render-content (gen/create-render-content-fn [:about] content nil)]
-    (is (fn? render-content))
-    (is (= "<h1 id=\"about\">About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
-           (str (render-content))))
-    (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
-         (str ((gen/create-render-content-fn [:foo] "test-resources/html/foo.html" nil)))))))
-
 (deftest realize-pages
   (let [realized-pages (gen/realize-pages site-data-map config)
         without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))

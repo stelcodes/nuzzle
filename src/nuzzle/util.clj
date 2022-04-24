@@ -1,6 +1,7 @@
 (ns nuzzle.util
   (:require
    [babashka.fs :as fs]
+   [clojure.java.shell :as sh]
    [clojure.string :as string]))
 
 ;; Taken from https://clojuredocs.org/clojure.core/merge
@@ -43,3 +44,8 @@
   (when (not (fs/directory? static-dir-path))
     (throw (ex-info (str "Static directory " (fs/canonicalize static-dir-path) " does not exist")
                     {:static-dir static-dir-path}))))
+
+(defn safe-sh [[command & _ :as args]]
+  (try (apply sh/sh args)
+    (catch Exception _
+      {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
