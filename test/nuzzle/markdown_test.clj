@@ -21,5 +21,5 @@
   (let [{:keys [markdown]} (get site-data-map [:about])
         render-markdown (md/create-render-markdown-fn [:about] markdown nil)]
     (is (fn? render-markdown))
-    (is (= "<h1 id=\"about\">About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
-           (str (render-markdown))))))
+    (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
+           (render-markdown)))))

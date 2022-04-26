@@ -2,7 +2,6 @@
   (:require
    [babashka.fs :as fs]
    [cybermonday.core :as cm]
-   [clojure.string :as string]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
@@ -36,11 +35,11 @@
   (let [code-block-with-style (partial code-block-highlighter highlight-style)
         lower-fns {:markdown/fenced-code-block code-block-with-style
                    :markdown/indented-code-block code-block-with-style}
-        [_ _ & hiccup] ; Avoid the top level :div {}
-        (-> file
-            slurp
-            (cm/parse-body {:lower-fns lower-fns}))]
-    (hiccup/html hiccup)))
+        ;; Avoid the top level :div {}
+        [_ _ & hiccup] (-> file
+                           slurp
+                           (cm/parse-body {:lower-fns lower-fns}))]
+    hiccup))
 
 (defn create-render-markdown-fn
   "Create a function that turned the :markdown file into html, wrapped with the
@@ -53,7 +52,7 @@
     (let [markdown-file (fs/file markdown)]
       (if markdown-file
         (fn render-markdown []
-          (hiccup/raw (process-markdown-file highlight-style markdown-file)))
+          (process-markdown-file highlight-style markdown-file))
         ;; If markdown-file is defined but it can't be found, throw an Exception
         (throw (ex-info (str "Markdown file " (fs/canonicalize markdown-file) " for id " id " not found")
                         {:id id :markdown markdown}))))))
