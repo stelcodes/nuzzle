@@ -1,13 +1,48 @@
 (ns nuzzle.config
   (:require [clojure.edn :as edn]
+            [clojure.pprint :as pp]
+            [malli.core :as m]
+            [malli.error :as me]
             [nuzzle.log :as log]))
 
-(defn validate-config [{:keys [site-data] :as config}]
-  (let [missing-homepage? (not (some #(= [] (:id %)) site-data))]
-    (cond
-     missing-homepage?
-     (throw (ex-info "Site data is missing homepage (webpage map with an :id of [])" {}))
-     :else config)))
+(def site-data-spec
+  [:and
+   [:vector {:min 1}
+    [:and
+     [:map [:id [:or [:vector keyword?] keyword?]]]
+     [:fn {:error/message ":site-data map with {:rss? true} needs a :title or :description"}
+      (fn [{:keys [rss? title description]}]
+        (or (not rss?) (or title description)))]]]
+   [:fn {:error/message "missing homepage :id []"}
+    (fn [x] (some #(= [] (:id %)) x))]])
+
+(def config-spec
+   [:map
+    {:closed true}
+    [:site-data site-data-spec]
+    [:render-webpage fn?]
+    [:static-dir {:optional true} string?]
+    [:output-dir {:optional true} string?]
+    [:highlight-style {:optional true} string?]
+    [:rss-channel {:optional true} [:map {:closed true}
+                                    [:title string?]
+                                    [:link string?]
+                                    [:description string?]]]
+    [:remove-drafts? {:optional true} boolean?]
+    [:dev-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
+
+(def valid-config?
+  (m/validator config-spec))
+
+(defn validate-config [config]
+  (if (valid-config? config)
+    config
+    (do (log/error "Encountered errors in nuzzle.edn config:")
+      (->> config
+        (m/explain config-spec)
+        (me/humanize)
+        pp/pprint)
+      (throw (ex-info "Invalid Nuzzle config" {})))))
 
 (defn load-specified-config
   "Read the site-data EDN file and validate it."

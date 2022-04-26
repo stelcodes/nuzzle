@@ -18,6 +18,7 @@
         http-kit/http-kit {:mvn/version "2.5.3"},
         io.github.kiranshila/cybermonday {:git/sha "17bb2c412171283440276a0a8e2cfd6f252aad91"}
         babashka/fs {:mvn/version "0.1.4"},
+        metosin/malli {:mvn/version "0.8.4"}
         org.clojure/clojure {:mvn/version "1.11.1"},
         hiccup/hiccup {:mvn/version "2.0.0-alpha2"},
         stasis/stasis {:mvn/version "2.5.1"}},
