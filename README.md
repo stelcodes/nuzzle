@@ -36,7 +36,7 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 - `export`: Exports the static site to disk.
 - `start-server`: Starts a web server (http-kit) for a live preview of the website, building each webpage from scratch upon each request.
-- `realize`: Helper function for visualizing your site data after Nuzzle's transformations.
+- `realize`: Helper function for visualizing your site data after Nuzzle's additions.
 
 All three functions have exactly the same interface:
 - They require no arguments.
@@ -146,8 +146,8 @@ Here's another annotated example of a `:site-data` value:
 ### Special Keys in Peripheral Maps
 - `:markdown`: A path to an associated markdown file.
 
-## How Nuzzle Transforms the Site Data
-You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, applies some transformations, and then sends each webpage map to your webpage rendering function.
+## How Nuzzle Adds to the Site Data
+You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, adds some data, and then sends each webpage map to your webpage rendering function.
 
 Nuzzle's process can be visualized like so:
 ```
@@ -158,10 +158,10 @@ Nuzzle's process can be visualized like so:
    │ EDN file  │     │     │           │      │        │ to html and  │
    │           │           │           │               │   exported   │
    └───────────┘  Nuzzle   └───────────┘render-webpage │              │
-              transformations              function    └──────────────┘
+                 additions                 function    └──────────────┘
 ```
 
-A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle refers to this as **realizing** your site data. The realized site data is a vector of maps just like the original, but with extra webpage maps and extra keys in the webpage maps from your EDN file.
+A key part of this process is the first arrow: Nuzzle's additions. Nuzzle doesn't modify any data in you put into your site data, but it does add to it. Nuzzle calls this **realizing** your site data. The realized site data looks just like the original, but with extra webpage maps and extra keys in the existing ones.
 
 ### Webpage Map Additions
 Nuzzle adds these keys to every webpage map:
@@ -192,7 +192,7 @@ It's worth noting that you can define index webpage maps like any other webpage 
 ```
 
 ## Creating a Webpage Rendering Function
-All webpages are transformed into Hiccup by a single function supplied by the user in the top-level config map under the key `:render-webpage`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
+All webpage maps are transformed into Hiccup by a single function supplied by the user in the top-level config map under the key `:render-webpage`. This function takes a single argument (a webpage map) and returns a vector of Hiccup.
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 

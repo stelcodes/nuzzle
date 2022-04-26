@@ -10,4 +10,5 @@
 - [x] Change `content` and `render-content` to `markdown` and `render-markdown` (markdown only, no HTML)
 - [x] Enable special `markdown` field in peripheral maps
 - [ ] Add pygment as code highlighting option
+- [x] Rename transformations to additions
 
