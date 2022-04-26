@@ -50,20 +50,10 @@
   (if-not markdown
     ;; If :markdown is not defined, just make a function that returns nil
     (constantly nil)
-    (if-let [markdown-file (fs/file markdown)]
-      (let [ext (fs/extension markdown-file)]
-        (cond
-         ;; If a html or svg file, just slurp it up
-         (or (= "html" ext) (= "svg" ext))
-         (fn render-html []
-           (hiccup/raw (string/trim (slurp markdown-file))))
-         ;; If markdown, convert to html
-         (or (= "markdown" ext) (= "md" ext))
-         (fn render-markdown []
-           (hiccup/raw (process-markdown-file highlight-style markdown-file)))
-         ;; If extension not recognized, throw Exception
-         :else (throw (ex-info (str "Filetype of markdown file " markdown " for id " id " not recognized")
-                      {:id id :markdown markdown}))))
-      ;; If markdown-file is defined but it can't be found, throw an Exception
-      (throw (ex-info (str "Markdown file " markdown " for id " id " not found")
-                      {:id id :markdown markdown})))))
+    (let [markdown-file (fs/file markdown)]
+      (if markdown-file
+        (fn render-markdown []
+          (hiccup/raw (process-markdown-file highlight-style markdown-file)))
+        ;; If markdown-file is defined but it can't be found, throw an Exception
+        (throw (ex-info (str "Markdown file " (fs/canonicalize markdown-file) " for id " id " not found")
+                        {:id id :markdown markdown}))))))

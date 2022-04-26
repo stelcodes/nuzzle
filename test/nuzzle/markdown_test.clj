@@ -22,6 +22,4 @@
         render-markdown (md/create-render-markdown-fn [:about] markdown nil)]
     (is (fn? render-markdown))
     (is (= "<h1 id=\"about\">About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
-           (str (render-markdown))))
-    (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
-         (str ((md/create-render-markdown-fn [:foo] "test-resources/html/foo.html" nil)))))))
+           (str (render-markdown))))))
