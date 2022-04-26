@@ -53,11 +53,11 @@
   (reduce-kv
    (fn [m id {:keys [markdown uri] :as v}]
      (if (vector? id)
-       (assoc m id
-              (merge v {:uri (or uri (util/id->uri id))
-                        :render-markdown
-                        (md/create-render-markdown-fn id markdown config)}))
-       (assoc m id v)))
+       (assoc m id (merge v {:uri (or uri (util/id->uri id))
+                             :render-markdown
+                             (md/create-render-markdown-fn id markdown config)}))
+       (assoc m id (merge v {:render-markdown
+                             (md/create-render-markdown-fn id markdown config)}))))
    {} site-data))
 
 (defn gen-get-site-data

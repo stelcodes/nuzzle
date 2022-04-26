@@ -130,15 +130,21 @@ Here's another annotated example of a `:site-data` value:
   ;; Extra information not particular to any webpage
   {:id :social
    :twitter "https://twitter.com/clojurerulez"} ; <- This will be easy to retrieve later
+
+  {:id :footer-message
+   ;; You can also associate markdown with peripheral maps
+   :markdown "markdown/footer-message.md"
 ]
 ```
 
 ### Special Keys in Webpage Maps
-Nuzzle recognizes some special keys in webpage maps which have side-effects:
 - `:markdown`: A path to an associated markdown file.
 - `:tags`: A vector of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this webpage is a draft or not.
 - `:rss?`: A boolean indicating whether the webpage should be included in the optional RSS feed.
+
+### Special Keys in Peripheral Maps
+- `:markdown`: A path to an associated markdown file.
 
 ## How Nuzzle Transforms the Site Data
 You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, applies some transformations, and then sends each webpage map to your webpage rendering function.
@@ -157,15 +163,17 @@ Nuzzle's process can be visualized like so:
 
 A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle refers to this as **realizing** your site data. The realized site data is a vector of maps just like the original, but with extra webpage maps and extra keys in the webpage maps from your EDN file.
 
-### Adding Keys to Webpage Maps
+### Webpage Map Additions
 Nuzzle adds these keys to every webpage map:
 - `:uri`: the path of the webpage from the website's root, (ex `"/blog-posts/learning-clojure/"`).
 - `:render-markdown`: A function that renders the webpage's markup if `:markdown` key is present, otherwise returns `nil`.
 - `:get-site-data`: A function that allows you to reach into your realized site data inside of your webpage rendering function.
 
-> Nuzzle does not modify peripheral maps in any way.
+### Peripheral Map Additions
+Nuzzle adds these keys to every peripheral map:
+- `:render-markdown`: A function that renders the webpage's markup if `:markdown` key is present, otherwise returns `nil`.
 
-### Adding Index Pages
+### Index Page Additions
 Often you'll want to create index webpages in static sites which serve as a webpage that links to other webpages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Let's call these *subdirectory index webpages*. Another common pattern is associating tags with webpages. You may want to add index pages like `"/tags/clojure"` so you can link to all your webpages about Clojure. Let's call these *tag index webpages*. Nuzzle adds both subdirectory and tag index webpages automatically for all subdirectories and tags present in your site data.
 
 > You may not want to export all the index webpages that Nuzzle adds to your site data. That's ok! You can control which webpages get exported in your webpage rendering function.

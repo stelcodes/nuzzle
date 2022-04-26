@@ -46,7 +46,7 @@
   "Create a function that turned the :markdown file into html, wrapped with the
   hiccup raw identifier."
   [id markdown {:keys [highlight-style]}]
-  {:pre [(vector? id) (or (nil? markdown) (string? markdown))]}
+  {:pre [(or (vector? id) (keyword? id)) (or (nil? markdown) (string? markdown))]}
   (if-not markdown
     ;; If :markdown is not defined, just make a function that returns nil
     (constantly nil)
