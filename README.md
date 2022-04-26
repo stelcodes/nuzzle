@@ -147,7 +147,7 @@ Here's another annotated example of a `:site-data` value:
 - `:markdown`: A path to an associated markdown file.
 
 ## How Nuzzle Adds to the Site Data
-You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, adds some data, and then sends each webpage map to your webpage rendering function.
+You can think of Nuzzle's core functionality as a data pipeline. Nuzzle takes your site data, adds some spice, and sends it through webpage rendering function.
 
 Nuzzle's process can be visualized like so:
 ```
