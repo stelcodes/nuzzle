@@ -17,11 +17,11 @@
     (is (= "(<span style=\"color:#fb660a;font-weight:bold\">def </span><span style=\"color:#fb660a\">foo</span> (<span style=\"color:#fb660a;font-weight:bold\">let </span>[<span style=\"color:#fb660a\">x</span> (+ <span style=\"color:#0086f7;font-weight:bold\">5</span> <span style=\"color:#0086f7;font-weight:bold\">7</span>)] (println <span style=\"color:#fb660a\">x</span>)))"
          result))))
 
-(deftest create-render-content-fn
-  (let [{:keys [content]} (get site-data-map [:about])
-        render-content (md/create-render-content-fn [:about] content nil)]
-    (is (fn? render-content))
+(deftest create-render-markdown-fn
+  (let [{:keys [markdown]} (get site-data-map [:about])
+        render-markdown (md/create-render-markdown-fn [:about] markdown nil)]
+    (is (fn? render-markdown))
     (is (= "<h1 id=\"about\">About</h1><p>This is a site for testing the Clojure static site generator called Nuzzle.</p>"
-           (str (render-content))))
+           (str (render-markdown))))
     (is (= "<p>Foo bar.</p><h2>The story of foo</h2><p>Foo loves bar. But they are thousands of miles apart</p>"
-         (str ((md/create-render-content-fn [:foo] "test-resources/html/foo.html" nil)))))))
+         (str ((md/create-render-markdown-fn [:foo] "test-resources/html/foo.html" nil)))))))

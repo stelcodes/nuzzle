@@ -49,39 +49,39 @@
 
 (deftest realize-pages
   (let [realized-pages (gen/realize-pages site-data-map config)
-        without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
+        without-render-markdown (reduce-kv #(assoc %1 %2 (dissoc %3 :render-markdown))
                                           {}
                                           realized-pages)]
     (doseq [[id info] realized-pages
             :when (vector? id)]
-      (is (fn? (:render-content info))))
+      (is (fn? (:render-markdown info))))
     (is (= {[]
             {:uri "/"}
             [:blog :nuzzle-rocks]
             {:title "10 Reasons Why Nuzzle Rocks",
-             :content "test-resources/markdown/nuzzle-rocks.md",
+             :markdown "test-resources/markdown/nuzzle-rocks.md",
              :rss? true
              :tags [:nuzzle],
              :uri "/blog/nuzzle-rocks/"}
             [:blog :why-nuzzle]
             {:title "Why I Made Nuzzle",
-             :content "test-resources/markdown/why-nuzzle.md",
+             :markdown "test-resources/markdown/why-nuzzle.md",
              :rss? true
              :tags [:nuzzle],
              :uri "/blog/why-nuzzle/"}
             [:blog :favorite-color]
             {:title "What's My Favorite Color? It May Suprise You.",
-             :content "test-resources/markdown/favorite-color.md",
+             :markdown "test-resources/markdown/favorite-color.md",
              :rss? true
              :tags [:colors],
              :uri "/blog/favorite-color/"}
             [:about]
             {:title "About",
-             :content "test-resources/markdown/about.md",
+             :markdown "test-resources/markdown/about.md",
              :uri "/about/"}
             :meta
             {:twitter "https://twitter/foobar"}}
-           without-render-content))))
+           without-render-markdown))))
 
 (deftest id->uri
   (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))

@@ -7,7 +7,7 @@
 - [x] Add more generator.clj tests
 - [x] Add symbol option for `:render-page`
 - [x] Change `site-config` to `site-data`
-- [ ] Change `content` and `render-content` to `markdown` and `render-markdown` (markdown only, no HTML)
+- [x] Change `content` and `render-content` to `markdown` and `render-markdown` (markdown only, no HTML)
 - [ ] Enable special `markdown` field in peripheral maps
 - [ ] Add pygment as code highlighting option
 

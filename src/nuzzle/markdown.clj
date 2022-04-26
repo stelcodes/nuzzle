@@ -42,28 +42,28 @@
             (cm/parse-body {:lower-fns lower-fns}))]
     (hiccup/html hiccup)))
 
-(defn create-render-content-fn
-  "Create a function that turned the :content file into html, wrapped with the
+(defn create-render-markdown-fn
+  "Create a function that turned the :markdown file into html, wrapped with the
   hiccup raw identifier."
-  [id content {:keys [highlight-style]}]
-  {:pre [(vector? id) (or (nil? content) (string? content))]}
-  (if-not content
-    ;; If :content is not defined, just make a function that returns nil
+  [id markdown {:keys [highlight-style]}]
+  {:pre [(vector? id) (or (nil? markdown) (string? markdown))]}
+  (if-not markdown
+    ;; If :markdown is not defined, just make a function that returns nil
     (constantly nil)
-    (if-let [content-file (fs/file content)]
-      (let [ext (fs/extension content-file)]
+    (if-let [markdown-file (fs/file markdown)]
+      (let [ext (fs/extension markdown-file)]
         (cond
          ;; If a html or svg file, just slurp it up
          (or (= "html" ext) (= "svg" ext))
          (fn render-html []
-           (hiccup/raw (string/trim (slurp content-file))))
+           (hiccup/raw (string/trim (slurp markdown-file))))
          ;; If markdown, convert to html
          (or (= "markdown" ext) (= "md" ext))
          (fn render-markdown []
-           (hiccup/raw (process-markdown-file highlight-style content-file)))
+           (hiccup/raw (process-markdown-file highlight-style markdown-file)))
          ;; If extension not recognized, throw Exception
-         :else (throw (ex-info (str "Filetype of content file " content " for id " id " not recognized")
-                      {:id id :content content}))))
-      ;; If content-file is defined but it can't be found, throw an Exception
-      (throw (ex-info (str "Resource " content " for id " id " not found")
-                      {:id id :content content})))))
+         :else (throw (ex-info (str "Filetype of markdown file " markdown " for id " id " not recognized")
+                      {:id id :markdown markdown}))))
+      ;; If markdown-file is defined but it can't be found, throw an Exception
+      (throw (ex-info (str "Markdown file " markdown " for id " id " not found")
+                      {:id id :markdown markdown})))))
