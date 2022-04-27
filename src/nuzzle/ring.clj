@@ -43,10 +43,11 @@
           (app)))))
 
 (defn start-server [config-overrides]
-  (let [config (conf/load-default-config config-overrides)]
+  (let [{:keys [dev-port]} (conf/load-default-config config-overrides)]
+    (log/log-start-server dev-port)
     (-> (wrap-serve-pages)
         (wrap-overlay-dir)
         (wrap-load-config config-overrides)
         (wrap-content-type)
         (wrap-stacktrace)
-        (http/run-server {:port (:dev-port config)}))))
+        (http/run-server {:port (:dev-port dev-port)}))))
