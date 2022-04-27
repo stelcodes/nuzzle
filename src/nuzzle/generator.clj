@@ -92,7 +92,7 @@
       (update :site-data #(util/deep-merge % (create-group-index %)))
       (realize-webpages)))
 
-(defn generate-page-list
+(defn generate-webpage-list
   "Creates a seq of maps which each represent a page in the website."
   [{:keys [site-data] :as _config}]
   {:pre [(map? site-data)] :post [(seq? %)]}
@@ -112,7 +112,7 @@
   [{:keys [render-webpage] :as config} debug?]
   {:pre [(fn? render-webpage)] :post [(map? %)]}
   (->> config
-       generate-page-list
+       generate-webpage-list
        (map (fn [page] (when-let [render-result (render-webpage page)]
                          [(:uri page)
                           (fn [_]
