@@ -35,7 +35,7 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 ## Nuzzle's API
 Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 - `export`: Exports the static site to disk.
-- `start-server`: Starts a web server (http-kit) for a live preview of the website, building each webpage from scratch upon each request.
+- `serve`: Starts a web server (http-kit) for a live preview of the website, building each webpage from scratch upon each request.
 - `realize`: Helper function for visualizing your site data after Nuzzle's additions.
 
 All three functions have exactly the same interface:

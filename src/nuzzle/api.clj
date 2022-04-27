@@ -46,7 +46,7 @@
       (spit rss-file rss-feed))
     (log/info "✅🐈 Export successful")))
 
-(defn start-server
+(defn serve
   "Starts a server using http-kit for development."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
