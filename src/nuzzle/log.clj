@@ -22,3 +22,6 @@
 (defn log-overlay-dir [overlay-dir]
   (info "💎🐈 Using overlay directory:" overlay-dir))
 
+(defn log-remove-drafts []
+  (info "❌🐈 Removing drafts"))
+

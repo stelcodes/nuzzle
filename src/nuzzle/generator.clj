@@ -95,7 +95,9 @@
   ;; Allow users to define their own overrides via deep-merge
   (let [site-data (util/convert-site-data-to-map site-data)
         site-data (if remove-drafts?
-                    (remove-drafts site-data)
+                    (do
+                      (log/log-remove-drafts)
+                      (remove-drafts site-data))
                     site-data)
         site-data (->> site-data
                        ;; Make sure there is a root index.html file
