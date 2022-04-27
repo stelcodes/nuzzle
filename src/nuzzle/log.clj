@@ -36,3 +36,5 @@
 (defn log-export-end []
   (info "✅🐈 Export successful"))
 
+(defn log-start-server [dev-port]
+  (info (str "✨🐈 Starting development server on port " dev-port)))

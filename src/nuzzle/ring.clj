@@ -4,7 +4,10 @@
    [nuzzle.log :as log]
    [nuzzle.generator :as gen]
    [nuzzle.util :as util]
+   [org.httpkit.server :as http]
+   [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.file :refer [wrap-file]]
+   [ring.middleware.stacktrace :refer [wrap-stacktrace]]
    [stasis.core :as stasis]))
 
 (defn wrap-overlay-dir
@@ -38,3 +41,12 @@
       (-> request
           (assoc :config config)
           (app)))))
+
+(defn start-server [config-overrides]
+  (let [config (conf/load-default-config config-overrides)]
+    (-> (wrap-serve-pages)
+        (wrap-overlay-dir)
+        (wrap-load-config config-overrides)
+        (wrap-content-type)
+        (wrap-stacktrace)
+        (http/run-server {:port (:dev-port config)}))))
