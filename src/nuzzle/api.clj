@@ -6,8 +6,6 @@
             [nuzzle.ring :as ring]
             [nuzzle.rss :as rss]
             [nuzzle.util :as util]
-            [clojure.pprint :refer [pprint]]
-            [stasis.core :as stasis]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [org.httpkit.server :as http]))
@@ -50,17 +48,12 @@
   "Starts a server using http-kit for development."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [render-webpage remove-drafts? overlay-dir dev-port] :as config}
-        (conf/load-config config-overrides)
-        create-index #(-> (conf/load-config config-overrides)
-                          (gen/realize-site-data)
-                          (gen/generate-page-list)
-                          (gen/generate-site-index render-webpage true))]
+  (let [{:keys [remove-drafts? dev-port] :as config}
+        (conf/load-config config-overrides)]
     (log/info (str "✨🐈 Starting development server on port " dev-port))
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
-    (when overlay-dir (log/info "💎🐈 Using overlay directory:" overlay-dir))
-    (-> (stasis/serve-pages create-index)
-        (ring/wrap-overlay-dir overlay-dir)
+    (-> (ring/wrap-serve-pages config-overrides)
+        (ring/wrap-overlay-dir config-overrides)
         (wrap-content-type)
         (wrap-stacktrace)
         (http/run-server {:port (:dev-port config)}))))

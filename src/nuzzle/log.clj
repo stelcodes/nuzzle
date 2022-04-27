@@ -19,3 +19,6 @@
 
 (comment (info "test" "ok"))
 
+(defn log-overlay-dir [overlay-dir]
+  (info "💎🐈 Using overlay directory:" overlay-dir))
+
