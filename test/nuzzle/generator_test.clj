@@ -49,10 +49,10 @@
            :uri "/blog/"}}
          (gen/create-group-index site-data-map))))
 
-(deftest realize-pages
+(deftest realize-webpages
   (let [site-data (-> config
                       (update :site-data util/convert-site-data-to-map)
-                      (gen/realize-pages)
+                      (gen/realize-webpages)
                       (:site-data))
         without-render-markdown (reduce-kv #(assoc %1 %2 (dissoc %3 :render-markdown))
                                            {}

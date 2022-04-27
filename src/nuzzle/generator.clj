@@ -46,7 +46,7 @@
                              :uri (util/id->uri group-id)}))
         {})))
 
-(defn realize-pages
+(defn realize-webpages
   "Adds :uri, :render-markdown keys to each page in the site-data."
   [{:keys [site-data] :as config}]
   {:pre [(map? site-data)]}
@@ -90,7 +90,7 @@
       (update :site-data #(util/convert-site-data-to-map %))
       (update :site-data #(util/deep-merge % (create-tag-index %)))
       (update :site-data #(util/deep-merge % (create-group-index %)))
-      (realize-pages)))
+      (realize-webpages)))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."
