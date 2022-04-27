@@ -1,10 +1,8 @@
 (ns nuzzle.api
-  (:require [babashka.fs :as fs]
-            [nuzzle.config :as conf]
-            [nuzzle.generator :as gen]
+  (:require [nuzzle.config :as conf]
+            [nuzzle.export :as export]
             [nuzzle.log :as log]
             [nuzzle.ring :as ring]
-            [nuzzle.rss :as rss]
             [nuzzle.util :as util]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
@@ -23,15 +21,9 @@
   the :export-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [export-dir] :as config}
-        (conf/load-default-config config-overrides)
-        rss-file (fs/file export-dir "rss.xml")
-        rss-feed (rss/create-rss-feed config)]
+  (let [{:keys [export-dir] :as config} (conf/load-default-config config-overrides)]
     (log/info "🔨🐈 Exporting static site to:" export-dir)
-    (gen/export-site config)
-    (when rss-feed
-      (log/info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file))
-      (spit rss-file rss-feed))
+    (export/export-site config)
     (log/info "✅🐈 Export successful")))
 
 (defn serve

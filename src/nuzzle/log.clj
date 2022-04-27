@@ -1,4 +1,6 @@
-(ns nuzzle.log)
+(ns nuzzle.log
+  (:require
+   [babashka.fs :as fs]))
 
 (defn log-time []
   (let [now (java.time.LocalDateTime/now)
@@ -24,4 +26,7 @@
 
 (defn log-remove-drafts []
   (info "❌🐈 Removing drafts"))
+
+(defn log-rss [rss-file]
+  (info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file)))
 
