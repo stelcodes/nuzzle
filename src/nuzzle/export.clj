@@ -16,6 +16,7 @@
 
 (defn export-site
   [{:keys [overlay-dir export-dir rss-channel] :as config}]
+  (log/log-export-start export-dir)
   (fs/create-dirs export-dir)
   (stasis/empty-directory! export-dir)
   (-> config
@@ -26,4 +27,5 @@
     (util/ensure-overlay-dir overlay-dir)
     (fs/copy-tree overlay-dir export-dir))
   (when rss-channel
-    (export-rss config)))
+    (export-rss config))
+  (log/log-export-end))

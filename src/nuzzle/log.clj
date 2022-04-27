@@ -30,3 +30,9 @@
 (defn log-rss [rss-file]
   (info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file)))
 
+(defn log-export-start [export-dir]
+  (info "🔨🐈 Exporting static site to:" (fs/canonicalize export-dir)))
+
+(defn log-export-end []
+  (info "✅🐈 Export successful"))
+

@@ -21,10 +21,9 @@
   the :export-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [export-dir] :as config} (conf/load-default-config config-overrides)]
-    (log/info "🔨🐈 Exporting static site to:" export-dir)
-    (export/export-site config)
-    (log/info "✅🐈 Export successful")))
+  (-> config-overrides
+      (conf/load-default-config)
+      (export/export-site)))
 
 (defn serve
   "Starts a server using http-kit for development."
