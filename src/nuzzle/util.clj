@@ -40,7 +40,6 @@
 
 (defn ensure-overlay-dir
   [overlay-dir-path]
-  fs/canonicalize
   (when (not (fs/directory? overlay-dir-path))
     (throw (ex-info (str "Overlay directory " (fs/canonicalize overlay-dir-path) " does not exist")
                     {:overlay-dir overlay-dir-path}))))
