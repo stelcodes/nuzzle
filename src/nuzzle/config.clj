@@ -21,7 +21,7 @@
     {:closed true}
     [:site-data site-data-spec]
     [:render-webpage fn?]
-    [:static-dir {:optional true} string?]
+    [:overlay-dir {:optional true} string?]
     [:output-dir {:optional true} string?]
     [:highlight-style {:optional true} string?]
     [:rss-channel {:optional true} [:map {:closed true}

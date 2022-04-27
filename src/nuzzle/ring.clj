@@ -3,10 +3,10 @@
    [nuzzle.util :as util]
    [ring.middleware.file :refer [wrap-file]]))
 
-(defn wrap-static-dir
-  [app static-dir]
-  (if static-dir
+(defn wrap-overlay-dir
+  [app overlay-dir]
+  (if overlay-dir
     (do
-      (util/ensure-static-dir static-dir)
-      (wrap-file app static-dir))
+      (util/ensure-overlay-dir overlay-dir)
+      (wrap-file app overlay-dir))
     app))

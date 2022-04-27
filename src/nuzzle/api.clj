@@ -25,22 +25,22 @@
         (util/convert-site-data-to-vector))))
 
 (defn export
-  "Exports the website to :output-dir. The :static-dir is overlayed on top of
+  "Exports the website to :output-dir. The :overlay-dir is overlayed on top of
   the :output-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [rss-channel static-dir remove-drafts? output-dir render-webpage] :as config}
+  (let [{:keys [rss-channel overlay-dir remove-drafts? output-dir render-webpage] :as config}
         (conf/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
         rss-file (fs/file output-dir "rss.xml")
         rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
     (log/info "🔨🐈 Exporting static site to:" output-dir)
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
-    (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
+    (when overlay-dir (log/info "💎🐈 Using overlay directory:" overlay-dir))
     (-> realized-site-data
         (gen/generate-page-list)
         (gen/generate-site-index render-webpage false)
-        (gen/export-site-index static-dir output-dir))
+        (gen/export-site-index overlay-dir output-dir))
     (when rss-feed
       (log/info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file))
       (spit rss-file rss-feed))
@@ -50,7 +50,7 @@
   "Starts a server using http-kit for development."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [render-webpage remove-drafts? static-dir dev-port] :as config}
+  (let [{:keys [render-webpage remove-drafts? overlay-dir dev-port] :as config}
         (conf/load-config config-overrides)
         create-index #(-> (conf/load-config config-overrides)
                           (gen/realize-site-data)
@@ -58,9 +58,9 @@
                           (gen/generate-site-index render-webpage true))]
     (log/info (str "✨🐈 Starting development server on port " dev-port))
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
-    (when static-dir (log/info "💎🐈 Using static asset directory:" static-dir))
+    (when overlay-dir (log/info "💎🐈 Using overlay directory:" overlay-dir))
     (-> (stasis/serve-pages create-index)
-        (ring/wrap-static-dir static-dir)
+        (ring/wrap-overlay-dir overlay-dir)
         (wrap-content-type)
         (wrap-stacktrace)
         (http/run-server {:port (:dev-port config)}))))

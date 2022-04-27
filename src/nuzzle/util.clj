@@ -38,12 +38,12 @@
   {:pre [(map? x)] :post [#(map? %)]}
   (into {} (remove (comp nil? val) x)))
 
-(defn ensure-static-dir
-  [static-dir-path]
+(defn ensure-overlay-dir
+  [overlay-dir-path]
   fs/canonicalize
-  (when (not (fs/directory? static-dir-path))
-    (throw (ex-info (str "Static directory " (fs/canonicalize static-dir-path) " does not exist")
-                    {:static-dir static-dir-path}))))
+  (when (not (fs/directory? overlay-dir-path))
+    (throw (ex-info (str "Overlay directory " (fs/canonicalize overlay-dir-path) " does not exist")
+                    {:overlay-dir overlay-dir-path}))))
 
 (defn safe-sh [[command & _ :as args]]
   (try (apply sh/sh args)

@@ -3,7 +3,7 @@
  :rss-channel {:title "Foo's blog"
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}
- :static-dir "public"
+ :overlay-dir "public"
  :output-dir "/tmp/nuzzle-test-out"
  :site-data
  [

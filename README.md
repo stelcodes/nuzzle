@@ -47,8 +47,8 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 
 - `:site-data` - A vector of maps describing the structure and content of your website. Required.
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
-- `:static-dir` - A path to a directory that contains the static assets for the site. Defaults to nil (no static assets).
-- `:output-dir` - A path to a directory to export the site into. Defaults to `out`.
+- `:output-dir` - A path to a directory to export the site into. Defaults to `"out"`.
+- `:overlay-dir` - A path to a directory that will be overlayed on top of the output directory after every export. Defaults to `nil` (no overlay).
 - `:highlight-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
 - `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
@@ -56,7 +56,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
-{:static-dir "static"
+{:overlay-dir "overlay"
  :render-webpage views/render-webpage
  :highlight-style "monokai"
  :rss-channel

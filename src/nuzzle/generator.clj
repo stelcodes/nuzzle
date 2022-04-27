@@ -135,11 +135,11 @@
        (into {})))
 
 (defn export-site-index
-  [site-index static-dir output-dir]
+  [site-index overlay-dir output-dir]
   (fs/create-dirs output-dir)
   (stasis/empty-directory! output-dir)
   (stasis/export-pages site-index output-dir)
-  (when static-dir
-    (util/ensure-static-dir static-dir)
-    (fs/copy-tree static-dir output-dir)))
+  (when overlay-dir
+    (util/ensure-overlay-dir overlay-dir)
+    (fs/copy-tree overlay-dir output-dir)))
 
