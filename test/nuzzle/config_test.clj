@@ -7,8 +7,8 @@
 
 (defn render-webpage [_] (constantly [:h1 "test"]))
 
-(deftest load-specified-config
-  (is (= (conf/load-specified-config config-path {})
+(deftest read-specified-config
+  (is (= (conf/read-specified-config config-path {})
          {:export-dir "/tmp/nuzzle-test-out",
           :dev-port 6899,
           :remove-drafts? false,

@@ -48,17 +48,19 @@
 
 (defn realize-pages
   "Adds :uri, :render-markdown keys to each page in the site-data."
-  [site-data config]
-  {:pre [map? site-data]}
-  (reduce-kv
-   (fn [m id {:keys [markdown uri] :as v}]
-     (if (vector? id)
-       (assoc m id (merge v {:uri (or uri (util/id->uri id))
-                             :render-markdown
-                             (md/create-render-markdown-fn id markdown config)}))
-       (assoc m id (merge v {:render-markdown
-                             (md/create-render-markdown-fn id markdown config)}))))
-   {} site-data))
+  [{:keys [site-data] :as config}]
+  {:pre [(map? site-data)]}
+  (->> site-data
+       (reduce-kv
+        (fn [m id {:keys [markdown uri] :as v}]
+          (if (vector? id)
+            (assoc m id (merge v {:uri (or uri (util/id->uri id))
+                                  :render-markdown
+                                  (md/create-render-markdown-fn id markdown config)}))
+            (assoc m id (merge v {:render-markdown
+                                  (md/create-render-markdown-fn id markdown config)}))))
+        {})
+       (assoc config :site-data)))
 
 (defn gen-get-site-data
   "Generate the helper function get-site-data from the realized-site-data. This
@@ -76,41 +78,25 @@
        (throw (ex-info (str "get-site-data error: id " id " not found")
                        {:id id}))))))
 
-(defn remove-drafts
-  "Remove page entries from site-data map if they are marked as a draft with
-  :draft? true kv pair."
-  [site-data]
-  (reduce-kv
-   (fn [m id {:keys [draft?] :as v}]
-     (if (and (vector? id) draft?)
-       m
-       (assoc m id v)))
-   {}
-   site-data))
-
 (defn realize-site-data
   "Creates fully realized site-data datastructure with or without drafts."
   [{:keys [remove-drafts? site-data] :as config}]
   {:pre [(vector? site-data)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
-  (let [site-data (util/convert-site-data-to-map site-data)
-        site-data (if remove-drafts?
-                    (do
-                      (log/log-remove-drafts)
-                      (remove-drafts site-data))
-                    site-data)
-        site-data (->> site-data
-                       ;; Make sure there is a root index.html file
-                       ;; (util/deep-merge {[] {:uri "/"}})
-                       (util/deep-merge (create-group-index site-data))
-                       (util/deep-merge (create-tag-index site-data)))]
-    (realize-pages site-data config)))
+  (-> config
+      (update :site-data #(if-not remove-drafts? %
+                            (do (log/log-remove-drafts)
+                              (remove :draft? %))))
+      (update :site-data #(util/convert-site-data-to-map %))
+      (update :site-data #(util/deep-merge % (create-tag-index %)))
+      (update :site-data #(util/deep-merge % (create-group-index %)))
+      (realize-pages)))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."
-  [realized-site-data]
-  {:pre [(map? realized-site-data)] :post [(seq? %)]}
-  (->> realized-site-data
+  [{:keys [site-data] :as _config}]
+  {:pre [(map? site-data)] :post [(seq? %)]}
+  (->> site-data
        ;; If key is vector, then it is a page
        (reduce-kv (fn [page-list id v]
                     (if (vector? id)
@@ -118,7 +104,7 @@
                       (conj page-list (assoc v :id id))
                       page-list)) [])
        ;; Add get-site-data helper function to each page
-       (map #(assoc % :get-site-data (gen-get-site-data realized-site-data)))))
+       (map #(assoc % :get-site-data (gen-get-site-data site-data)))))
 
 (defn generate-site-index
   "Creates a map where the keys are relative URIs and the values are maps
@@ -126,7 +112,6 @@
   [{:keys [render-webpage] :as config} debug?]
   {:pre [(fn? render-webpage)] :post [(map? %)]}
   (->> config
-       realize-site-data
        generate-page-list
        (map (fn [page] (when-let [render-result (render-webpage page)]
                          [(:uri page)

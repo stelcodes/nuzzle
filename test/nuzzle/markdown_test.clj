@@ -2,14 +2,11 @@
   (:require
    [clojure.test :refer [deftest is]]
    [nuzzle.config :as conf]
-   [nuzzle.markdown :as md]
-   [nuzzle.util :as util]))
+   [nuzzle.markdown :as md]))
 
 (def config-path "test-resources/edn/config-1.edn")
 
 (def config (conf/load-specified-config config-path {}))
-
-(def site-data-map (util/convert-site-data-to-map (:site-data config)))
 
 (deftest highlight-code
   (let [code "(def foo (let [x (+ 5 7)] (println x)))"
@@ -18,7 +15,7 @@
          result))))
 
 (deftest create-render-markdown-fn
-  (let [{:keys [markdown]} (get site-data-map [:about])
+  (let [{:keys [markdown]} (get-in config [:site-data [:about]])
         render-markdown (md/create-render-markdown-fn [:about] markdown nil)]
     (is (fn? render-markdown))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])

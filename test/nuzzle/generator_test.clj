@@ -6,9 +6,11 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(def config (conf/load-specified-config config-path {}))
+(def config (conf/read-specified-config config-path {}))
 
-(def site-data-map (util/convert-site-data-to-map (:site-data config)))
+(def site-data (:site-data config))
+
+(def site-data-map (util/convert-site-data-to-map site-data))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
@@ -48,11 +50,14 @@
          (gen/create-group-index site-data-map))))
 
 (deftest realize-pages
-  (let [realized-pages (gen/realize-pages site-data-map config)
+  (let [site-data (-> config
+                      (update :site-data util/convert-site-data-to-map)
+                      (gen/realize-pages)
+                      (:site-data))
         without-render-markdown (reduce-kv #(assoc %1 %2 (dissoc %3 :render-markdown))
-                                          {}
-                                          realized-pages)]
-    (doseq [[id info] realized-pages
+                                           {}
+                                           site-data)]
+    (doseq [[id info] site-data
             :when (vector? id)]
       (is (fn? (:render-markdown info))))
     (is (= {[]

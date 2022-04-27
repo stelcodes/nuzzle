@@ -14,22 +14,19 @@
   "Allows the user to visualize the site data after Nuzzle's modifications."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [config (conf/load-config config-overrides)]
+  (let [config (conf/load-default-config config-overrides)]
     (log/info "🔍🐈 Printing realized site data for inspection")
-    (-> config
-        (gen/realize-site-data)
-        (util/convert-site-data-to-vector))))
+    (util/convert-site-data-to-vector config)))
 
 (defn export
   "Exports the website to :export-dir. The :overlay-dir is overlayed on top of
   the :export-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [rss-channel export-dir] :as config}
-        (conf/load-config config-overrides)
-        realized-site-data (gen/realize-site-data config)
+  (let [{:keys [export-dir] :as config}
+        (conf/load-default-config config-overrides)
         rss-file (fs/file export-dir "rss.xml")
-        rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
+        rss-feed (rss/create-rss-feed config)]
     (log/info "🔨🐈 Exporting static site to:" export-dir)
     (gen/export-site config)
     (when rss-feed
@@ -42,7 +39,7 @@
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [{:keys [dev-port] :as config}
-        (conf/load-config config-overrides)]
+        (conf/load-default-config config-overrides)]
     (log/info (str "✨🐈 Starting development server on port " dev-port))
     (-> (ring/wrap-serve-pages)
         (ring/wrap-overlay-dir)

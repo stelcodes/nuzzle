@@ -23,11 +23,12 @@
 (defn create-rss-feed
   "Creates a string of XML that is a valid RSS feed"
   ;; TODO: make sure that clj-rss baked in PermaLink=false is ok
-  [realized-site-data {:keys [link] :as rss-channel}]
-  {:pre [(map? realized-site-data) (map? rss-channel)]
+  [{:keys [site-data rss-channel] :as _config}]
+  {:pre [(map? site-data) (map? rss-channel)]
    :post [(string? %)]}
-  (let [rss-items
-        (for [{:keys [rss? uri] :as webpage} (vals realized-site-data)
+  (let [{:keys [link]} rss-channel
+        rss-items
+        (for [{:keys [rss? uri] :as webpage} (vals site-data)
               :when rss?]
           (-> webpage
               (select-keys valid-item-tags)

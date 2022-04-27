@@ -3,7 +3,8 @@
             [clojure.pprint :as pp]
             [malli.core :as m]
             [malli.error :as me]
-            [nuzzle.log :as log]))
+            [nuzzle.log :as log]
+            [nuzzle.generator :as gen]))
 
 (def site-data-spec
   [:and
@@ -44,7 +45,7 @@
         pp/pprint)
       (throw (ex-info "Invalid Nuzzle config" {})))))
 
-(defn load-specified-config
+(defn read-specified-config
   "Read the site-data EDN file and validate it."
   [config-path config-overrides]
   {:pre [(string? config-path) (or (nil? config-overrides) (map? config-overrides))]
@@ -70,10 +71,17 @@
             (log/error ":render-webpage function" render-webpage-symbol "cannot be resolved")
             (throw e)))]
     (-> full-config
-        (assoc :render-webpage render-webpage-fn)
-        (validate-config))))
+        (assoc :render-webpage render-webpage-fn))))
 
-(defn load-config [config-overrides]
+(defn load-specified-config
+  "Read the site-data EDN file and validate it."
+  [config-path config-overrides]
+  (-> config-path
+      (read-specified-config config-overrides)
+      (validate-config)
+      (gen/realize-site-data)))
+
+(defn load-default-config [config-overrides]
   (load-specified-config "nuzzle.edn" config-overrides))
 
 (comment (load-specified-config "test-resources/config-1.edn" {}))
