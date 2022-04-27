@@ -9,7 +9,7 @@
 
 (deftest load-specified-config
   (is (= (conf/load-specified-config config-path {})
-         {:output-dir "/tmp/nuzzle-test-out",
+         {:export-dir "/tmp/nuzzle-test-out",
           :dev-port 6899,
           :remove-drafts? false,
           :render-webpage render-webpage,

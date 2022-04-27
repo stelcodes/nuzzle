@@ -94,7 +94,7 @@
 #_
 (deftest export
   (let [y {[:about] {:title "About"}}
-        x {:config y :include-drafts? true :render-webpage (constantly "<h1>Test</h1>") :output-dir "/tmp/out"}]
+        x {:config y :include-drafts? true :render-webpage (constantly "<h1>Test</h1>") :export-dir "/tmp/out"}]
     (generator/export x)))
 
 (comment (run-tests))

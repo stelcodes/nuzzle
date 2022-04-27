@@ -4,7 +4,7 @@
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}
  :overlay-dir "public"
- :output-dir "/tmp/nuzzle-test-out"
+ :export-dir "/tmp/nuzzle-test-out"
  :site-data
  [
   {:id []}

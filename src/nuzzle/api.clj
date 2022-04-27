@@ -25,22 +25,22 @@
         (util/convert-site-data-to-vector))))
 
 (defn export
-  "Exports the website to :output-dir. The :overlay-dir is overlayed on top of
-  the :output-dir after the web pages have been exported."
+  "Exports the website to :export-dir. The :overlay-dir is overlayed on top of
+  the :export-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [rss-channel overlay-dir remove-drafts? output-dir render-webpage] :as config}
+  (let [{:keys [rss-channel overlay-dir remove-drafts? export-dir render-webpage] :as config}
         (conf/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
-        rss-file (fs/file output-dir "rss.xml")
+        rss-file (fs/file export-dir "rss.xml")
         rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
-    (log/info "🔨🐈 Exporting static site to:" output-dir)
+    (log/info "🔨🐈 Exporting static site to:" export-dir)
     (when remove-drafts? (log/info "❌🐈 Removing drafts"))
     (when overlay-dir (log/info "💎🐈 Using overlay directory:" overlay-dir))
     (-> realized-site-data
         (gen/generate-page-list)
         (gen/generate-site-index render-webpage false)
-        (gen/export-site-index overlay-dir output-dir))
+        (gen/export-site-index overlay-dir export-dir))
     (when rss-feed
       (log/info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file))
       (spit rss-file rss-feed))

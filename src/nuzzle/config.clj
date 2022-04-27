@@ -22,7 +22,7 @@
     [:site-data site-data-spec]
     [:render-webpage fn?]
     [:overlay-dir {:optional true} string?]
-    [:output-dir {:optional true} string?]
+    [:export-dir {:optional true} string?]
     [:highlight-style {:optional true} string?]
     [:rss-channel {:optional true} [:map {:closed true}
                                     [:title string?]
@@ -49,7 +49,7 @@
   [config-path config-overrides]
   {:pre [(string? config-path) (or (nil? config-overrides) (map? config-overrides))]
    :post [(map? %)]}
-  (let [config-defaults {:output-dir "out" :dev-port 6899}
+  (let [config-defaults {:export-dir "out" :dev-port 6899}
         edn-config
         (try
           (edn/read-string (slurp config-path))

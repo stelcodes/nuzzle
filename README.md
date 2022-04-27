@@ -47,8 +47,8 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 
 - `:site-data` - A vector of maps describing the structure and content of your website. Required.
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
-- `:output-dir` - A path to a directory to export the site into. Defaults to `"out"`.
-- `:overlay-dir` - A path to a directory that will be overlayed on top of the output directory after every export. Defaults to `nil` (no overlay).
+- `:export-dir` - A path to a directory to export the site into. Defaults to `"out"`.
+- `:overlay-dir` - A path to a directory that will be overlayed on top of `:export-dir` as the final stage of exporting. Defaults to `nil` (no overlay).
 - `:highlight-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
 - `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
@@ -85,7 +85,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ## Site Data
 The `:site-data` value is the most crucial piece of the Nuzzle config. It defines the structure and details of all the static site's webpages as well as any supplemental information. Site data must be a vector of maps with just one required key: `:id`. The value of `:id` will describe what kind of data that map holds.
 
-If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<output-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
+If the `:id` is a **vector of keywords**, it represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<export-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
 
 If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. It can easily be retrieved inside your `render-webpage` function later on. Nuzzle calls these *peripheral maps*.
 
