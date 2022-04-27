@@ -22,7 +22,7 @@
 (comment (info "test" "ok"))
 
 (defn log-overlay-dir [overlay-dir]
-  (info "💎🐈 Using overlay directory:" overlay-dir))
+  (info "💎🐈 Using overlay directory:" (fs/canonicalize overlay-dir)))
 
 (defn log-remove-drafts []
   (info "❌🐈 Removing drafts"))
