@@ -48,8 +48,9 @@
   (let [{:keys [dev-port] :as config}
         (conf/load-config config-overrides)]
     (log/info (str "✨🐈 Starting development server on port " dev-port))
-    (-> (ring/wrap-serve-pages config-overrides)
-        (ring/wrap-overlay-dir config-overrides)
+    (-> (ring/wrap-serve-pages)
+        (ring/wrap-overlay-dir)
+        (ring/wrap-load-config config-overrides)
         (wrap-content-type)
         (wrap-stacktrace)
         (http/run-server {:port (:dev-port config)}))))

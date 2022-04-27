@@ -8,9 +8,9 @@
    [stasis.core :as stasis]))
 
 (defn wrap-overlay-dir
-  [app config-overrides]
-  (fn [request]
-    (let [{:keys [overlay-dir] :as config} (conf/load-config config-overrides)]
+  [app]
+  (fn [{:keys [config] :as request}]
+    (let [{:keys [overlay-dir]} config]
       (if overlay-dir
         (do
           (util/ensure-overlay-dir overlay-dir)
@@ -24,14 +24,20 @@
   "A wrapper around stasis.core/serve-pages which allows the get-pages function
   to access the request map. This allows the config to be passed down from
   wrap-overlay-dir, avoiding an unecessary config load"
-  [config-overrides]
+  []
   (fn [{:keys [config] :as request}]
-    (let [{:keys [render-webpage] :as config}
-          (or config (conf/load-config config-overrides))
+    (let [{:keys [render-webpage]} config
           get-pages #(-> config
                          (gen/realize-site-data)
                          (gen/generate-page-list)
                          (gen/generate-site-index render-webpage true))]
       ((stasis/serve-pages get-pages) request))))
 
-
+(defn wrap-load-config
+  "Loads config and adds it to the request map under they key :config"
+  [app config-overrides]
+  (fn [request]
+    (let [config (conf/load-config config-overrides)]
+      (-> request
+          (assoc :config config)
+          (app)))))
