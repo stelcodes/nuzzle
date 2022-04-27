@@ -138,12 +138,15 @@
                                  (hiccup/html render-result)))])))
        (into {})))
 
-(defn export-site-index
-  [site-index overlay-dir export-dir]
+(defn export-site
+  [{:keys [overlay-dir export-dir] :as config}]
   (fs/create-dirs export-dir)
   (stasis/empty-directory! export-dir)
-  (stasis/export-pages site-index export-dir)
+  (-> config
+      (generate-site-index false)
+      (stasis/export-pages export-dir))
   (when overlay-dir
+    (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir)
     (fs/copy-tree overlay-dir export-dir)))
 

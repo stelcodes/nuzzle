@@ -25,16 +25,13 @@
   the :export-dir after the web pages have been exported."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [{:keys [rss-channel overlay-dir export-dir render-webpage] :as config}
+  (let [{:keys [rss-channel export-dir] :as config}
         (conf/load-config config-overrides)
         realized-site-data (gen/realize-site-data config)
         rss-file (fs/file export-dir "rss.xml")
         rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
     (log/info "🔨🐈 Exporting static site to:" export-dir)
-    (when overlay-dir (log/info "💎🐈 Using overlay directory:" overlay-dir))
-    (-> config
-        (gen/generate-site-index false)
-        (gen/export-site-index overlay-dir export-dir))
+    (gen/export-site config)
     (when rss-feed
       (log/info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file))
       (spit rss-file rss-feed))
