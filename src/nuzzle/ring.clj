@@ -26,12 +26,9 @@
   wrap-overlay-dir, avoiding an unecessary config load"
   []
   (fn [{:keys [config] :as request}]
-    (let [{:keys [render-webpage]} config
-          get-pages #(-> config
-                         (gen/realize-site-data)
-                         (gen/generate-page-list)
-                         (gen/generate-site-index render-webpage true))]
-      ((stasis/serve-pages get-pages) request))))
+    (let [get-pages #(gen/generate-site-index config true)
+          app (stasis/serve-pages get-pages)]
+      (app request))))
 
 (defn wrap-load-config
   "Loads config and adds it to the request map under they key :config"

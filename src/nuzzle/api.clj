@@ -32,9 +32,8 @@
         rss-feed (rss/create-rss-feed realized-site-data rss-channel)]
     (log/info "🔨🐈 Exporting static site to:" export-dir)
     (when overlay-dir (log/info "💎🐈 Using overlay directory:" overlay-dir))
-    (-> realized-site-data
-        (gen/generate-page-list)
-        (gen/generate-site-index render-webpage false)
+    (-> config
+        (gen/generate-site-index false)
         (gen/export-site-index overlay-dir export-dir))
     (when rss-feed
       (log/info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file))
