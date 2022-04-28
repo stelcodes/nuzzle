@@ -45,12 +45,12 @@
 (defn validate-config [config]
   (if (valid-config? config)
     config
-    (do (log/error "Encountered errors in nuzzle.edn config:")
-      (->> config
-        (m/explain config-spec)
-        (me/humanize)
-        pp/pprint)
-      (throw (ex-info "Invalid Nuzzle config" {})))))
+      (let [errors (->> config
+                        (m/explain config-spec)
+                        (me/humanize))]
+        (log/error "Encountered error in nuzzle.edn config:")
+        (pp/pprint errors)
+        (throw (ex-info "Invalid Nuzzle config" errors)))))
 
 (defn read-specified-config
   "Read the site-data EDN file and validate it."
