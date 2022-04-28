@@ -87,10 +87,11 @@ Here's another `:site-data` example with annotations:
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Webpage Maps
 
-  ;; The homepage (required)
-  {:id []} ; <- This represents the URI "/"
+  ;; The homepage
+  {:id []          ; <- This represents the URI "/"
+   :title "Home"}
 
-  {:id [:about] ; <- This represents the URI "/about"
+  {:id [:about]    ; <- This represents the URI "/about"
    :title "About"} ; <- Add a title if you'd like
 
   {:id [:blog-posts :using-clojure]
