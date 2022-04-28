@@ -45,7 +45,7 @@ All three functions have exactly the same interface:
 ## Configuration File
 Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory containing these keys:
 
-- `:site-data` - A vector of maps describing the structure and content of your website. Required.
+- `:site-data` - A set of maps describing the structure and content of your website. Required.
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
 - `:export-dir` - A path to a directory to export the site into. Defaults to `"out"`.
 - `:overlay-dir` - A path to a directory that will be overlayed on top of `:export-dir` as the final stage of exporting. Defaults to `nil` (no overlay).
@@ -58,24 +58,24 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
 {:overlay-dir "overlay"
  :render-webpage views/render-webpage
- :site-data [
-  {:id []
-   :markdown "markdown/homepage-blurb.md"}
-  {:id [:blog-posts :catching-pikachu]
-   :title "How I Caught Pikachu"
-   :markdown "markdown/how-i-caught-pikachu.md"}
-  {:id [:blog-posts :defeating-misty]
-   :title "How I Defeated Misty with Pikachu"
-   :markdown "markdown/how-i-defeated-misty.md"}
-  {:id [:about]
-   :markdown "markdown/about-myself.md"}
-  {:id :crypto
-   :bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb"
-   :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979"}]}
+ :site-data
+ #{{:id []
+    :markdown "markdown/homepage-blurb.md"}
+   {:id [:blog-posts :catching-pikachu]
+    :title "How I Caught Pikachu"
+    :markdown "markdown/how-i-caught-pikachu.md"}
+   {:id [:blog-posts :defeating-misty]
+    :title "How I Defeated Misty with Pikachu"
+    :markdown "markdown/how-i-defeated-misty.md"}
+   {:id [:about]
+    :markdown "markdown/about-myself.md"}
+   {:id :crypto
+    :bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb"
+    :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979"}}}
 ```
 
 ## Site Data
-The `:site-data` value defines the attributes of all the static site's webpages as well as any supplemental information. Site data must be a vector of maps, and those maps have just one required key: `:id`.
+The `:site-data` value defines the attributes of all the static site's webpages as well as any supplemental information. Site data must be a set of maps, and those maps have just one required key: `:id`.
 
 If the `:id` is a **vector of keywords**, the map represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<export-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
 
@@ -83,7 +83,7 @@ If the `:id` is a singular **keyword**, the map just contains extra information 
 
 Here's another `:site-data` example with annotations:
 ```clojure
-[
+#{
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Webpage Maps
 
@@ -125,8 +125,8 @@ Here's another `:site-data` example with annotations:
 
   {:id :footer-message
    ;; You can also associate markdown with peripheral maps
-   :markdown "markdown/footer-message.md"
-]
+   :markdown "markdown/footer-message.md"}
+}
 ```
 
 ### Special Keys in Webpage Maps
@@ -163,7 +163,8 @@ Nuzzle adds these keys to every webpage map:
 
 ### Adding Keys to Peripheral Maps
 Nuzzle adds these keys to every peripheral map:
-- `:render-markdown`: A function that renders the webpage's associated Markdown file if `:markdown` key is present, otherwise returns `nil`.
+- `:render-markdown`: Same as above.
+- `:get-site-data`: Same as above.
 
 ### Adding Webpage Maps (Index Webpages)
 Often people want to create index webpages in static sites which serve as a webpage that links to other webpages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Nuzzle calls these *subdirectory index webpages*. Another common pattern is associating tags with webpages. You may want to add index pages like `"/tags/clojure"` so you can link to all your webpages about Clojure. Nuzzle calls these *tag index webpages*. Nuzzle adds both subdirectory and tag index webpages automatically for all subdirectories and tags present in your site data.
@@ -172,16 +173,14 @@ Often people want to create index webpages in static sites which serve as a webp
 
 What makes these index webpage maps special? They have an `:index` key with a value that is a set of webpage map `id`s for any webpages directly below them. For example, if you had webpage maps with `id`s of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a webpage map with an `:id` of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
 
-It's worth noting that you can define index webpage maps on your own, just like any other webpage in your site data. You can add Markdown to your index pages by including a `:markdown` key:
+It's worth noting that you can include index webpage maps in your `nuzzle.edn` site data, just like any other webpage. You can add Markdown to your index pages by including a `:markdown` key:
 
 ```clojure
-[
-;; somewhere in your site data EDN ...
-  {:id [:blog-posts]
-   :markdown "markdown/blog-posts-index-blurb.md"
-   :title "My Awesome Blog Posts"}
-;; Nuzzle will add an :index value later
-]
+;; Somwhere in your :site-data set...
+;; Nuzzle will append an :index value later if there are any blog posts
+{:id [:blog-posts]
+ :markdown "markdown/blog-posts-index-blurb.md"
+ :title "My Awesome Blog Posts"}
 ```
 
 ## Creating a Webpage Rendering Function

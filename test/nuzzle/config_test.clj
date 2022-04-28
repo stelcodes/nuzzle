@@ -19,23 +19,23 @@
            :link "https://foobar.com"}
           :overlay-dir "public",
           :site-data
-          [{:id []}
-           {:id [:blog :nuzzle-rocks],
-            :title "10 Reasons Why Nuzzle Rocks",
-            :markdown "test-resources/markdown/nuzzle-rocks.md",
-            :rss? true,
-            :tags #{:nuzzle}}
-           {:id [:blog :why-nuzzle],
-            :title "Why I Made Nuzzle",
-            :markdown "test-resources/markdown/why-nuzzle.md",
-            :rss? true,
-            :tags #{:nuzzle}}
-           {:id [:blog :favorite-color],
-            :title "What's My Favorite Color? It May Suprise You.",
-            :markdown "test-resources/markdown/favorite-color.md",
-            :rss? true,
-            :tags #{:colors}}
-           {:id [:about],
-            :title "About",
-            :markdown "test-resources/markdown/about.md"}
-           {:id :meta, :twitter "https://twitter/foobar"}]})))
+          #{{:id []}
+            {:id [:blog :nuzzle-rocks],
+             :title "10 Reasons Why Nuzzle Rocks",
+             :markdown "test-resources/markdown/nuzzle-rocks.md",
+             :rss? true,
+             :tags #{:nuzzle}}
+            {:id [:blog :why-nuzzle],
+             :title "Why I Made Nuzzle",
+             :markdown "test-resources/markdown/why-nuzzle.md",
+             :rss? true,
+             :tags #{:nuzzle}}
+            {:id [:blog :favorite-color],
+             :title "What's My Favorite Color? It May Suprise You.",
+             :markdown "test-resources/markdown/favorite-color.md",
+             :rss? true,
+             :tags #{:colors}}
+            {:id [:about],
+             :title "About",
+             :markdown "test-resources/markdown/about.md"}
+            {:id :meta, :twitter "https://twitter/foobar"}}})))

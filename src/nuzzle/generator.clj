@@ -74,7 +74,7 @@
   {:pre [(map? realized-site-data)] :post [(fn? %)]}
   (fn get-site-data
     ([] (->> realized-site-data
-             util/convert-site-data-to-vector
+             util/convert-site-data-to-set
              (map #(assoc % :get-site-data get-site-data))))
     ([id]
      (if-let [entity (get realized-site-data id)]
@@ -85,7 +85,7 @@
 (defn realize-site-data
   "Creates fully realized site-data datastructure with or without drafts."
   [{:keys [remove-drafts? site-data] :as config}]
-  {:pre [(vector? site-data)] :post [#(map? %)]}
+  {:pre [(set? site-data)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
   (-> config
       (update :site-data #(if-not remove-drafts? %

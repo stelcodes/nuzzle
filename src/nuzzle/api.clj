@@ -11,7 +11,7 @@
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [config (conf/load-default-config config-overrides)]
     (log/info "🔍🐈 Printing realized site data for inspection")
-    (util/convert-site-data-to-vector config)))
+    (util/convert-site-data-to-set config)))
 
 (defn export
   "Exports the website to :export-dir. The :overlay-dir is overlayed on top of

@@ -9,20 +9,17 @@
 (def id-spec [:or [:vector keyword?] keyword?])
 
 (def site-data-spec
-  [:and
-   [:vector {:min 1}
-    [:and
-     [:map
-      [:id id-spec]
-      [:tags {:optional true}
-       [:set keyword?]]
-      [:index {:optional true}
-       [:set id-spec]]]
-     [:fn {:error/message ":site-data map with {:rss? true} needs a :title or :description"}
-      (fn [{:keys [rss? title description]}]
-        (or (not rss?) (or title description)))]]]
-   [:fn {:error/message "missing homepage :id []"}
-    (fn [x] (some #(= [] (:id %)) x))]])
+  [:set {:min 1}
+   [:and
+    [:map
+     [:id id-spec]
+     [:tags {:optional true}
+      [:set keyword?]]
+     [:index {:optional true}
+      [:set id-spec]]]
+    [:fn {:error/message ":site-data map with {:rss? true} needs a :title or :description"}
+     (fn [{:keys [rss? title description]}]
+       (or (not rss?) (or title description)))]]])
 
 (def config-spec
    [:map
