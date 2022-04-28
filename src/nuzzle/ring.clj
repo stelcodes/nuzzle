@@ -50,4 +50,4 @@
         (wrap-load-config config-overrides)
         (wrap-content-type)
         (wrap-stacktrace)
-        (http/run-server {:port (:dev-port dev-port)}))))
+        (http/run-server {:port dev-port}))))
