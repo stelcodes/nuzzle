@@ -15,38 +15,36 @@
 (deftest create-tag-index
   (is (= {[:tags :bar]
           {:index [[:blog :foo]],
-           :title "#bar",
-           :uri "/tags/bar/"},
+           :title "#bar"}
           [:tags :baz]
           {:index [[:blog :foo]],
-           :title "#baz",
-           :uri "/tags/baz/"}}
+           :title "#baz"}}
          (gen/create-tag-index {[:blog :foo] {:tags [:bar :baz]} [:about] {} }) ))
   (is (= {[:tags :nuzzle]
           {:index [[:blog :nuzzle-rocks] [:blog :why-nuzzle]],
-           :title "#nuzzle",
-           :uri "/tags/nuzzle/"},
+           :title "#nuzzle"}
           [:tags :colors]
           {:index [[:blog :favorite-color]],
-           :title "#colors",
-           :uri "/tags/colors/"}}
+           :title "#colors"}}
          (gen/create-tag-index site-data-map))))
 
 (deftest create-group-index
   (is (= {[:blog-posts]
-          {:index [[:blog-posts :foo]], :title "Blog Posts", :uri "/blog-posts/"},
+          {:index [[:blog-posts :foo] [:blog-posts :archive]], :title "Blog Posts"},
           [:blog-posts :archive]
           {:index [[:blog-posts :archive :baz]],
-           :title "Archive",
-           :uri "/blog-posts/archive/"},
+           :title "Archive"}
           [:projects]
-          {:index [[:projects :bee]], :title "Projects", :uri "/projects/"}}
+          {:index [[:projects :bee]], :title "Projects"}
+          []
+          {:index [[:blog-posts] [:projects]]}}
          (gen/create-group-index {[:blog-posts :foo] {:title "Foo"} [:blog-posts :archive :baz] {:title "Baz"} [:projects :bee] {:title "Bee"}})))
   (is (= {[:blog]
           {:index
-           [[:blog :nuzzle-rocks] [:blog :why-nuzzle] [:blog :favorite-color]],
-           :title "Blog",
-           :uri "/blog/"}}
+           [[:blog :why-nuzzle] [:blog :favorite-color] [:blog :nuzzle-rocks]],
+           :title "Blog"}
+          []
+          {:index [[:about] [:blog]]}}
          (gen/create-group-index site-data-map))))
 
 (deftest realize-webpages

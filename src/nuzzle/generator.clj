@@ -1,11 +1,9 @@
 (ns nuzzle.generator
-  (:require [babashka.fs :as fs]
-            [clojure.pprint :refer [pprint]]
+  (:require [clojure.pprint :refer [pprint]]
             [nuzzle.hiccup :as hiccup]
             [nuzzle.log :as log]
             [nuzzle.markdown :as md]
-            [nuzzle.util :as util]
-            [stasis.core :as stasis]))
+            [nuzzle.util :as util]))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
@@ -21,8 +19,7 @@
        (reduce-kv
         (fn [m tag ids]
           (assoc m [:tags tag] {:index ids
-                                :title (str "#" (name tag))
-                                :uri (str "/tags/" (name tag) "/")}))
+                                :title (str "#" (name tag))}))
         {})))
 
 (defn create-group-index
@@ -34,16 +31,23 @@
   (->> site-data
        ;; Create a map shaped like group -> [page-ids]
        (reduce-kv
-        (fn [m id _]
-          (if (and (vector? id) (> (count id) 1))
-            (merge-with into m {(vec (butlast id)) [id]}) m))
+        (fn [index-map id _]
+          (loop [trans-index-map index-map
+                 trans-id id]
+            (if-not (and (vector? trans-id) (> (count trans-id) 0))
+              trans-index-map
+              (let [parent-id (vec (butlast trans-id))]
+                (recur (update trans-index-map parent-id
+                               #(if % (conj % trans-id) #{trans-id}))
+                       parent-id)))))
         {})
        ;; Then change the val into a map with more info
        (reduce-kv
         (fn [m group-id ids]
-          (assoc m group-id {:index ids
-                             :title (util/kebab-case->title-case (last group-id))
-                             :uri (util/id->uri group-id)}))
+          (if-let [title (last group-id)]
+            (assoc m group-id {:index (vec ids)
+                               :title (util/kebab-case->title-case title)})
+            (assoc m group-id {:index (vec ids)})))
         {})))
 
 (defn realize-webpages
