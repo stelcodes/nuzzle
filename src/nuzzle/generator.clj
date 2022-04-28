@@ -13,7 +13,7 @@
        (reduce-kv
         (fn [m id {:keys [tags]}]
           ;; merge-with is awesome!
-          (if tags (merge-with into m (zipmap tags (repeat [id]))) m))
+          (if tags (merge-with into m (zipmap tags (repeat #{id}))) m))
         {})
        ;; Then change the val into a map with more info
        (reduce-kv
@@ -45,9 +45,9 @@
        (reduce-kv
         (fn [m group-id ids]
           (if-let [title (last group-id)]
-            (assoc m group-id {:index (vec ids)
+            (assoc m group-id {:index ids
                                :title (util/kebab-case->title-case title)})
-            (assoc m group-id {:index (vec ids)})))
+            (assoc m group-id {:index ids})))
         {})))
 
 (defn realize-webpages

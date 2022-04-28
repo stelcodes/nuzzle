@@ -14,37 +14,39 @@
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
-          {:index [[:blog :foo]],
+          {:index #{[:blog :foo]},
            :title "#bar"}
           [:tags :baz]
-          {:index [[:blog :foo]],
+          {:index #{[:blog :foo]},
            :title "#baz"}}
-         (gen/create-tag-index {[:blog :foo] {:tags [:bar :baz]} [:about] {} }) ))
+         (gen/create-tag-index {[:blog :foo] {:tags #{:bar :baz}} [:about] {} }) ))
   (is (= {[:tags :nuzzle]
-          {:index [[:blog :nuzzle-rocks] [:blog :why-nuzzle]],
+          {:index #{[:blog :nuzzle-rocks] [:blog :why-nuzzle]},
            :title "#nuzzle"}
           [:tags :colors]
-          {:index [[:blog :favorite-color]],
+          {:index #{[:blog :favorite-color]},
            :title "#colors"}}
          (gen/create-tag-index site-data-map))))
 
 (deftest create-group-index
   (is (= {[:blog-posts]
-          {:index [[:blog-posts :foo] [:blog-posts :archive]], :title "Blog Posts"},
+          {:index #{[:blog-posts :foo] [:blog-posts :archive]}, :title "Blog Posts"},
           [:blog-posts :archive]
-          {:index [[:blog-posts :archive :baz]],
+          {:index #{[:blog-posts :archive :baz]},
            :title "Archive"}
           [:projects]
-          {:index [[:projects :bee]], :title "Projects"}
+          {:index #{[:projects :bee]}, :title "Projects"}
           []
-          {:index [[:blog-posts] [:projects]]}}
-         (gen/create-group-index {[:blog-posts :foo] {:title "Foo"} [:blog-posts :archive :baz] {:title "Baz"} [:projects :bee] {:title "Bee"}})))
+          {:index #{[:blog-posts] [:projects]}}}
+         (gen/create-group-index {[:blog-posts :foo] {:title "Foo"}
+                                  [:blog-posts :archive :baz] {:title "Baz"}
+                                  [:projects :bee] {:title "Bee"}})))
   (is (= {[:blog]
           {:index
-           [[:blog :why-nuzzle] [:blog :favorite-color] [:blog :nuzzle-rocks]],
+           #{[:blog :why-nuzzle] [:blog :favorite-color] [:blog :nuzzle-rocks]},
            :title "Blog"}
           []
-          {:index [[:about] [:blog]]}}
+          {:index #{[:about] [:blog]}}}
          (gen/create-group-index site-data-map))))
 
 (deftest realize-webpages
@@ -64,19 +66,19 @@
             {:title "10 Reasons Why Nuzzle Rocks",
              :markdown "test-resources/markdown/nuzzle-rocks.md",
              :rss? true
-             :tags [:nuzzle],
+             :tags #{:nuzzle},
              :uri "/blog/nuzzle-rocks/"}
             [:blog :why-nuzzle]
             {:title "Why I Made Nuzzle",
              :markdown "test-resources/markdown/why-nuzzle.md",
              :rss? true
-             :tags [:nuzzle],
+             :tags #{:nuzzle},
              :uri "/blog/why-nuzzle/"}
             [:blog :favorite-color]
             {:title "What's My Favorite Color? It May Suprise You.",
              :markdown "test-resources/markdown/favorite-color.md",
              :rss? true
-             :tags [:colors],
+             :tags #{:colors},
              :uri "/blog/favorite-color/"}
             [:about]
             {:title "About",

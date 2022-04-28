@@ -6,11 +6,18 @@
             [nuzzle.log :as log]
             [nuzzle.generator :as gen]))
 
+(def id-spec [:or [:vector keyword?] keyword?])
+
 (def site-data-spec
   [:and
    [:vector {:min 1}
     [:and
-     [:map [:id [:or [:vector keyword?] keyword?]]]
+     [:map
+      [:id id-spec]
+      [:tags {:optional true}
+       [:set keyword?]]
+      [:index {:optional true}
+       [:set id-spec]]]
      [:fn {:error/message ":site-data map with {:rss? true} needs a :title or :description"}
       (fn [{:keys [rss? title description]}]
         (or (not rss?) (or title description)))]]]

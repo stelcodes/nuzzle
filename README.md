@@ -98,12 +98,12 @@ Here's another `:site-data` example with annotations:
    ;; The special :markdown key associates a markdown file
    :markdown "markdown/using-clojure.md"
    ;; The special :tags key tells Nuzzle about webpage tags
-   :tags [:clojure]}
+   :tags #{:clojure}}
 
   {:id [:blog-posts :learning-rust]
    :title "How I Got Started Learning Rust"
    :markdown "markdown/learning-rust.md"
-   :tags [:rust]
+   :tags #{:rust}
    ;; The special :draft? key tells Nuzzle which webpages are drafts
    :draft? true
    ;; The special :rss key tells Nuzzle to include the webpage in the RSS XML file
@@ -112,7 +112,7 @@ Here's another `:site-data` example with annotations:
   {:id [:blog-posts :clojure-on-fedora]
    :title "How to Install Clojure on Fedora"
    :markdown "markdown/clojure-on-fedora.md"
-   :tags [:linux :clojure]
+   :tags #{:linux :clojure}
    ;; Webpage maps are open, you can include any data you like
    :foobar "baz"}
 
@@ -131,7 +131,7 @@ Here's another `:site-data` example with annotations:
 
 ### Special Keys in Webpage Maps
 - `:markdown`: A path to an associated Markdown file.
-- `:tags`: A vector of keywords where each keyword is a tag name.
+- `:tags`: A set of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this webpage is a draft or not.
 - `:rss?`: A boolean indicating whether the webpage should be included in the optional RSS feed.
 
@@ -170,16 +170,17 @@ Often people want to create index webpages in static sites which serve as a webp
 
 > You may not want to export all the index webpages that Nuzzle adds to your site data. That's ok! You can control which webpages get exported inside your webpage rendering function.
 
-What makes these index webpage maps special? They have an `:index` key with a value that is a vector of webpage map `id`s. For example, if you had webpage maps with `id`s of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a webpage map with an `:id` of `[:blog-posts]` and an `:index` of `[[:blog-posts :foo] [:blog-posts :bar]]`.
+What makes these index webpage maps special? They have an `:index` key with a value that is a set of webpage map `id`s for any webpages directly below them. For example, if you had webpage maps with `id`s of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a webpage map with an `:id` of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
 
 It's worth noting that you can define index webpage maps on your own, just like any other webpage in your site data. You can add Markdown to your index pages by including a `:markdown` key:
 
-```
+```clojure
 [
 ;; somewhere in your site data EDN ...
   {:id [:blog-posts]
    :markdown "markdown/blog-posts-index-blurb.md"
    :title "My Awesome Blog Posts"}
+;; Nuzzle will add an :index value later
 ]
 ```
 
