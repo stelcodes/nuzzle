@@ -12,16 +12,19 @@
 
 (defn wrap-overlay-dir
   [app]
-  (fn [{:keys [config] :as request}]
-    (let [{:keys [overlay-dir]} config]
-      (if overlay-dir
-        (do
-          (util/ensure-overlay-dir overlay-dir)
-          (log/log-overlay-dir overlay-dir)
-          (-> request
-              (assoc :config config)
-              ((wrap-file app overlay-dir))))
-        (app request)))))
+  (let [last-overlay-dir (atom nil)]
+    (fn [{:keys [config] :as request}]
+      (let [{:keys [overlay-dir]} config]
+        (if overlay-dir
+          (do
+            (when-not (= overlay-dir @last-overlay-dir)
+              (log/log-overlay-dir overlay-dir)
+              (reset! last-overlay-dir overlay-dir))
+            (util/ensure-overlay-dir overlay-dir)
+            (-> request
+                (assoc :config config)
+                ((wrap-file app overlay-dir))))
+          (app request))))))
 
 (defn wrap-serve-pages
   "A wrapper around stasis.core/serve-pages which allows the get-pages function
