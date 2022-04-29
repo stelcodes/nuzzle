@@ -22,19 +22,20 @@
        (or (not rss?) (or title description)))]]])
 
 (def config-spec
-   [:map
-    {:closed true}
-    [:site-data site-data-spec]
-    [:render-webpage fn?]
-    [:overlay-dir {:optional true} string?]
-    [:export-dir {:optional true} string?]
-    [:highlight-style {:optional true} string?]
-    [:rss-channel {:optional true} [:map {:closed true}
-                                    [:title string?]
-                                    [:link string?]
-                                    [:description string?]]]
-    [:remove-drafts? {:optional true} boolean?]
-    [:dev-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
+  [:map
+   {:closed true}
+   [:site-data site-data-spec]
+   [:render-webpage fn?]
+   [:markdown markdown-spec]
+   [:overlay-dir {:optional true} string?]
+   [:export-dir {:optional true} string?]
+   [:highlight-style {:optional true} string?]
+   [:rss-channel {:optional true} [:map {:closed true}
+                                   [:title string?]
+                                   [:link string?]
+                                   [:description string?]]]
+   [:remove-drafts? {:optional true} boolean?]
+   [:dev-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
 
 (def valid-config?
   (m/validator config-spec))
