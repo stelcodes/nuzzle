@@ -120,9 +120,7 @@
        (map (fn [page] (when-let [render-result (render-webpage page)]
                          [(:uri page)
                           (fn [_]
-                            (when debug?
-                              (log/info "⚡🐈 Rendering page:\n"
-                                        (with-out-str (pprint page))))
+                            (when debug? (log/log-rendering-page page))
                             (str "<!DOCTYPE html>"
                                  (hiccup/html render-result)))])))
        (into {})))

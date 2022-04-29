@@ -38,3 +38,7 @@
 
 (defn log-start-server [dev-port]
   (info "✨🐈 Starting development server on port " dev-port))
+
+(defn log-rendering-page [page]
+  (info "⚡🐈 Rendering webpage:")
+  (->> page (into (sorted-map)) pp/pprint))
