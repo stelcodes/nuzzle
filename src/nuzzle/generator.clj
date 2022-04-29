@@ -1,9 +1,9 @@
 (ns nuzzle.generator
-  (:require [clojure.pprint :refer [pprint]]
-            [nuzzle.hiccup :as hiccup]
-            [nuzzle.log :as log]
-            [nuzzle.markdown :as md]
-            [nuzzle.util :as util]))
+  (:require
+   [nuzzle.hiccup :as hiccup]
+   [nuzzle.log :as log]
+   [nuzzle.markdown :as md]
+   [nuzzle.util :as util]))
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
