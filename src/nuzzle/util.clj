@@ -44,8 +44,8 @@
     (throw (ex-info (str "Overlay directory " (fs/canonicalize overlay-dir-path) " does not exist")
                     {:overlay-dir overlay-dir-path}))))
 
-(defn safe-sh [[command & _ :as args]]
-  (try (apply sh/sh args)
+(defn safe-sh [command & args]
+  (try (apply sh/sh command args)
     (catch Exception _
       {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
 

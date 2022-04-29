@@ -1,6 +1,7 @@
 (ns nuzzle.markdown
   (:require
    [babashka.fs :as fs]
+   [clojure.string :as str]
    [clojure.walk :as w]
    [cybermonday.core :as cm]
    [cybermonday.utils :as cu]
@@ -48,21 +49,35 @@
          item))
      hiccup)))
 
+(defn generate-chroma-command
+  [file-path language highlight-style]
+  ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
+   "--html-inline-styles" "--html-prevent-surrounding-pre"
+   (str "--style=" highlight-style) file-path])
+
+(defn generate-pygment-command
+  [file-path language highlight-style]
+  ["pygmentize" "-f" "html" "-O" (str "'nowrap,noclasses,style=" highlight-style "'")
+   "-l" language file-path])
+
+(def highlight-command-map
+  {:chroma generate-chroma-command
+   :pygment generate-pygment-command})
+
 (defn highlight-code [highlight-style language code]
-  (let [code-file (fs/create-temp-file)
-        code-path (str (fs/canonicalize code-file))
-        _ (spit code-path code)
-        chroma-command ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
-                        "--html-inline-styles" "--html-prevent-surrounding-pre"
-                        (str "--style=" highlight-style) code-path]
-        {:keys [exit out err]} (util/safe-sh chroma-command)]
+  (let [tmp-file (fs/create-temp-file)
+        tmp-file-path (-> tmp-file fs/canonicalize str)
+        _ (spit tmp-file-path code)
+        highlight-command-fn (:chroma highlight-command-map)
+        highlight-command (highlight-command-fn tmp-file-path language highlight-style)
+        {:keys [exit out err]} (apply util/safe-sh highlight-command)]
     (if (not= 0 exit)
       (do
-        (log/warn "Failed to highlight code:" code-path)
+        (log/warn "Syntax highlighting command failed:" (str/join " " highlight-command))
         (log/warn err)
         code)
       (do
-        (fs/delete-if-exists code-file)
+        (fs/delete-if-exists tmp-file)
         out))))
 
 (defn code-block-highlighter [highlight-style [_tag-name {:keys [language]} body]]
