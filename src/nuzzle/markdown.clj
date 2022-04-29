@@ -67,11 +67,12 @@
 
 (defn code-block-highlighter [highlight-style [_tag-name {:keys [language]} body]]
   (if highlight-style
-    [:code [:pre (hiccup/raw
-                  (highlight-code highlight-style
-                                  (or language "no-highlight")
-                                  body))]]
-    [:code [:pre body]]))
+    [:code.code-block
+     [:pre (hiccup/raw
+            (highlight-code highlight-style
+                            (or language "no-highlight")
+                            body))]]
+    [:code.code-block [:pre body]]))
 
 (defn process-markdown-file [highlight-style file]
   (let [code-block-with-style (partial code-block-highlighter highlight-style)
