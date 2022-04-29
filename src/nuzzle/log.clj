@@ -1,6 +1,7 @@
 (ns nuzzle.log
   (:require
-   [babashka.fs :as fs]))
+   [babashka.fs :as fs]
+   [clojure.pprint :as pp]))
 
 (defn log-time []
   (let [now (java.time.LocalDateTime/now)
