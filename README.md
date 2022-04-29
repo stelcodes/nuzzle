@@ -49,7 +49,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
 - `:export-dir` - A path to a directory to export the site into. Defaults to `"out"`.
 - `:overlay-dir` - A path to a directory that will be overlayed on top of `:export-dir` as the final stage of exporting. Defaults to `nil` (no overlay).
-- `:highlight-style` - A string specifying a [Chroma style](https://xyproto.github.io/splash/docs/longer/index.html) for Markdown code syntax highlighting. Defaults to `nil` (no highlighting).
+- `:markdown` - A map of markdown processing options (syntax highlighting, shortcodes)
 - `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
 - `:dev-port` - A port number for the development server to listen on. Defaults to 6899.
@@ -269,3 +269,15 @@ At the bottom of the function we can see the function from `:render-markdown` be
 
 ## Generating an RSS feed
 Nuzzle comes with support for generating an RSS feed. (TODO)
+
+## Customizing Markdown Processing
+You can configure how Nuzzle interprets your Markdown files with values in the top-level `:markdown` map.
+
+### Syntax Highlighting
+Markdown code and code-blocks can be syntax highlighted with common syntax highlighting programs Chroma and Pygment.
+
+The `:syntax-highlighting` value is an optional map that defaults to `nil` (no syntax highlighting):
+- `:provider`: A keyword specifying the cli command to use (must be `:chroma` or `:pygmentize`). Required.
+- `:style`: A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
+  - [Chroma styles](https://xyproto.github.io/splash/docs/longer/index.html)
+  - [Pygment styles]()
