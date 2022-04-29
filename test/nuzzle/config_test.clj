@@ -1,7 +1,8 @@
 (ns nuzzle.config-test
   (:require
    [clojure.test :refer [deftest is]]
-   [nuzzle.config :as conf]))
+   [nuzzle.config :as conf]
+   [malli.core :as m]))
 
 (def config-path "test-resources/edn/config-1.edn")
 
@@ -39,3 +40,12 @@
              :title "About",
              :markdown "test-resources/markdown/about.md"}
             {:id :meta, :twitter "https://twitter/foobar"}}})))
+
+(deftest markdown-spec
+  (is (m/validate conf/markdown-spec
+                  {:syntax-highlighting
+                   {:provider :chroma
+                    :style "emacs"}
+                   :shortcodes
+                   {:foobar 'shortcodes/foobar
+                    :foobaz 'shortcodes/foobaz}})))

@@ -21,15 +21,28 @@
      (fn [{:keys [rss? title description]}]
        (or (not rss?) (or title description)))]]])
 
+(def markdown-spec
+  [:map
+   {:optional true}
+   [:syntax-highlighting
+    {:optional true}
+    [:map
+     ;; TODO: Add option to specify custom highlighting command
+     [:provider [:enum :chroma :pygment]]
+     ;; TODO: Validate style, turn into enum keyword, print out valid styles on schema error
+     [:style {:optional true} [:or :string :nil]]]]
+   [:shortcode-fns
+    {:optional true}
+    [:map-of :keyword :symbol]]])
+
 (def config-spec
   [:map
    {:closed true}
    [:site-data site-data-spec]
    [:render-webpage fn?]
-   [:markdown markdown-spec]
+   [:markdown {:optional true} markdown-spec]
    [:overlay-dir {:optional true} string?]
    [:export-dir {:optional true} string?]
-   [:highlight-style {:optional true} string?]
    [:rss-channel {:optional true} [:map {:closed true}
                                    [:title string?]
                                    [:link string?]
