@@ -1,6 +1,6 @@
 (ns nuzzle.markdown-test
   (:require
-   [clojure.test :refer [deftest is]]
+   [clojure.test :refer [deftest is run-tests]]
    [nuzzle.config :as conf]
    [nuzzle.markdown :as md]))
 
@@ -20,3 +20,26 @@
     (is (fn? render-markdown))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
            (render-markdown)))))
+
+(deftest walk-hiccup-for-shortcodes
+  (let [hiccup-with-shortcode [:div {:class "hi"} [:youtube {:title "some title" :id "12345"}]]
+        expected-result
+        [:div {:class "hi"}
+         [:div
+          {:style
+           "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"}
+          [:iframe
+           {:src "https://www.youtube.com/embed/12345",
+            :style
+            "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;",
+            :title "some title",
+            :allowfullscreen true}]]]]
+    (is (= (md/walk-hiccup-for-shortcodes (list [:div] hiccup-with-shortcode))
+           (list
+            [:div]
+            expected-result)))
+    (is (= (md/walk-hiccup-for-shortcodes hiccup-with-shortcode)
+           expected-result))))
+
+(comment ((md/create-render-markdown-fn [:inline-html] "test-resources/markdown/inline-html.md" nil))
+         (run-tests))

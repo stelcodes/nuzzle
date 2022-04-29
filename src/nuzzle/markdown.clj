@@ -1,10 +1,52 @@
 (ns nuzzle.markdown
   (:require
    [babashka.fs :as fs]
+   [clojure.walk :as w]
    [cybermonday.core :as cm]
+   [cybermonday.utils :as cu]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
+
+(defn quickfigure-shortcode
+  [{:keys [src title]}]
+  [:figure [:img {:src src}]
+   [:figcaption [:h4 title]]])
+
+(defn gist-shortcode
+  [{:keys [user id]}]
+  [:script {:type "application/javascript"
+            :src (str "https://gist.github.com/" user "/" id ".js")}])
+
+(defn youtube-shortcode
+  [{:keys [title id]}]
+  [:div {:style "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"}
+   [:iframe {:src (str "https://www.youtube.com/embed/" id)
+             :style "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
+             :title title :allowfullscreen true}]])
+
+(def shortcode-map
+  {:quickfigure quickfigure-shortcode
+   :gist gist-shortcode
+   :youtube youtube-shortcode})
+
+(defn render-shortcode
+  [[tag attr & _ :as hiccup]]
+  (if-let [shortcode-fn (get shortcode-map tag)]
+    (shortcode-fn attr)
+    hiccup))
+
+(defn walk-hiccup-for-shortcodes
+  [hiccup]
+  {:pre [(sequential? hiccup)]}
+  (if (list? hiccup)
+    (map walk-hiccup-for-shortcodes hiccup)
+    (w/prewalk
+     (fn [item]
+       (if (cu/hiccup? item)
+         (render-shortcode item)
+         item))
+     hiccup)))
 
 (defn highlight-code [highlight-style language code]
   (let [code-file (fs/create-temp-file)
@@ -39,7 +81,7 @@
         [_ _ & hiccup] (-> file
                            slurp
                            (cm/parse-body {:lower-fns lower-fns}))]
-    hiccup))
+    (walk-hiccup-for-shortcodes hiccup)))
 
 (defn create-render-markdown-fn
   "Create a function that turned the :markdown file into html, wrapped with the
