@@ -277,7 +277,7 @@ You can configure how Nuzzle interprets your Markdown files with values in the t
 Markdown code and code-blocks can be syntax highlighted with common syntax highlighting programs Chroma and Pygment.
 
 The `:syntax-highlighting` value is an optional map that defaults to `nil` (no syntax highlighting):
-- `:provider`: A keyword specifying the cli command to use (must be `:chroma` or `:pygmentize`). Required.
+- `:provider`: A keyword specifying the cli command to use (must be `:chroma` or `:pygment`). Required.
 - `:style`: A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
   - [Chroma styles](https://xyproto.github.io/splash/docs/longer/index.html)
-  - [Pygment styles]()
+  - [Pygment styles](https://dt.iki.fi/pygments-gallery)
