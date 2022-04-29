@@ -9,11 +9,16 @@
 (def config (conf/load-specified-config config-path {}))
 
 (deftest highlight-code
-  ;; Chroma 0.10.0
   (let [code "(def foo (let [x (+ 5 7)] (println x)))"
-        result (md/highlight-code "fruity" "clojure" code)]
+        chroma-config {:markdown {:syntax-highlighting {:provider :chroma :style "fruity"}}}
+        pygment-config {:markdown {:syntax-highlighting {:provider :pygment :style "fruity"}}}]
+    ;; Chroma 0.10.0
     (is (= "<span style=\"display:flex;\"><span>(<span style=\"color:#fb660a;font-weight:bold\">def </span><span style=\"color:#fb660a\">foo</span> (<span style=\"color:#fb660a;font-weight:bold\">let </span>[<span style=\"color:#fb660a\">x</span> (+ <span style=\"color:#0086f7;font-weight:bold\">5</span> <span style=\"color:#0086f7;font-weight:bold\">7</span>)] (println <span style=\"color:#fb660a\">x</span>)))</span></span>"
-           result))))
+           (md/highlight-code code "clojure" chroma-config)))
+    ;; Pygmentize 2.7.1
+    (is (= "<span style=\"color: #ffffff\">(</span><span style=\"color: #fb660a; font-weight: bold\">def </span><span style=\"color: #fb660a\">foo</span> <span style=\"color: #ffffff\">(</span><span style=\"color: #fb660a; font-weight: bold\">let </span><span style=\"color: #ffffff\">[</span><span style=\"color: #fb660a\">x</span> <span style=\"color: #ffffff\">(+ </span><span style=\"color: #0086f7; font-weight: bold\">5</span> <span style=\"color: #0086f7; font-weight: bold\">7</span><span style=\"color: #ffffff\">)]</span> <span style=\"color: #ffffff\">(println </span><span style=\"color: #fb660a\">x</span><span style=\"color: #ffffff\">)))</span>\n"
+           (md/highlight-code code "clojure" pygment-config)))))
+
 
 (deftest create-render-markdown-fn
   (let [{:keys [markdown]} (get-in config [:site-data [:about]])

@@ -50,26 +50,27 @@
      hiccup)))
 
 (defn generate-chroma-command
-  [file-path language highlight-style]
+  [file-path language style]
   ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
    "--html-inline-styles" "--html-prevent-surrounding-pre"
-   (str "--style=" highlight-style) file-path])
+   (str "--style=" style) file-path])
 
 (defn generate-pygment-command
-  [file-path language highlight-style]
-  ["pygmentize" "-f" "html" "-O" (str "'nowrap,noclasses,style=" highlight-style "'")
+  [file-path language style]
+  ["pygmentize" "-f" "html" "-O" (str "nowrap,noclasses,style=" style)
    "-l" language file-path])
 
-(def highlight-command-map
+(def highlight-provider-map
   {:chroma generate-chroma-command
    :pygment generate-pygment-command})
 
-(defn highlight-code [highlight-style language code]
-  (let [tmp-file (fs/create-temp-file)
+(defn highlight-code [code language config]
+  (let [{:keys [provider style]} (get-in config [:markdown :syntax-highlighting])
+        tmp-file (fs/create-temp-file)
         tmp-file-path (-> tmp-file fs/canonicalize str)
         _ (spit tmp-file-path code)
-        highlight-command-fn (:chroma highlight-command-map)
-        highlight-command (highlight-command-fn tmp-file-path language highlight-style)
+        highlight-command-fn (get highlight-provider-map provider)
+        highlight-command (highlight-command-fn tmp-file-path language style)
         {:keys [exit out err]} (apply util/safe-sh highlight-command)]
     (if (not= 0 exit)
       (do
@@ -80,19 +81,19 @@
         (fs/delete-if-exists tmp-file)
         out))))
 
-(defn code-block-highlighter [highlight-style [_tag-name {:keys [language]} body]]
-  (if highlight-style
+(defn code-block->hiccup [[_tag-name {:keys [language]} code] config]
+  (if (get-in config [:markdown :syntax-highlighting])
     [:code.code-block
      [:pre (hiccup/raw
-            (highlight-code highlight-style
+            (highlight-code code
                             (or language "no-highlight")
-                            body))]]
-    [:code.code-block [:pre body]]))
+                            config))]]
+    [:code.code-block [:pre code]]))
 
-(defn process-markdown-file [highlight-style file]
-  (let [code-block-with-style (partial code-block-highlighter highlight-style)
-        lower-fns {:markdown/fenced-code-block code-block-with-style
-                   :markdown/indented-code-block code-block-with-style}
+(defn process-markdown-file [file config]
+  (let [code-block-with-config #(code-block->hiccup % config)
+        lower-fns {:markdown/fenced-code-block code-block-with-config
+                   :markdown/indented-code-block code-block-with-config}
         ;; Avoid the top level :div {}
         [_ _ & hiccup] (-> file
                            slurp
@@ -102,7 +103,7 @@
 (defn create-render-markdown-fn
   "Create a function that turned the :markdown file into html, wrapped with the
   hiccup raw identifier."
-  [id markdown {:keys [highlight-style]}]
+  [id markdown config]
   {:pre [(or (vector? id) (keyword? id)) (or (nil? markdown) (string? markdown))]}
   (if-not markdown
     ;; If :markdown is not defined, just make a function that returns nil
@@ -110,7 +111,7 @@
     (let [markdown-file (fs/file markdown)]
       (if markdown-file
         (fn render-markdown []
-          (process-markdown-file highlight-style markdown-file))
+          (process-markdown-file markdown-file config))
         ;; If markdown-file is defined but it can't be found, throw an Exception
         (throw (ex-info (str "Markdown file " (fs/canonicalize markdown-file) " for id " id " not found")
                         {:id id :markdown markdown}))))))
