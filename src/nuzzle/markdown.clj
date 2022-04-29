@@ -82,11 +82,11 @@
         out))))
 
 (defn code-block->hiccup [[_tag-name {:keys [language]} code] config]
-  (if (get-in config [:markdown :syntax-highlighting])
+  (if (and language (get-in config [:markdown :syntax-highlighting]))
     [:code.code-block
      [:pre (hiccup/raw
             (highlight-code code
-                            (or language "no-highlight")
+                            language
                             config))]]
     [:code.code-block [:pre code]]))
 
