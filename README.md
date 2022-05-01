@@ -270,14 +270,56 @@ At the bottom of the function we can see the function from `:render-markdown` be
 ## Generating an RSS feed
 Nuzzle comes with support for generating an RSS feed. (TODO)
 
-## Customizing Markdown Processing
-You can configure how Nuzzle interprets your Markdown files with values in the top-level `:markdown` map.
+## Getting Fancy with Markdown
+You can configure how Nuzzle interprets your Markdown files with the top-level `:markdown-opts` map which has these keys:
+- `:syntax-highlighting` - A map of syntax highlighting options for code-blocks. Defaults to `nil` (no syntax highlighting).
+
+Here's an example:
+```
+{:syntax-highlighting
+ {:provider :pygments
+  :style "algol_nu"}}
+```
 
 ### Syntax Highlighting
-Markdown code and code-blocks can be syntax highlighted with common syntax highlighting programs Chroma and Pygment.
+Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.sh/sh` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
 
-The `:syntax-highlighting` value is an optional map that defaults to `nil` (no syntax highlighting):
-- `:provider`: A keyword specifying the cli command to use (must be `:chroma` or `:pygment`). Required.
-- `:style`: A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
-  - [Chroma styles](https://xyproto.github.io/splash/docs/longer/index.html)
-  - [Pygment styles](https://dt.iki.fi/pygments-gallery)
+Syntax highlighting is controlled via the `:syntax-highlighting` map which has these keys:
+- `:provider` - A keyword specifying the program to use (either `:chroma` or `:pygments`). Required.
+- `:style` - A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
+
+When this map is present, Nuzzle will run you code-blocks with language annotations through the chosen syntax-highlighting program. If the program supports the language found in the language annotation (check their lexers list), it will output the code as HTML with the different syntax tokens wrapped in `span` elements.
+
+If `:style` is `nil`, the programs will just attach classes to these `span` elements and it's up to you to define their CSS. If `:style` is specified, the programs will attempt to apply that style as inline CSS.
+
+Background colors are not included. Nuzzle adds the class `code-block` to every `code` element that is a code-block so you can define your own code-block background color using CSS like:
+```css
+code.code-block { background-color: darkslategray; }
+```
+
+#### Pygments
+[Pygments](https://github.com/pygments/pygments) is a popular and awesome syntax highlighting program written in Python. You can install Pygments with `pip`:
+```shell
+pip install --user pygments
+```
+This should install Pygment's CLI app called `pygmentize` into your $PATH. There are also [many packages available](https://pypi.org/search/?q=pygments&o=) that define additional styles and lexers:
+```shell
+pip install --user pygments-base16 pygments-httpie
+```
+These become available to `pygmentize` simply by installing them. You can run `pygmentize -L` to see all styles and lexers available or check out the [default Pygments style gallery](https://pygments.org/styles/).
+
+Nuzzle supports Pygments versions 2.12.0 and above.
+
+#### Chroma
+[Chroma](https://github.com/alecthomas/chroma) is a syntax highlighter written in Go and based heavily on Pygments. Download with your favorite package manager, or alternatively the author [suggests](https://github.com/alecthomas/chroma/issues/533) downloading the `chroma` binary via their [GitHub releases](https://github.com/alecthomas/chroma/releases).
+
+Besides a browser, you could also use `wget` or `curl`:
+```shell
+wget https://github.com/alecthomas/chroma/releases/download/v2.0.0-alpha4/chroma-2.0.0-alpha4-linux-amd64.tar.gz
+
+curl --location https://github.com/alecthomas/chroma/releases/download/v2.0.0-alpha4/chroma-2.0.0-alpha4-linux-amd64.tar.gz --output chroma-2.0.0-alpha4-linux-amd64.tar.gz
+```
+
+You can run `chroma --list` to see all styles and lexers available or check out the [Chroma style gallery](https://xyproto.github.io/splash/docs/longer/index.html).
+
+Nuzzle supports Chroma versions 2.0.0 and above.
