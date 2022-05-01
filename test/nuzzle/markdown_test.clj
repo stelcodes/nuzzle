@@ -10,8 +10,8 @@
 
 (deftest highlight-code
   (let [code "(def foo (let [x (+ 5 7)] (println x)))"
-        chroma-config {:markdown {:syntax-highlighting {:provider :chroma :style "fruity"}}}
-        pygment-config {:markdown {:syntax-highlighting {:provider :pygment :style "fruity"}}}]
+        chroma-config {:markdown-opts {:syntax-highlighting {:provider :chroma :style "fruity"}}}
+        pygment-config {:markdown-opts {:syntax-highlighting {:provider :pygment :style "fruity"}}}]
     ;; Chroma 0.10.0
     (is (= "<span style=\"display:flex;\"><span>(<span style=\"color:#fb660a;font-weight:bold\">def </span><span style=\"color:#fb660a\">foo</span> (<span style=\"color:#fb660a;font-weight:bold\">let </span>[<span style=\"color:#fb660a\">x</span> (+ <span style=\"color:#0086f7;font-weight:bold\">5</span> <span style=\"color:#0086f7;font-weight:bold\">7</span>)] (println <span style=\"color:#fb660a\">x</span>)))</span></span>"
            (md/highlight-code code "clojure" chroma-config)))

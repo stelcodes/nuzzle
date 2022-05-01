@@ -21,7 +21,7 @@
      (fn [{:keys [rss? title description]}]
        (or (not rss?) (or title description)))]]])
 
-(def markdown-spec
+(def markdown-opts-spec
   [:map
    {:optional true}
    [:syntax-highlighting
@@ -29,7 +29,6 @@
     [:map
      ;; TODO: Add option to specify custom highlighting command
      [:provider [:enum :chroma :pygment]]
-     ;; TODO: Validate style, turn into enum keyword, print out valid styles on schema error
      [:style {:optional true} [:or :string :nil]]]]
    [:shortcode-fns
     {:optional true}
@@ -40,7 +39,7 @@
    {:closed true}
    [:site-data site-data-spec]
    [:render-webpage fn?]
-   [:markdown {:optional true} markdown-spec]
+   [:markdown-opts {:optional true} markdown-opts-spec]
    [:overlay-dir {:optional true} string?]
    [:export-dir {:optional true} string?]
    [:rss-channel {:optional true} [:map {:closed true}

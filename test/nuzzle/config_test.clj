@@ -42,7 +42,7 @@
             {:id :meta, :twitter "https://twitter/foobar"}}})))
 
 (deftest markdown-spec
-  (is (m/validate conf/markdown-spec
+  (is (m/validate conf/markdown-opts-spec
                   {:syntax-highlighting
                    {:provider :chroma
                     :style "emacs"}

@@ -65,7 +65,7 @@
    :pygment generate-pygment-command})
 
 (defn highlight-code [code language config]
-  (let [{:keys [provider style]} (get-in config [:markdown :syntax-highlighting])
+  (let [{:keys [provider style]} (get-in config [:markdown-opts :syntax-highlighting])
         tmp-file (fs/create-temp-file)
         tmp-file-path (-> tmp-file fs/canonicalize str)
         _ (spit tmp-file-path code)
@@ -82,7 +82,7 @@
         out))))
 
 (defn code-block->hiccup [[_tag-name {:keys [language]} code] config]
-  (if (and language (get-in config [:markdown :syntax-highlighting]))
+  (if (and language (get-in config [:markdown-opts :syntax-highlighting]))
     [:code.code-block
      [:pre (hiccup/raw
             (highlight-code code
