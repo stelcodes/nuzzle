@@ -28,7 +28,7 @@
     {:optional true}
     [:map
      ;; TODO: Add option to specify custom highlighting command
-     [:provider [:enum :chroma :pygment]]
+     [:provider [:enum :chroma :pygments]]
      [:style {:optional true} [:or :string :nil]]]]
    [:shortcode-fns
     {:optional true}

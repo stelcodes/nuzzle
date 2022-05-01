@@ -55,14 +55,14 @@
    "--html-inline-styles" "--html-prevent-surrounding-pre"
    (str "--style=" style) file-path])
 
-(defn generate-pygment-command
+(defn generate-pygments-command
   [file-path language style]
   ["pygmentize" "-f" "html" "-O" (str "nowrap,noclasses,style=" style)
    "-l" language file-path])
 
 (def highlight-provider-map
   {:chroma generate-chroma-command
-   :pygment generate-pygment-command})
+   :pygments generate-pygments-command})
 
 (defn highlight-code [code language config]
   (let [{:keys [provider style]} (get-in config [:markdown-opts :syntax-highlighting])
