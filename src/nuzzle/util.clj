@@ -45,7 +45,7 @@
                     {:overlay-dir overlay-dir-path}))))
 
 (defn safe-sh [command & args]
-  (try (apply sh/sh command args)
+  (try (apply sh/sh command (remove nil? args))
     (catch Exception _
       {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
 

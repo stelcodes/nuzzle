@@ -52,12 +52,13 @@
 (defn generate-chroma-command
   [file-path language style]
   ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
-   "--html-inline-styles" "--html-prevent-surrounding-pre"
-   (str "--style=" style) file-path])
+   (when style "--html-inline-styles") "--html-prevent-surrounding-pre"
+   (when style (str "--style=" style)) file-path])
 
 (defn generate-pygments-command
   [file-path language style]
-  ["pygmentize" "-f" "html" "-O" (str "nowrap,noclasses,style=" style)
+  ["pygmentize" "-f" "html" "-O"
+   (if style (str "nowrap,noclasses,style=" style) "nowrap")
    "-l" language file-path])
 
 (def highlight-provider-map
