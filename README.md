@@ -214,7 +214,7 @@ With many static site generators, accessing global data inside markup templates 
 
 In a word, `get-site-data` allows us to see the whole world while creating our Hiccup. It has two forms:
 
-1. `(get-site-data)`: With no arguments, returns the whole realized site data vector.
+1. `(get-site-data)`: With no arguments, returns the whole realized site data set.
 2. `(get-site-data [:blog-posts])`: With an `id` from the realized site data, return the corresponding map.
 
 Since `get-site-data` returns maps from our *realized* site data, all information about the site is at your fingertips. Every webpage and peripheral map from your site data is always a function call away.
