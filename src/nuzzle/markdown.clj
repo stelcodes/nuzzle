@@ -50,28 +50,36 @@
      hiccup)))
 
 (defn generate-chroma-command
-  [file-path language style]
-  ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
-   (when style "--html-inline-styles") "--html-prevent-surrounding-pre"
-   (when style (str "--style=" style)) file-path])
+  [file-path language config]
+  (let [{:keys [style line-numbers?]} (get-in config [:markdown-opts :syntax-highlighting])]
+    ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
+     "--html-prevent-surrounding-pre" (when style "--html-inline-styles")
+     (when style (str "--style=" style)) (when line-numbers? "--html-lines")  file-path]))
 
 (defn generate-pygments-command
-  [file-path language style]
-  ["pygmentize" "-f" "html" "-O"
-   (if style (str "nowrap,noclasses,style=" style) "nowrap")
-   "-l" language file-path])
+  [file-path language config]
+  (let [{:keys [style line-numbers?]} (get-in config [:markdown-opts :syntax-highlighting])
+        ;; TODO: turn nowrap on for everything if they release my PR
+        ;; https://github.com/pygments/pygments/issues/2127
+        options [(when-not line-numbers? "nowrap") (when style "noclasses")
+                 (when style (str "style=" style))
+                 (when line-numbers? "linenos=inline")]]
+    ["pygmentize" "-f" "html" "-l" language "-O"
+     (->> options (remove nil?) (str/join ",")) file-path]))
 
-(def highlight-provider-map
-  {:chroma generate-chroma-command
-   :pygments generate-pygments-command})
+(defn generate-highlight-command
+  [file-path language config]
+  (->>
+   (case (get-in config [:markdown-opts :syntax-highlighting :provider])
+    :chroma (generate-chroma-command file-path language config)
+    :pygments (generate-pygments-command file-path language config))
+   (remove nil?)))
 
 (defn highlight-code [code language config]
-  (let [{:keys [provider style]} (get-in config [:markdown-opts :syntax-highlighting])
-        tmp-file (fs/create-temp-file)
+  (let [tmp-file (fs/create-temp-file)
         tmp-file-path (-> tmp-file fs/canonicalize str)
         _ (spit tmp-file-path code)
-        highlight-command-fn (get highlight-provider-map provider)
-        highlight-command (highlight-command-fn tmp-file-path language style)
+        highlight-command (generate-highlight-command tmp-file-path language config)
         {:keys [exit out err]} (apply util/safe-sh highlight-command)]
     (if (not= 0 exit)
       (do
@@ -85,10 +93,7 @@
 (defn code-block->hiccup [[_tag-name {:keys [language]} code] config]
   (if (and language (get-in config [:markdown-opts :syntax-highlighting]))
     [:code.code-block
-     [:pre (hiccup/raw
-            (highlight-code code
-                            language
-                            config))]]
+     [:pre (hiccup/raw (highlight-code code language config))]]
     [:code.code-block [:pre code]]))
 
 (defn process-markdown-file [file config]

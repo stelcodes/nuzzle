@@ -287,6 +287,7 @@ Syntax-highlighted code can give your website a polished, sophisticated appearan
 Syntax highlighting is controlled via the `:syntax-highlighting` map which has these keys:
 - `:provider` - A keyword specifying the program to use (either `:chroma` or `:pygments`). Required.
 - `:style` - A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
+- `:line-numbers?` - A boolean indicating whether line numbers should be included.
 
 When this map is present, Nuzzle will run you code-blocks with language annotations through the chosen syntax-highlighting program. If the program supports the language found in the language annotation (check their lexers list), it will output the code as HTML with the different syntax tokens wrapped in `span` elements.
 

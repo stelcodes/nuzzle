@@ -1,6 +1,6 @@
 (ns nuzzle.markdown-test
   (:require
-   [clojure.test :refer [deftest is run-tests]]
+   [clojure.test :refer [deftest testing is run-tests]]
    [nuzzle.config :as conf]
    [nuzzle.markdown :as md]))
 
@@ -8,22 +8,51 @@
 
 (def config (conf/load-specified-config config-path {}))
 
+(deftest generate-highlight-command
+  (testing "generating chroma command"
+    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma}}})))
+    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-lines" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma :line-numbers? true}}})))
+    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-inline-styles" "--style=algol_nu" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma :style "algol_nu"}}})))
+    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-inline-styles" "--style=algol_nu" "--html-lines" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma :style "algol_nu" :line-numbers? true}}}))))
+  (testing "generating pygments command"
+    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "nowrap" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments}}})))
+    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "linenos=inline"  "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :line-numbers? true}}})))
+    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "nowrap,noclasses,style=algol_nu" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :style "algol_nu"}}})))
+    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "noclasses,style=algol_nu,linenos=inline" "/tmp/foo.clj")
+           (md/generate-highlight-command "/tmp/foo.clj" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :style "algol_nu" :line-numbers? true}}})))))
+
 (deftest highlight-code
-  (let [code "(def foo (let [x (+ 5 7)] (println x)))"
-        chroma-fruity {:markdown-opts {:syntax-highlighting {:provider :chroma :style "fruity"}}}
-        chroma-no-style {:markdown-opts {:syntax-highlighting {:provider :chroma}}}
-        pygments-fruity {:markdown-opts {:syntax-highlighting {:provider :pygments :style "fruity"}}}
-        pygments-no-style {:markdown-opts {:syntax-highlighting {:provider :pygments}}}]
+  (let [code "(def foo (let [x (+ 5 7)] (println x)))"]
     ;; Chroma 2.0.0-alpha4
-    (is (= "<span style=\"display:flex;\"><span>(<span style=\"color:#fb660a;font-weight:bold\">def </span><span style=\"color:#fb660a\">foo</span> (<span style=\"color:#fb660a;font-weight:bold\">let </span>[<span style=\"color:#fb660a\">x</span> (+ <span style=\"color:#0086f7;font-weight:bold\">5</span> <span style=\"color:#0086f7;font-weight:bold\">7</span>)] (println <span style=\"color:#fb660a\">x</span>)))</span></span>"
-           (md/highlight-code code "clojure" chroma-fruity)))
-    (is (= "<span class=\"line\"><span class=\"cl\"><span class=\"p\">(</span><span class=\"k\">def </span><span class=\"nv\">foo</span> <span class=\"p\">(</span><span class=\"k\">let </span><span class=\"p\">[</span><span class=\"nv\">x</span> <span class=\"p\">(</span><span class=\"nb\">+ </span><span class=\"mi\">5</span> <span class=\"mi\">7</span><span class=\"p\">)]</span> <span class=\"p\">(</span><span class=\"nb\">println </span><span class=\"nv\">x</span><span class=\"p\">)))</span></span></span>"
-           (md/highlight-code code "clojure" chroma-no-style)))
+    (testing "chroma HTML output"
+      (is (= "<span class=\"line\"><span class=\"cl\"><span class=\"p\">(</span><span class=\"k\">def </span><span class=\"nv\">foo</span> <span class=\"p\">(</span><span class=\"k\">let </span><span class=\"p\">[</span><span class=\"nv\">x</span> <span class=\"p\">(</span><span class=\"nb\">+ </span><span class=\"mi\">5</span> <span class=\"mi\">7</span><span class=\"p\">)]</span> <span class=\"p\">(</span><span class=\"nb\">println </span><span class=\"nv\">x</span><span class=\"p\">)))</span></span></span>"
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma}}})))
+      (is (= "<span style=\"display:flex;\"><span>(<span style=\"color:#fb660a;font-weight:bold\">def </span><span style=\"color:#fb660a\">foo</span> (<span style=\"color:#fb660a;font-weight:bold\">let </span>[<span style=\"color:#fb660a\">x</span> (+ <span style=\"color:#0086f7;font-weight:bold\">5</span> <span style=\"color:#0086f7;font-weight:bold\">7</span>)] (println <span style=\"color:#fb660a\">x</span>)))</span></span>"
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma :style "fruity"}}})))
+      (is (= "<span class=\"line\"><span class=\"ln\">1</span><span class=\"cl\"><span class=\"p\">(</span><span class=\"k\">def </span><span class=\"nv\">foo</span> <span class=\"p\">(</span><span class=\"k\">let </span><span class=\"p\">[</span><span class=\"nv\">x</span> <span class=\"p\">(</span><span class=\"nb\">+ </span><span class=\"mi\">5</span> <span class=\"mi\">7</span><span class=\"p\">)]</span> <span class=\"p\">(</span><span class=\"nb\">println </span><span class=\"nv\">x</span><span class=\"p\">)))</span></span></span>"
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma :line-numbers? true}}})))
+      (is (= "<span style=\"display:flex;\"><span style=\"white-space:pre;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f\">1</span><span>(<span style=\"color:#fb660a;font-weight:bold\">def </span><span style=\"color:#fb660a\">foo</span> (<span style=\"color:#fb660a;font-weight:bold\">let </span>[<span style=\"color:#fb660a\">x</span> (+ <span style=\"color:#0086f7;font-weight:bold\">5</span> <span style=\"color:#0086f7;font-weight:bold\">7</span>)] (println <span style=\"color:#fb660a\">x</span>)))</span></span>"
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma :style "fruity" :line-numbers? true}}}))))
     ;; Pygmentize 2.12.0
-    (is (= "<span style=\"color: #ffffff\">(</span><span style=\"color: #fb660a; font-weight: bold\">def </span><span style=\"color: #fb660a\">foo</span><span style=\"color: #888888\"> </span><span style=\"color: #ffffff\">(</span><span style=\"color: #fb660a; font-weight: bold\">let </span><span style=\"color: #ffffff\">[</span><span style=\"color: #fb660a\">x</span><span style=\"color: #888888\"> </span><span style=\"color: #ffffff\">(+ </span><span style=\"color: #0086f7; font-weight: bold\">5</span><span style=\"color: #888888\"> </span><span style=\"color: #0086f7; font-weight: bold\">7</span><span style=\"color: #ffffff\">)]</span><span style=\"color: #888888\"> </span><span style=\"color: #ffffff\">(println </span><span style=\"color: #fb660a\">x</span><span style=\"color: #ffffff\">)))</span><span style=\"color: #888888\"></span>\n"
-           (md/highlight-code code "clojure" pygments-fruity)))
-    (is (= "<span class=\"p\">(</span><span class=\"k\">def </span><span class=\"nv\">foo</span><span class=\"w\"> </span><span class=\"p\">(</span><span class=\"k\">let </span><span class=\"p\">[</span><span class=\"nv\">x</span><span class=\"w\"> </span><span class=\"p\">(</span><span class=\"nb\">+ </span><span class=\"mi\">5</span><span class=\"w\"> </span><span class=\"mi\">7</span><span class=\"p\">)]</span><span class=\"w\"> </span><span class=\"p\">(</span><span class=\"nb\">println </span><span class=\"nv\">x</span><span class=\"p\">)))</span><span class=\"w\"></span>\n"
-           (md/highlight-code code "clojure" pygments-no-style)))))
+    (testing "pygments HTML output"
+      (is (= "<span class=\"p\">(</span><span class=\"k\">def </span><span class=\"nv\">foo</span><span class=\"w\"> </span><span class=\"p\">(</span><span class=\"k\">let </span><span class=\"p\">[</span><span class=\"nv\">x</span><span class=\"w\"> </span><span class=\"p\">(</span><span class=\"nb\">+ </span><span class=\"mi\">5</span><span class=\"w\"> </span><span class=\"mi\">7</span><span class=\"p\">)]</span><span class=\"w\"> </span><span class=\"p\">(</span><span class=\"nb\">println </span><span class=\"nv\">x</span><span class=\"p\">)))</span><span class=\"w\"></span>\n"
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments}}})))
+
+      (is (= "<span style=\"color: #ffffff\">(</span><span style=\"color: #fb660a; font-weight: bold\">def </span><span style=\"color: #fb660a\">foo</span><span style=\"color: #888888\"> </span><span style=\"color: #ffffff\">(</span><span style=\"color: #fb660a; font-weight: bold\">let </span><span style=\"color: #ffffff\">[</span><span style=\"color: #fb660a\">x</span><span style=\"color: #888888\"> </span><span style=\"color: #ffffff\">(+ </span><span style=\"color: #0086f7; font-weight: bold\">5</span><span style=\"color: #888888\"> </span><span style=\"color: #0086f7; font-weight: bold\">7</span><span style=\"color: #ffffff\">)]</span><span style=\"color: #888888\"> </span><span style=\"color: #ffffff\">(println </span><span style=\"color: #fb660a\">x</span><span style=\"color: #ffffff\">)))</span><span style=\"color: #888888\"></span>\n"
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :style "fruity"}}})))
+
+      (is (= (md/highlight-code "(def foo (let [x (+ 5 7)] (println x)))" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :line-numbers? true}}})
+             (md/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :line-numbers? true}}})
+             ))
+
+      )))
 
 (deftest create-render-markdown-fn
   (let [{:keys [markdown]} (get-in config [:site-data [:about]])
@@ -53,4 +82,5 @@
            expected-result))))
 
 (comment ((md/create-render-markdown-fn [:inline-html] "test-resources/markdown/inline-html.md" nil))
+         (md/highlight-code "(defn hi [] \"hi\")" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :line-numbers? true}}})
          (run-tests))
