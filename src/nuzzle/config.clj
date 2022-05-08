@@ -1,67 +1,25 @@
 (ns nuzzle.config
-  (:require [clojure.edn :as edn]
-            [clojure.pprint :as pp]
-            [malli.core :as m]
-            [malli.error :as me]
-            [nuzzle.log :as log]
-            [nuzzle.generator :as gen]))
-
-(def id-spec [:or [:vector keyword?] keyword?])
-
-(def site-data-spec
-  [:set {:min 1}
-   [:and
-    [:map
-     [:id id-spec]
-     [:tags {:optional true}
-      [:set keyword?]]
-     [:index {:optional true}
-      [:set id-spec]]]
-    [:fn {:error/message ":site-data map with {:rss? true} needs a :title or :description"}
-     (fn [{:keys [rss? title description]}]
-       (or (not rss?) (or title description)))]]])
-
-(def markdown-opts-spec
-  [:map
-   {:optional true}
-   [:syntax-highlighting
-    {:optional true}
-    [:map
-     ;; TODO: Add option to specify custom highlighting command
-     [:provider [:enum :chroma :pygments]]
-     [:style {:optional true} [:or :string :nil]]
-     [:line-numbers? {:optional true} :boolean]]]
-   [:shortcode-fns
-    {:optional true}
-    [:map-of :keyword :symbol]]])
-
-(def config-spec
-  [:map
-   {:closed true}
-   [:site-data site-data-spec]
-   [:render-webpage fn?]
-   [:markdown-opts {:optional true} markdown-opts-spec]
-   [:overlay-dir {:optional true} string?]
-   [:export-dir {:optional true} string?]
-   [:rss-channel {:optional true} [:map {:closed true}
-                                   [:title string?]
-                                   [:link string?]
-                                   [:description string?]]]
-   [:remove-drafts? {:optional true} boolean?]
-   [:dev-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
+  (:require
+   [clojure.edn :as edn]
+   [clojure.pprint :as pp]
+   [malli.core :as m]
+   [malli.error :as me]
+   [nuzzle.log :as log]
+   [nuzzle.generator :as gen]
+   [nuzzle.schemas :as schemas]))
 
 (def valid-config?
-  (m/validator config-spec))
+  (m/validator schemas/config))
 
 (defn validate-config [config]
   (if (valid-config? config)
     config
-      (let [errors (->> config
-                        (m/explain config-spec)
-                        (me/humanize))]
-        (log/error "Encountered error in nuzzle.edn config:")
-        (pp/pprint errors)
-        (throw (ex-info "Invalid Nuzzle config" errors)))))
+    (let [errors (->> config
+                      (m/explain schemas/config)
+                      me/humanize)]
+      (log/error "Encountered error in nuzzle.edn config:")
+      (pp/pprint errors)
+      (throw (ex-info "Invalid Nuzzle config" errors)))))
 
 (defn read-specified-config
   "Read the site-data EDN file and validate it."

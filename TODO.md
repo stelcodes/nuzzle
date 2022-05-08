@@ -15,5 +15,5 @@
 - [ ] Add sitemap generation
 - [ ] Expose cybermonday lower-fns
 - [ ] Expose way to allow custom content parsers
-- [ ] Move schemas to separate namespace
+- [x] Move schemas to separate namespace
 
