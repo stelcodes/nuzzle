@@ -12,7 +12,6 @@
 Nuzzle is a static site generator for people who love:
 - Data-oriented functional programming ✨
 - REPL-driven workflows 🔁
-- Writing prose in Markdown 📝
 - The awesome combination of Clojure and Hiccup 💞
 - Simplicity 🌷
 
@@ -22,8 +21,7 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 - Manage all website data and structure inside an EDN file
 - Plug in a single function to produce Hiccup
 - Retrieve all website data while inside that function
-- Write your prose in Markdown files
-- Statically render CSS syntax highlighting for Markdown code (requires [Chroma](https://github.com/alecthomas/chroma))
+- Statically render CSS syntax highlighting for Markdown code-blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
 - Utilize a built-in, REPL-driven, hot-reloading web server
 - Tag webpages
 - Create subdirectory and tag index webpages
