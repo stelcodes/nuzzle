@@ -7,7 +7,8 @@
    [cybermonday.utils :as cu]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
-   [nuzzle.util :as util]))
+   [nuzzle.util :as util]
+   [vimhelp.core :as vimhelp]))
 
 (defn quickfigure-shortcode
   [{:keys [src title]}]
@@ -26,9 +27,14 @@
              :style "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
              :title title :allowfullscreen true}]])
 
+(defn vimhelp-shortcode
+  [{:keys [src badrefs] :or {badrefs ""}}]
+  (vimhelp/help-file->hiccup src (set (str/split badrefs #","))))
+
 (def shortcode-map
   {:quickfigure quickfigure-shortcode
    :gist gist-shortcode
+   :vimhelp vimhelp-shortcode
    :youtube youtube-shortcode})
 
 (defn render-shortcode

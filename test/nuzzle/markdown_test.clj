@@ -2,11 +2,21 @@
   (:require
    [clojure.test :refer [deftest testing is run-tests]]
    [nuzzle.config :as conf]
+   [nuzzle.hiccup :as hiccup]
    [nuzzle.markdown :as md]))
 
 (def config-path "test-resources/edn/config-1.edn")
 
 (def config (conf/load-specified-config config-path {}))
+
+(deftest vimhelp-shortcode
+    (is (= (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"})))
+           (slurp "test-resources/html/conjure-no-badrefs-filter.html")))
+    (is (= (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"})))
+           (slurp "test-resources/html/conjure-with-badrefs-filter.html"))))
+
+(comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"})))))
+(comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"})))))
 
 (deftest generate-highlight-command
   (testing "generating chroma command"
