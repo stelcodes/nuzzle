@@ -16,4 +16,4 @@
 - [ ] Expose cybermonday lower-fns
 - [ ] Expose way to allow custom content parsers
 - [x] Move schemas to separate namespace
-
+- [ ] Add davidsantiago/hickory for parsing HTML content
