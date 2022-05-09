@@ -11,36 +11,33 @@
    [vimhelp.core :as vimhelp]))
 
 (defn quickfigure-shortcode
-  [{:keys [src title]}]
+  [[_tag {:keys [src title] :as _attr}]]
   [:figure [:img {:src src}]
    [:figcaption [:h4 title]]])
 
 (defn gist-shortcode
-  [{:keys [user id]}]
+  [[_tag {:keys [user id] :as _attr}]]
   [:script {:type "application/javascript"
             :src (str "https://gist.github.com/" user "/" id ".js")}])
 
 (defn youtube-shortcode
-  [{:keys [title id]}]
+  [[_tag {:keys [title id] :as _attr}]]
   [:div {:style "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"}
    [:iframe {:src (str "https://www.youtube.com/embed/" id)
              :style "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
              :title title :allowfullscreen true}]])
 
 (defn vimhelp-shortcode
-  [{:keys [src badrefs] :or {badrefs ""}}]
+  [[_tag {:keys [src badrefs] :or {badrefs ""} :as _attr}]]
   (vimhelp/help-file->hiccup src (set (str/split badrefs #","))))
 
-(def shortcode-map
-  {:quickfigure quickfigure-shortcode
-   :gist gist-shortcode
-   :vimhelp vimhelp-shortcode
-   :youtube youtube-shortcode})
-
 (defn render-shortcode
-  [[tag attr & _ :as hiccup]]
-  (if-let [shortcode-fn (get shortcode-map tag)]
-    (shortcode-fn attr)
+  [[tag & _ :as hiccup]]
+  (case tag
+    :quickfigure (quickfigure-shortcode hiccup)
+    :gist (gist-shortcode hiccup)
+    :vimhelp (vimhelp-shortcode hiccup)
+    :youtube (youtube-shortcode hiccup)
     hiccup))
 
 (defn walk-hiccup-for-shortcodes
@@ -51,7 +48,9 @@
     (w/prewalk
      (fn [item]
        (if (cu/hiccup? item)
-         (render-shortcode item)
+         (if (-> item second map?)
+           (render-shortcode item)
+           (render-shortcode (apply vector (first item) {} (rest item))))
          item))
      hiccup)))
 
