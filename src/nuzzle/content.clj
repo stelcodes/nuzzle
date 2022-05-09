@@ -1,4 +1,4 @@
-(ns nuzzle.markdown
+(ns nuzzle.content
   (:require
    [babashka.fs :as fs]
    [clojure.string :as str]

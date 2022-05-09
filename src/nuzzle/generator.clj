@@ -2,7 +2,7 @@
   (:require
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
-   [nuzzle.markdown :as md]
+   [nuzzle.content :as con]
    [nuzzle.util :as util]))
 
 (defn create-tag-index
@@ -60,9 +60,9 @@
           (if (vector? id)
             (assoc m id (merge v {:uri (or uri (util/id->uri id))
                                   :render-content
-                                  (md/create-render-content-fn id content config)}))
+                                  (con/create-render-content-fn id content config)}))
             (assoc m id (merge v {:render-content
-                                  (md/create-render-content-fn id content config)}))))
+                                  (con/create-render-content-fn id content config)}))))
         {})
        (assoc config :site-data)))
 
