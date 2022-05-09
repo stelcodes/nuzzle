@@ -30,6 +30,12 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 ## Real World Example
 Want to read some code already? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build my personal developer blog deployed at [stel.codes](https://stel.codes).
 
+## Requirements
+- Java >= 11
+- Clojure >= 1.11.1
+- [Pygments](https://github.com/pygments/pygments) >= 2.12.0 (optional)
+- [Chroma](https://github.com/alecthomas/chroma) >= 2.0.0 (optional)
+
 ## Nuzzle's API
 Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 - `export`: Exports the static site to disk.
