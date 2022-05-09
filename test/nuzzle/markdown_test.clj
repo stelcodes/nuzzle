@@ -10,13 +10,13 @@
 (def config (conf/load-specified-config config-path {}))
 
 (deftest vimhelp-shortcode
-    (is (= (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"})))
+    (is (= (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"}))
            (slurp "test-resources/html/conjure-no-badrefs-filter.html")))
-    (is (= (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"})))
+    (is (= (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))
            (slurp "test-resources/html/conjure-with-badrefs-filter.html"))))
 
-(comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"})))))
-(comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (str "<DOCTYPE html>" (hiccup/html (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"})))))
+(comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"}))))
+(comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))))
 
 (deftest generate-highlight-command
   (testing "generating chroma command"

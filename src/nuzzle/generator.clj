@@ -121,8 +121,7 @@
                          [(:uri page)
                           (fn [_]
                             (when debug? (log/log-rendering-page page))
-                            (str "<!DOCTYPE html>"
-                                 (hiccup/html render-result)))])))
+                            (hiccup/html-document render-result))])))
        (into {})))
 
 
