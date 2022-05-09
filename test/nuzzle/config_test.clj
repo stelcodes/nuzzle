@@ -1,8 +1,7 @@
 (ns nuzzle.config-test
   (:require
    [clojure.test :refer [deftest is]]
-   [nuzzle.config :as conf]
-   [malli.core :as m]))
+   [nuzzle.config :as conf]))
 
 (def config-path "test-resources/edn/config-1.edn")
 
@@ -11,7 +10,7 @@
 (deftest read-specified-config
   (is (= (conf/read-specified-config config-path {})
          {:export-dir "/tmp/nuzzle-test-out",
-          :dev-port 6899,
+          :server-port 6899,
           :remove-drafts? false,
           :render-webpage render-webpage,
           :rss-channel

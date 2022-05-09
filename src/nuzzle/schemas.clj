@@ -42,4 +42,4 @@
                                    [:link string?]
                                    [:description string?]]]
    [:remove-drafts? {:optional true} boolean?]
-   [:dev-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
+   [:server-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])

@@ -37,8 +37,8 @@
 (defn log-export-end []
   (info "✅🐈 Export successful"))
 
-(defn log-start-server [dev-port]
-  (info "✨🐈 Starting development server on port" dev-port))
+(defn log-start-server [server-port]
+  (info "✨🐈 Starting development server on port" server-port))
 
 (defn log-rendering-page [page]
   (info "⚡🐈 Rendering webpage:")
