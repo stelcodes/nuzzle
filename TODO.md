@@ -9,9 +9,9 @@
 - [x] Change `site-config` to `site-data`
 - [x] Change `content` and `render-content` to `markdown` and `render-markdown` (markdown only, no HTML)
 - [x] Enable special `markdown` field in peripheral maps
-- [ ] Add pygment as code highlighting option
+- [x] Add pygment as code highlighting option
 - [x] Rename transformations to additions
-- [ ] Add str "<DOCTYPE html>" to nuzzle.hiccup/html
+- [x] Add str "<DOCTYPE html>" to nuzzle.hiccup/html
 - [ ] Add sitemap generation
 - [ ] Expose cybermonday lower-fns
 - [ ] Expose way to allow custom content parsers
