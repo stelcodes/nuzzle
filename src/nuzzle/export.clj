@@ -9,7 +9,7 @@
 
 (defn export-rss
   [{:keys [export-dir] :as config}]
-  (let [rss-file (fs/file export-dir "rss.xml")
+  (let [rss-file (fs/file export-dir "feed.xml")
         _ (log/log-rss rss-file)
         rss-feed (rss/create-rss-feed config)]
     (spit rss-file rss-feed)))
