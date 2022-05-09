@@ -64,15 +64,15 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
  :render-webpage views/render-webpage
  :site-data
  #{{:id []
-    :markdown "markdown/homepage-blurb.md"}
+    :content "markdown/homepage-blurb.md"}
    {:id [:blog-posts :catching-pikachu]
     :title "How I Caught Pikachu"
-    :markdown "markdown/how-i-caught-pikachu.md"}
+    :content "markdown/how-i-caught-pikachu.md"}
    {:id [:blog-posts :defeating-misty]
     :title "How I Defeated Misty with Pikachu"
-    :markdown "markdown/how-i-defeated-misty.md"}
+    :content "markdown/how-i-defeated-misty.md"}
    {:id [:about]
-    :markdown "markdown/about-myself.md"}
+    :content "markdown/about-myself.md"}
    {:id :crypto
     :bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb"
     :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979"}}}
@@ -100,14 +100,14 @@ Here's another `:site-data` example with annotations:
 
   {:id [:blog-posts :using-clojure]
    :title "Using Clojure"
-   ;; The special :markdown key associates a markdown file
-   :markdown "markdown/using-clojure.md"
+   ;; The special :content key associates a Markdown or HTML file
+   :content "markdown/using-clojure.md"
    ;; The special :tags key tells Nuzzle about webpage tags
    :tags #{:clojure}}
 
   {:id [:blog-posts :learning-rust]
    :title "How I Got Started Learning Rust"
-   :markdown "markdown/learning-rust.md"
+   :content "markdown/learning-rust.md"
    :tags #{:rust}
    ;; The special :draft? key tells Nuzzle which webpages are drafts
    :draft? true
@@ -116,7 +116,7 @@ Here's another `:site-data` example with annotations:
 
   {:id [:blog-posts :clojure-on-fedora]
    :title "How to Install Clojure on Fedora"
-   :markdown "markdown/clojure-on-fedora.md"
+   :content "markdown/clojure-on-fedora.md"
    :tags #{:linux :clojure}
    ;; Webpage maps are open, you can include any data you like
    :foobar "baz"}
@@ -129,19 +129,19 @@ Here's another `:site-data` example with annotations:
    :twitter "https://twitter.com/clojurerulez"} ; <- This will be easy to retrieve later
 
   {:id :footer-message
-   ;; You can also associate markdown with peripheral maps
-   :markdown "markdown/footer-message.md"}
+   ;; You can also associate content with peripheral maps
+   :content "markdown/footer-message.md"}
 }
 ```
 
 ### Special Keys in Webpage Maps
-- `:markdown`: A path to an associated Markdown file.
+- `:content`: A path to an associated Markdown or HTML file.
 - `:tags`: A set of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this webpage is a draft or not.
 - `:rss?`: A boolean indicating whether the webpage should be included in the optional RSS feed.
 
 ### Special Keys in Peripheral Maps
-- `:markdown`: A path to an associated Markdown file.
+- `:content`: A path to an associated Markdown or HTML file.
 
 ## How Nuzzle Adds to Your Site Data
 You can think of Nuzzle's core functionality as a data pipeline. Nuzzle starts with the site data in your `nuzzle.edn`, adds some spice, sends it through your webpage rendering function, and exports the results to disk.
@@ -163,12 +163,12 @@ A key part of this process is the first arrow: Nuzzle's additions. Nuzzle calls 
 ### Adding Keys to Webpage Maps
 Nuzzle adds these keys to every webpage map:
 - `:uri`: the path of the webpage from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
-- `:render-markdown`: A function that renders the webpage's associated Markdown file if `:markdown` key is present, otherwise returns `nil`.
+- `:render-content`: A function that renders the webpage's associated content file if `:content` key is present, otherwise returns `nil`.
 - `:get-site-data`: A function that allows you to freely reach into your site data from inside of your webpage rendering function.
 
 ### Adding Keys to Peripheral Maps
 Nuzzle adds these keys to every peripheral map:
-- `:render-markdown`: Same as above.
+- `:render-content`: Same as above.
 - `:get-site-data`: Same as above.
 
 ### Adding Webpage Maps (Index Webpages)
@@ -178,13 +178,13 @@ Often people want to create index webpages in static sites which serve as a webp
 
 What makes these index webpage maps special? They have an `:index` key with a value that is a set of webpage map `id`s for any webpages directly below them. For example, if you had webpage maps with `id`s of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a webpage map with an `:id` of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
 
-It's worth noting that you can include index webpage maps in your `nuzzle.edn` site data, just like any other webpage. You can add Markdown to your index pages by including a `:markdown` key:
+It's worth noting that you can include index webpage maps in your `nuzzle.edn` site data, just like any other webpage. You can add content to your index pages by including a `:content` key:
 
 ```clojure
 ;; Somwhere in your :site-data set...
 ;; Nuzzle will append an :index value later if there are any blog posts
 {:id [:blog-posts]
- :markdown "markdown/blog-posts-index-blurb.md"
+ :content "markdown/blog-posts-index-blurb.md"
  :title "My Awesome Blog Posts"}
 ```
 
@@ -201,7 +201,7 @@ Here's an example of a webpage rendering function called `simple-render-webpage`
   [:html [:head [:title title]]
    (into [:body] body)])
 
-(defn simple-render-webpage [{:keys [id title render-markdown] :as webpage}]
+(defn simple-render-webpage [{:keys [id title render-content] :as webpage}]
   (cond
     ;; Decide what the webpage should look like based on the data in the webpage map
     (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
@@ -261,15 +261,15 @@ There are many use cases for the `get-site-data` function. It's great for creati
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
             [:a {:href (-> [:tags :clojure] get-site-data :uri)} "here!"]]))
 
-(defn render-webpage [{:keys [id title render-markdown] :as webpage}]
+(defn render-webpage [{:keys [id title render-content] :as webpage}]
   (cond
    (= [] id) (render-homepage webpage)
    (= [:about] id) (layout webpage [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
    (= [:tags :clojure] id) (render-index-webpage webpage)
-   :else (layout webpage [:h1 title] (render-markdown))))
+   :else (layout webpage [:h1 title] (render-content))))
 ```
 
-At the bottom of the function we can see the function from `:render-markdown` being used. It will always be present in every webpage map. It will either return `nil` or some Hiccup that was generated from the associated Markdown file. We're able to call it safely in the `:else` clause above because of this trait.
+At the bottom of the function we can see the function from `:render-content` being used. Recall that this function will be present in every webpage map, and it will either return `nil` or some Hiccup that was generated from the associated content file.
 
 ## Generating an RSS feed
 Nuzzle comes with support for generating an RSS feed. (TODO)

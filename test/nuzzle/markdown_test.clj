@@ -10,11 +10,12 @@
 (def config (conf/load-specified-config config-path {}))
 
 (deftest vimhelp-shortcode
-    (is (= (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"}))
+    (is (= (hiccup/html-document (md/vimhelp-shortcode [:vimhelp {:src "test-resources/txt/conjure.txt"}]))
            (slurp "test-resources/html/conjure-no-badrefs-filter.html")))
-    (is (= (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))
+    (is (= (hiccup/html-document (md/vimhelp-shortcode [:vimhelp {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}]))
            (slurp "test-resources/html/conjure-with-badrefs-filter.html"))))
 
+(comment (md/vimhelp-shortcode [:vimhelp "hi"]))
 (comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"}))))
 (comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (hiccup/html-document (md/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))))
 
@@ -64,12 +65,12 @@
 
       )))
 
-(deftest create-render-markdown-fn
-  (let [{:keys [markdown]} (get-in config [:site-data [:about]])
-        render-markdown (md/create-render-markdown-fn [:about] markdown nil)]
-    (is (fn? render-markdown))
+(deftest create-render-content-fn
+  (let [{:keys [content]} (get-in config [:site-data [:about]])
+        render-content (md/create-render-content-fn [:about] content nil)]
+    (is (fn? render-content))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
-           (render-markdown)))))
+           (render-content)))))
 
 (deftest walk-hiccup-for-shortcodes
   (let [hiccup-with-shortcode [:div {:class "hi"} [:youtube {:title "some title" :id "12345"}]]
@@ -91,6 +92,6 @@
     (is (= (md/walk-hiccup-for-shortcodes hiccup-with-shortcode)
            expected-result))))
 
-(comment ((md/create-render-markdown-fn [:inline-html] "test-resources/markdown/inline-html.md" nil))
+(comment ((md/create-render-content-fn [:inline-html] "test-resources/markdown/inline-html.md" nil))
          (md/highlight-code "(defn hi [] \"hi\")" "clojure" {:markdown-opts {:syntax-highlighting {:provider :pygments :line-numbers? true}}})
          (run-tests))

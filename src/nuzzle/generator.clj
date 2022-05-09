@@ -51,18 +51,18 @@
         {})))
 
 (defn realize-webpages
-  "Adds :uri, :render-markdown keys to each page in the site-data."
+  "Adds :uri, :render-content keys to each page in the site-data."
   [{:keys [site-data] :as config}]
   {:pre [(map? site-data)]}
   (->> site-data
        (reduce-kv
-        (fn [m id {:keys [markdown uri] :as v}]
+        (fn [m id {:keys [content uri] :as v}]
           (if (vector? id)
             (assoc m id (merge v {:uri (or uri (util/id->uri id))
-                                  :render-markdown
-                                  (md/create-render-markdown-fn id markdown config)}))
-            (assoc m id (merge v {:render-markdown
-                                  (md/create-render-markdown-fn id markdown config)}))))
+                                  :render-content
+                                  (md/create-render-content-fn id content config)}))
+            (assoc m id (merge v {:render-content
+                                  (md/create-render-content-fn id content config)}))))
         {})
        (assoc config :site-data)))
 

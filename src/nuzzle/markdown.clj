@@ -111,18 +111,31 @@
                            (cm/parse-body {:lower-fns lower-fns}))]
     (walk-hiccup-for-shortcodes hiccup)))
 
-(defn create-render-markdown-fn
-  "Create a function that turned the :markdown file into html, wrapped with the
-  hiccup raw identifier."
-  [id markdown config]
-  {:pre [(or (vector? id) (keyword? id)) (or (nil? markdown) (string? markdown))]}
-  (if-not markdown
-    ;; If :markdown is not defined, just make a function that returns nil
+(defn process-html-file
+  [content-file _config]
+  (hiccup/raw (slurp content-file)))
+
+(defn create-render-content-fn
+  "Create a function that turns the :content file into the correct form for the
+  hiccup compiler: vector, list, or raw string"
+  [id content config]
+  {:pre [(or (vector? id) (keyword? id)) (or (nil? content) (string? content))]}
+  (if-not content
+    ;; If :content is not defined, just make a function that returns nil
     (constantly nil)
-    (let [markdown-file (fs/file markdown)]
-      (if markdown-file
-        (fn render-markdown []
-          (process-markdown-file markdown-file config))
+    (let [content-file (fs/file content)
+          content-ext (fs/extension content-file)]
+      (if (fs/exists? content-file)
+        (cond
+         (contains? #{"md" "markdown"} content-ext)
+         (fn render-content [] (process-markdown-file content-file config))
+         (contains? #{"html" "htm"} content-ext)
+         (fn render-content [] (process-html-file content-file config))
+         :else (throw (ex-info (str "Content file " (fs/canonicalize content-file)
+                                    " for id " id " has unrecognized extension "
+                                    content-ext ". Must be one of: md, markdown, html, htm")
+                               {:id id :content content})))
         ;; If markdown-file is defined but it can't be found, throw an Exception
-        (throw (ex-info (str "Markdown file " (fs/canonicalize markdown-file) " for id " id " not found")
-                        {:id id :markdown markdown}))))))
+        (throw (ex-info (str "Content file " (fs/canonicalize content-file)
+                             " for id " id " not found")
+                        {:id id :content content}))))))
