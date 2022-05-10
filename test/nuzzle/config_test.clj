@@ -25,6 +25,7 @@
             {:id [:blog :nuzzle-rocks],
              :title "10 Reasons Why Nuzzle Rocks",
              :content "test-resources/markdown/nuzzle-rocks.md",
+             :modified "2022-05-09"
              :rss? true,
              :tags #{:nuzzle}}
             {:id [:blog :why-nuzzle],

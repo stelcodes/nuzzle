@@ -1,5 +1,11 @@
 (ns nuzzle.schemas)
 
+(def local-date
+  [:fn {:error/message "should be a date string in format YYYY-MM-DD"
+        :decode/local-date #(try (java.time.LocalDate/parse %)
+                              (catch Exception _ %))}
+   #(= java.time.LocalDate (class %))])
+
 (def id [:or [:vector keyword?] keyword?])
 
 (def site-data
@@ -7,6 +13,7 @@
    [:and
     [:map
      [:id id]
+     [:modified {:optional true} local-date]
      [:tags {:optional true}
       [:set keyword?]]
      [:index {:optional true}
