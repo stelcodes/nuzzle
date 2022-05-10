@@ -1,8 +1,10 @@
 {:remove-drafts? false
+ :location "https://foobar.com"
  :render-webpage nuzzle.config-test/render-webpage
  :rss-channel {:title "Foo's blog"
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}
+ :sitemap? true
  :overlay-dir "public"
  :export-dir "/tmp/nuzzle-test-out"
  :site-data
@@ -11,6 +13,7 @@
    {:id [:blog :nuzzle-rocks]
     :title "10 Reasons Why Nuzzle Rocks"
     :content "test-resources/markdown/nuzzle-rocks.md"
+    :modified "2022-05-09"
     :rss? true
     :tags #{:nuzzle}}
 
