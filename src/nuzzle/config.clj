@@ -4,22 +4,28 @@
    [clojure.pprint :as pp]
    [malli.core :as m]
    [malli.error :as me]
+   [malli.transform :as mt]
    [nuzzle.log :as log]
    [nuzzle.generator :as gen]
    [nuzzle.schemas :as schemas]))
+
+(defn decode-config [config]
+  (m/decode schemas/config config
+            (mt/transformer {:name :local-date})))
 
 (def valid-config?
   (m/validator schemas/config))
 
 (defn validate-config [config]
-  (if (valid-config? config)
-    config
-    (let [errors (->> config
-                      (m/explain schemas/config)
-                      me/humanize)]
-      (log/error "Encountered error in nuzzle.edn config:")
-      (pp/pprint errors)
-      (throw (ex-info "Invalid Nuzzle config" errors)))))
+  (let [decoded-config (decode-config config)]
+    (if (valid-config? decoded-config)
+      decoded-config
+      (let [errors (->> decoded-config
+                        (m/explain schemas/config)
+                        me/humanize)]
+        (log/error "Encountered error in nuzzle.edn config:")
+        (pp/pprint errors)
+        (throw (ex-info "Invalid Nuzzle config" errors))))))
 
 (defn read-specified-config
   "Read the site-data EDN file and validate it."

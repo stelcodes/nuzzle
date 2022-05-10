@@ -7,6 +7,17 @@
 
 (defn render-webpage [_] (constantly [:h1 "test"]))
 
+(deftest decode-config
+  (is (= {:render-webpage render-webpage
+          :location "http://foobar.com"
+          :site-data #{{:id []
+                        :modified (java.time.LocalDate/parse "2022-05-09")}}}
+         (conf/decode-config
+          {:render-webpage render-webpage
+           :location "http://foobar.com"
+           :site-data #{{:id []
+                         :modified "2022-05-09"}}}))))
+
 (deftest read-specified-config
   (is (= (conf/read-specified-config config-path {})
          {:export-dir "/tmp/nuzzle-test-out",
