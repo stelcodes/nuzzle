@@ -68,7 +68,7 @@
 
 (defn convert-site-data-to-map
   [site-data]
-  {:pre [(set? site-data)] :post [#(map? %)]}
+  {:pre [(or (seq? site-data) (set? site-data))] :post [#(map? %)]}
   (->> site-data
        (reduce
         (fn [agg {:keys [id] :as m}]
