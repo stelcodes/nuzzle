@@ -16,6 +16,14 @@
   (if (= [] id) "/"
     (str "/" (string/join "/" (map name id)) "/")))
 
+(defn uri->id
+  [uri]
+  {:pre [(string? uri)]}
+  (->> (string/split uri #"/")
+       (remove string/blank?)
+       (map keyword)
+       vec))
+
 (defn kebab-case->title-case
   [s]
   (->> (string/split (name s) #"-")
@@ -66,3 +74,8 @@
         (fn [agg {:keys [id] :as m}]
           (assoc agg id (dissoc m :id)))
         {})))
+
+(defn format-simple-date [date]
+  {:pre [(instance? java.time.temporal.Temporal date)]}
+  (let [fmt (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")]
+    (.format fmt date)))
