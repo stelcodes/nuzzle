@@ -29,11 +29,18 @@
     {:optional true}
     [:map-of :keyword :symbol]]])
 
+(def location
+  [:and
+   :string
+   [:re {:error/message ":location must start with http:// or https://"}
+    #"^https?://"]])
+
 (def config
   [:map
    {:closed true}
    [:site-data site-data]
    [:render-webpage fn?]
+   [:location location]
    [:markdown-opts {:optional true} markdown-opts]
    [:overlay-dir {:optional true} string?]
    [:export-dir {:optional true} string?]
@@ -41,5 +48,6 @@
                                    [:title string?]
                                    [:link string?]
                                    [:description string?]]]
+   [:sitemap? {:optional true} :boolean]
    [:remove-drafts? {:optional true} boolean?]
    [:server-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])

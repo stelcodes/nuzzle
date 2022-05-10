@@ -11,6 +11,8 @@
   (is (= (conf/read-specified-config config-path {})
          {:export-dir "/tmp/nuzzle-test-out",
           :server-port 6899,
+          :location "https://foobar.com"
+          :sitemap? true
           :remove-drafts? false,
           :render-webpage render-webpage,
           :rss-channel
