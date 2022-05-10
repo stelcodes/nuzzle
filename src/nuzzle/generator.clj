@@ -110,18 +110,29 @@
        ;; Add get-site-data helper function to each page
        (map #(assoc % :get-site-data (gen-get-site-data site-data)))))
 
-(defn generate-site-index
-  "Creates a map where the keys are relative URIs and the values are maps
-  representing the web page. This datastructure is for the Stasis library."
-  [{:keys [render-webpage] :as config} debug?]
+(defn generate-debug-site-index
+  "Creates a map where the keys are URIs and the values are functions that log
+  the webpage map and return the webpage's Hiccup. This datastructure is
+  defined by stasis."
+  [{:keys [render-webpage] :as config}]
   {:pre [(fn? render-webpage)] :post [(map? %)]}
   (->> config
        generate-webpage-list
        (map (fn [page] (when-let [render-result (render-webpage page)]
                          [(:uri page)
                           (fn [_]
-                            (when debug? (log/log-rendering-page page))
+                            (log/log-rendering-page page)
                             (hiccup/html-document render-result))])))
        (into {})))
 
-
+(defn generate-rendered-site-index
+  "Creates a map where the keys are relative URIs and the values are Hiccup.
+  This datastructure is defined by stasis."
+  [{:keys [render-webpage] :as config}]
+  {:pre [(fn? render-webpage)] :post [(map? %)]}
+  (->> config
+       generate-webpage-list
+       (map (fn [page] (when-let [render-result (render-webpage page)]
+                         [(:uri page)
+                          (hiccup/html-document render-result)])))
+       (into {})))
