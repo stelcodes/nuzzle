@@ -31,6 +31,9 @@
 (defn log-rss [rss-file]
   (info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file)))
 
+(defn log-sitemap [sitemap-file]
+  (info "📖🐈 Creating sitemap file:" (fs/canonicalize sitemap-file)))
+
 (defn log-export-start [export-dir]
   (info "🔨🐈 Exporting static site to:" (fs/canonicalize export-dir)))
 

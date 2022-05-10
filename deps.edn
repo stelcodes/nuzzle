@@ -15,6 +15,7 @@
         babashka/fs {:mvn/version "0.1.4"},
         metosin/malli {:mvn/version "0.8.4"}
         org.clojure/clojure {:mvn/version "1.11.1"},
+        org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}
         hiccup/hiccup {:mvn/version "2.0.0-alpha2"},
         stasis/stasis {:mvn/version "2.5.1"}},
  :paths ["src"]}
