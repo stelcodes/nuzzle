@@ -7,7 +7,7 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(def config (conf/load-specified-config config-path {}))
+(defn config [] (conf/load-specified-config config-path {}))
 
 (deftest vimhelp-shortcode
     (is (= (hiccup/html-document (con/vimhelp-shortcode [:vimhelp {:src "test-resources/txt/conjure.txt"}]))
@@ -66,7 +66,7 @@
       )))
 
 (deftest create-render-content-fn
-  (let [{:keys [content]} (get-in config [:site-data [:about]])
+  (let [{:keys [content]} (get-in (config) [:site-data [:about]])
         render-content (con/create-render-content-fn [:about] content nil)]
     (is (fn? render-content))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])

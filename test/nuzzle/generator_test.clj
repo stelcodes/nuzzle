@@ -6,11 +6,11 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(def config (conf/read-specified-config config-path {}))
+(defn config [] (conf/read-specified-config config-path {}))
 
-(def site-data (:site-data config))
+(defn site-data [] (:site-data (config)))
 
-(def site-data-map (util/convert-site-data-to-map site-data))
+(defn site-data-map [] (util/convert-site-data-to-map (site-data)))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
@@ -26,7 +26,7 @@
           [:tags :colors]
           {:index #{[:blog :favorite-color]},
            :title "#colors"}}
-         (gen/create-tag-index site-data-map))))
+         (gen/create-tag-index (site-data-map)))))
 
 (deftest create-group-index
   (is (= {[:blog-posts]
@@ -47,17 +47,17 @@
            :title "Blog"}
           []
           {:index #{[:about] [:blog]}}}
-         (gen/create-group-index site-data-map))))
+         (gen/create-group-index (site-data-map)))))
 
 (deftest realize-webpages
-  (let [site-data (-> config
-                      (update :site-data util/convert-site-data-to-map)
-                      (gen/realize-webpages)
-                      (:site-data))
+  (let [mod-site-data (-> (config)
+                          (update :site-data util/convert-site-data-to-map)
+                          (gen/realize-webpages)
+                          (:site-data))
         without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
-                                           {}
-                                           site-data)]
-    (doseq [[id info] site-data
+                                          {}
+                                          mod-site-data)]
+    (doseq [[id info] mod-site-data
             :when (vector? id)]
       (is (fn? (:render-content info))))
     (is (= {[]
