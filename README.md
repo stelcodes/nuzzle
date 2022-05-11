@@ -64,7 +64,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
  :render-webpage views/render-webpage
  :site-data
  #{{:id []
-    :content "markdown/homepage-blurb.md"}
+    :content "markdown/homepage-introduction.md"}
    {:id [:blog-posts :catching-pikachu]
     :title "How I Caught Pikachu"
     :content "markdown/how-i-caught-pikachu.md"}
@@ -72,7 +72,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
     :title "How I Defeated Misty with Pikachu"
     :content "markdown/how-i-defeated-misty.md"}
    {:id [:about]
-    :content "markdown/about-myself.md"}
+    :content "markdown/about-ash.md"}
    {:id :crypto
     :bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb"
     :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979"}}}
