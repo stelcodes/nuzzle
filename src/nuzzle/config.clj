@@ -49,7 +49,7 @@
         (merge config-defaults edn-config config-overrides)
         render-webpage-fn
         (try (var-get (requiring-resolve render-webpage-symbol))
-          (catch java.io.FileNotFoundException e
+          (catch Exception e
             (log/error ":render-webpage function" render-webpage-symbol "cannot be resolved")
             (throw e)))]
     (-> full-config
