@@ -97,9 +97,9 @@
 
 (defn code-block->hiccup [[_tag-name {:keys [language]} code] config]
   (if (and language (get-in config [:markdown-opts :syntax-highlighting]))
-    [:code.code-block
-     [:pre (hiccup/raw (highlight-code code language config))]]
-    [:code.code-block [:pre code]]))
+    [:pre
+     [:code.code-block (hiccup/raw (highlight-code code language config))]]
+    [:pre [:code.code-block code]]))
 
 (defn process-markdown-file [file config]
   (let [code-block-with-config #(code-block->hiccup % config)
