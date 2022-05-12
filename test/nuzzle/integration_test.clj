@@ -3,31 +3,27 @@
    [babashka.fs :as fs]
    [clojure.edn :as edn]
    [clojure.test :refer [deftest is]]
-   [clojure.walk :as walk]
    [cybermonday.core :as cm]
    [nuzzle.config :as conf]
-   [nuzzle.log :as log]))
+   [nuzzle.log :as log]
+   [nuzzle.util :as util]))
 
 (defn render-webpage
   [{:keys [render-content]}]
   [:html [:body (render-content)]])
 
 (defn read-ash-config []
-  (let [ash-config (atom nil)
-        config-regex #"How I Caught Pikachu"
-        sniff-node (fn [x]
-                     (and (not @ash-config)
-                          (string? x)
-                          (re-find config-regex x)
-                          (reset! ash-config x))
-                     x)]
-    (->> "README.md" slurp cm/parse-body (walk/prewalk sniff-node))
-    (when-not @ash-config
+  (let [config-regex #"How I Caught Pikachu"
+        config (->> "README.md"
+                    slurp
+                    cm/parse-body
+                    (util/find-hiccup-str config-regex))]
+    (when-not config
       (log/error "Could not read example config in README.md")
       (throw (ex-info (str "Could not locate example config with the regex"
                            (pr-str config-regex))
                       {})))
-    (try (edn/read-string @ash-config)
+    (try (edn/read-string config)
       (catch Exception e
         (log/error "Could not read example config in README.md")
         (throw e)))))
