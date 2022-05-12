@@ -79,3 +79,13 @@
   {:pre [(instance? java.time.temporal.Temporal date)]}
   (let [fmt (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")]
     (.format fmt date)))
+
+(defn find-hiccup-str
+  "Find first string matching regular expression in deeply nested Hiccup tree"
+  [regex hiccup]
+  (reduce
+   (fn [_ item]
+     (let [desc-result (and (vector? item) (find-hiccup-str regex item))]
+       (or (and (string? item) (re-find regex item) (reduced item))
+           (and desc-result (reduced desc-result)))))
+   hiccup))
