@@ -24,7 +24,8 @@
 
 (def markdown-opts
   [:map
-   {:optional true}
+   {:optional true
+    :closed true}
    [:syntax-highlighting
     {:optional true}
     [:map
