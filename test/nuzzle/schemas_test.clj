@@ -10,7 +10,7 @@
                   {:syntax-highlighting
                    {:provider :chroma
                     :style "emacs"}
-                   :shortcodes
+                   :shortcode-fns
                    {:foobar 'shortcodes/foobar
                     :foobaz 'shortcodes/foobaz}})))
 
