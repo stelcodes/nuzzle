@@ -41,7 +41,7 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 
 ## Nuzzle's API
 Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
-- `export`: Exports the static site to disk.
+- `publish`: Exports the static site to disk.
 - `serve`: Starts a web server (http-kit) for a live preview of the website, building each webpage from scratch upon each request.
 - `realize`: Helper function for visualizing your site data after Nuzzle's additions.
 
@@ -55,8 +55,8 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:nuzzle/base-url` - URI where site will be hosted. Must start with "http://" or "https://". Required.
 - `:site-data` - A set of maps describing the structure and content of your website. Required.
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
-- `:export-dir` - A path to a directory to export the site into. Defaults to `"out"`.
-- `:overlay-dir` - A path to a directory that will be overlayed on top of `:export-dir` as the final stage of exporting. Defaults to `nil` (no overlay).
+- `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
+- `:overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
 - `:markdown-opts` - A map of markdown processing options (syntax highlighting, shortcodes)
 - `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
 - `:remove-drafts?` - A boolean that indicates whether webpages marked as a draft should be removed. Defaults to nil (no draft removal).
@@ -86,7 +86,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ## Site Data
 The `:site-data` value defines the attributes of all the static site's webpages as well as any supplemental information. Site data must be a set of maps, and those maps have just one required key: `:id`.
 
-If the `:id` is a **vector of keywords**, the map represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<export-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
+If the `:id` is a **vector of keywords**, the map represents a typical **webpage**. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls these *webpage maps*.
 
 If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. Nuzzle calls these *peripheral maps*. The last map in the example above with the `:id` of `:crypto` is a peripheral map.
 
@@ -158,7 +158,7 @@ Nuzzle's site data pipeline can be visualized like so:
    │ Site data │ ────┬───► │ Realized  │ ─────┬─────►  │  Hiccup that │
    │   from    │     │     │ site data │      │        │ is converted │
    │ nuzzle.edn│     │     │           │      │        │ to html and  │
-   │           │           │           │               │   exported   │
+   │           │           │           │               │  published   │
    └───────────┘  Nuzzle   └───────────┘render-webpage │              │
                  additions                 function    └──────────────┘
 ```
@@ -179,7 +179,7 @@ Nuzzle adds these keys to every peripheral map:
 ### Adding Webpage Maps (Index Webpages)
 Often people want to create index webpages in static sites which serve as a webpage that links to other webpages which share a common trait. For example, if you have webpages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a webpage at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Nuzzle calls these *subdirectory index webpages*. Another common pattern is associating tags with webpages. You may want to add index pages like `"/tags/clojure"` so you can link to all your webpages about Clojure. Nuzzle calls these *tag index webpages*. Nuzzle adds both subdirectory and tag index webpages automatically for all subdirectories and tags present in your site data.
 
-> You may not want to export all the index webpages that Nuzzle adds to your site data. That's ok! You can control which webpages get exported inside your webpage rendering function.
+> You may not want to publish all the index webpages that Nuzzle adds to your site data. That's ok! You can control which webpages get published inside your webpage rendering function.
 
 What makes these index webpage maps special? They have an `:index` key with a value that is a set of webpage map `id`s for any webpages directly below them. For example, if you had webpage maps with `id`s of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a webpage map with an `:id` of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
 
@@ -216,7 +216,7 @@ Here's an example of a webpage rendering function called `simple-render-webpage`
 
 The `render-webpage` function uses the `:id` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every webpage.
 
-Just because a webpage exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a webpage to be exported, just return `nil`.
+Just because a webpage exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a webpage to be published, just return `nil`.
 
 ### Accessing Your Site Data with `get-site-data`
 With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-site-data`. While realizing your site data, Nuzzle attaches a copy of this function to each webpage map under the key `:get-site-data`.

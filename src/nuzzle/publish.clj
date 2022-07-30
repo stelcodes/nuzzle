@@ -1,4 +1,4 @@
-(ns nuzzle.export
+(ns nuzzle.publish
   (:require
    [babashka.fs :as fs]
    [nuzzle.generator :as gen]
@@ -8,33 +8,33 @@
    [nuzzle.util :as util]
    [stasis.core :as stasis]))
 
-(defn export-rss
-  [{:keys [export-dir] :as config}]
-  (let [rss-file (fs/file export-dir "feed.xml")
+(defn publish-rss
+  [{:keys [publish-dir] :as config}]
+  (let [rss-file (fs/file publish-dir "feed.xml")
         _ (log/log-rss rss-file)
         rss-feed (rss/create-rss-feed config)]
     (spit rss-file rss-feed)))
 
-(defn export-sitemap
-  [{:keys [export-dir] :as config} rendered-site-index]
-  (let [sitemap-file (fs/file export-dir "sitemap.xml")
+(defn publish-sitemap
+  [{:keys [publish-dir] :as config} rendered-site-index]
+  (let [sitemap-file (fs/file publish-dir "sitemap.xml")
         _ (log/log-sitemap sitemap-file)
         sitemap-str (sitemap/create-sitemap config rendered-site-index)]
     (spit sitemap-file sitemap-str)))
 
-(defn export-site
-  [{:keys [sitemap? overlay-dir export-dir rss-channel] :as config}]
+(defn publish-site
+  [{:keys [sitemap? overlay-dir publish-dir rss-channel] :as config}]
   (let [rendered-site-index (gen/generate-rendered-site-index config)]
-    (log/log-export-start export-dir)
-    (fs/create-dirs export-dir)
-    (stasis/empty-directory! export-dir)
-    (stasis/export-pages rendered-site-index export-dir)
+    (log/log-publish-start publish-dir)
+    (fs/create-dirs publish-dir)
+    (stasis/empty-directory! publish-dir)
+    (stasis/export-pages rendered-site-index publish-dir)
     (when overlay-dir
       (log/log-overlay-dir overlay-dir)
       (util/ensure-overlay-dir overlay-dir)
-      (fs/copy-tree overlay-dir export-dir))
+      (fs/copy-tree overlay-dir publish-dir))
     (when rss-channel
-      (export-rss config))
+      (publish-rss config))
     (when sitemap?
-      (export-sitemap config rendered-site-index))
-    (log/log-export-end)))
+      (publish-sitemap config rendered-site-index))
+    (log/log-publish-end)))
