@@ -1,0 +1,16 @@
+name: unit-tests
+on:
+  - push
+  - pull_request
+jobs:
+  run-clojure-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup babashka
+        uses: turtlequeue/setup-babashka@v1.5.0
+        with:
+          babashka-version: 0.8.156
+      - name: Run unit tests
+        run: bb test
