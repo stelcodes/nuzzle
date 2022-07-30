@@ -4,6 +4,9 @@
 <p align="center">
 ✨ A data-oriented, REPL-driven static site generator for Clojure ✨
 </p>
+<div align="center">
+  <img src="https://github.com/stelcodes/nuzzle/actions/workflows/unit-tests.yaml/badge.svg" alt="unit tests">
+</div>
 <hr>
 
 > **WARNING**: Nuzzle is in the alpha stage. Expect API breakages.
