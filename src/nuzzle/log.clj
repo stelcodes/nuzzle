@@ -34,11 +34,11 @@
 (defn log-sitemap [sitemap-file]
   (info "📖🐈 Creating sitemap file:" (fs/canonicalize sitemap-file)))
 
-(defn log-export-start [export-dir]
-  (info "🔨🐈 Exporting static site to:" (fs/canonicalize export-dir)))
+(defn log-publish-start [publish-dir]
+  (info "🔨🐈 Publishing static site to:" (fs/canonicalize publish-dir)))
 
-(defn log-export-end []
-  (info "✅🐈 Export successful"))
+(defn log-publish-end []
+  (info "✅🐈 Publishing successful"))
 
 (defn log-start-server [server-port]
   (info "✨🐈 Starting development server on port" server-port))

@@ -77,7 +77,7 @@
 (deftest realize-site-data
   (is (= (-> (read-ash-config) transform-ash-config create-ash-config-file
              (conf/load-specified-config {}) normalize-loaded-config)
-         {:export-dir "out",
+         {:nuzzle/publish-dir "out",
           :server-port 6899,
           :nuzzle/base-url "https://ashketchum.com",
           :overlay-dir "test-resources/overlay",

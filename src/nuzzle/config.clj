@@ -32,7 +32,7 @@
   [config-path config-overrides]
   {:pre [(string? config-path) (or (nil? config-overrides) (map? config-overrides))]
    :post [(map? %)]}
-  (let [config-defaults {:export-dir "out" :server-port 6899}
+  (let [config-defaults {:nuzzle/publish-dir "out" :server-port 6899}
         edn-config
         (try
           (edn/read-string (slurp config-path))

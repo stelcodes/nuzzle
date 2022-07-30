@@ -51,7 +51,7 @@
    [:nuzzle/base-url base-url]
    [:markdown-opts {:optional true} markdown-opts]
    [:overlay-dir {:optional true} string?]
-   [:export-dir {:optional true} string?]
+   [:nuzzle/publish-dir {:optional true} string?]
    [:rss-channel {:optional true} [:map {:closed true}
                                    [:title string?]
                                    [:link string?]
