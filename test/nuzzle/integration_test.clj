@@ -79,7 +79,7 @@
              (conf/load-specified-config {}) normalize-loaded-config)
          {:export-dir "out",
           :server-port 6899,
-          :location "https://ashketchum.com",
+          :nuzzle/base-url "https://ashketchum.com",
           :overlay-dir "test-resources/overlay",
           :render-webpage render-webpage
           :site-data

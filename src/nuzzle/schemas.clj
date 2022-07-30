@@ -37,10 +37,10 @@
     {:optional true}
     [:map-of :keyword :symbol]]])
 
-(def location
+(def base-url
   [:and
    :string
-   [:re {:error/message ":location must start with http:// or https://"}
+   [:re {:error/message ":nuzzle/base-url must start with http:// or https://"}
     #"^https?://"]])
 
 (def config
@@ -48,7 +48,7 @@
    {:closed true}
    [:site-data site-data]
    [:render-webpage fn?]
-   [:location location]
+   [:nuzzle/base-url base-url]
    [:markdown-opts {:optional true} markdown-opts]
    [:overlay-dir {:optional true} string?]
    [:export-dir {:optional true} string?]
