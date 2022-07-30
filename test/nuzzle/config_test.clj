@@ -9,12 +9,12 @@
 
 (deftest decode-config
   (is (= {:render-webpage render-webpage
-          :location "http://foobar.com"
+          :nuzzle/base-url "http://foobar.com"
           :site-data #{{:id []
                         :modified (java.time.LocalDate/parse "2022-05-09")}}}
          (conf/decode-config
           {:render-webpage render-webpage
-           :location "http://foobar.com"
+           :nuzzle/base-url "http://foobar.com"
            :site-data #{{:id []
                          :modified "2022-05-09"}}}))))
 
@@ -22,7 +22,7 @@
   (is (= (conf/read-specified-config config-path {})
          {:export-dir "/tmp/nuzzle-test-out",
           :server-port 6899,
-          :location "https://foobar.com"
+          :nuzzle/base-url "https://foobar.com"
           :sitemap? true
           :remove-drafts? false,
           :render-webpage render-webpage,

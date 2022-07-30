@@ -52,7 +52,7 @@ All three functions have exactly the same interface:
 ## Configuration File
 Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory containing these keys:
 
-- `:location` - URI where site will be hosted. Must start with "http://" or "https://". Required.
+- `:nuzzle/base-url` - URI where site will be hosted. Must start with "http://" or "https://". Required.
 - `:site-data` - A set of maps describing the structure and content of your website. Required.
 - `:render-webpage` - A fully qualified symbol pointing to your webpage rendering function. Required.
 - `:export-dir` - A path to a directory to export the site into. Defaults to `"out"`.
@@ -64,7 +64,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
-{:location "https://ashketchum.com"
+{:nuzzle/base-url "https://ashketchum.com"
  :overlay-dir "overlay"
  :render-webpage views/render-webpage
  :site-data
