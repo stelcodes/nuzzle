@@ -41,7 +41,7 @@
 
 (deftest highlight-code
   (let [code "(def foo (let [x (+ 5 7)] (println x)))"]
-    ;; Chroma 2.0.0-alpha4
+    ;; Chroma 2.2.0
     (testing "chroma HTML output"
       (is (= "<span class=\"p\">(</span><span class=\"k\">def </span><span class=\"nv\">foo</span> <span class=\"p\">(</span><span class=\"k\">let </span><span class=\"p\">[</span><span class=\"nv\">x</span> <span class=\"p\">(</span><span class=\"nb\">+ </span><span class=\"mi\">5</span> <span class=\"mi\">7</span><span class=\"p\">)]</span> <span class=\"p\">(</span><span class=\"nb\">println </span><span class=\"nv\">x</span><span class=\"p\">)))</span>"
              (con/highlight-code code "clojure" {:markdown-opts {:syntax-highlighting {:provider :chroma}}})))
