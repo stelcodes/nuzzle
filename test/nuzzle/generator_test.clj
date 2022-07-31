@@ -93,14 +93,4 @@
   (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
   (is (= "/about/" (util/id->uri [:about]))))
 
-#_
-(deftest realize-site-data
-  (is (= (gen/realize-site-data (:site-data nuzzle-config) (:remove-drafts? nuzzle-config)))))
-
-#_
-(deftest export
-  (let [y {[:about] {:title "About"}}
-        x {:config y :include-drafts? true :render-webpage (constantly "<h1>Test</h1>") :export-dir "/tmp/out"}]
-    (generator/export x)))
-
 (comment (run-tests))
