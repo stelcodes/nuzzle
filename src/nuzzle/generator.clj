@@ -84,11 +84,12 @@
 
 (defn realize-site-data
   "Creates fully realized site-data datastructure with or without drafts."
-  [{:keys [remove-drafts? site-data] :as config}]
+  [{:keys [nuzzle/build-drafts? site-data] :as config}]
   {:pre [(set? site-data)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
   (-> config
-      (update :site-data #(if-not remove-drafts? %
+      (update :site-data #(if build-drafts?
+                            (do (log/log-build-drafts) %)
                             (do (log/log-remove-drafts)
                               (remove :draft? %))))
       (update :site-data #(util/convert-site-data-to-map %))

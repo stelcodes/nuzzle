@@ -28,6 +28,9 @@
 (defn log-remove-drafts []
   (info "❌🐈 Removing drafts"))
 
+(defn log-build-drafts []
+  (info "🔨🐈 Building drafts"))
+
 (defn log-rss [rss-file]
   (info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file)))
 
@@ -35,7 +38,7 @@
   (info "📖🐈 Creating sitemap file:" (fs/canonicalize sitemap-file)))
 
 (defn log-publish-start [publish-dir]
-  (info "🔨🐈 Publishing static site to:" (fs/canonicalize publish-dir)))
+  (info "💫🐈 Publishing static site to:" (fs/canonicalize publish-dir)))
 
 (defn log-publish-end []
   (info "✅🐈 Publishing successful"))

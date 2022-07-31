@@ -1,4 +1,4 @@
-{:remove-drafts? false
+{:nuzzle/build-drafts? true
  :nuzzle/base-url "https://foobar.com"
  :nuzzle/render-page nuzzle.config-test/render-page
  :rss-channel {:title "Foo's blog"

@@ -24,7 +24,7 @@
           :server-port 6899,
           :nuzzle/base-url "https://foobar.com"
           :sitemap? true
-          :remove-drafts? false,
+          :nuzzle/build-drafts? true,
           :nuzzle/render-page render-page,
           :rss-channel
           {:title "Foo's blog",
