@@ -5,15 +5,15 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn render-webpage [_] (constantly [:h1 "test"]))
+(defn render-page [_] (constantly [:h1 "test"]))
 
 (deftest decode-config
-  (is (= {:render-webpage render-webpage
+  (is (= {:nuzzle/render-page render-page
           :nuzzle/base-url "http://foobar.com"
           :site-data #{{:id []
                         :modified (java.time.LocalDate/parse "2022-05-09")}}}
          (conf/decode-config
-          {:render-webpage render-webpage
+          {:nuzzle/render-page render-page
            :nuzzle/base-url "http://foobar.com"
            :site-data #{{:id []
                          :modified "2022-05-09"}}}))))
@@ -25,7 +25,7 @@
           :nuzzle/base-url "https://foobar.com"
           :sitemap? true
           :remove-drafts? false,
-          :render-webpage render-webpage,
+          :nuzzle/render-page render-page,
           :rss-channel
           {:title "Foo's blog",
            :description "Rants about foo and thoughts about bar",

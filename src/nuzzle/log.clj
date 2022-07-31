@@ -44,5 +44,5 @@
   (info "✨🐈 Starting development server on port" server-port))
 
 (defn log-rendering-page [page]
-  (info "⚡🐈 Rendering webpage:")
+  (info "⚡🐈 Rendering page:")
   (->> page (into (sorted-map)) pp/pprint))

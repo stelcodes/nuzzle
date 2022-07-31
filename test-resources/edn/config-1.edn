@@ -1,6 +1,6 @@
 {:remove-drafts? false
  :nuzzle/base-url "https://foobar.com"
- :render-webpage nuzzle.config-test/render-webpage
+ :nuzzle/render-page nuzzle.config-test/render-page
  :rss-channel {:title "Foo's blog"
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}

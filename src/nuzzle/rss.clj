@@ -28,9 +28,9 @@
    :post [(string? %)]}
   (let [{:keys [link]} rss-channel
         rss-items
-        (for [{:keys [rss? uri] :as webpage} (vals site-data)
+        (for [{:keys [rss? uri] :as page} (vals site-data)
               :when rss?]
-          (-> webpage
+          (-> page
               (select-keys valid-item-tags)
               (assoc :guid (str link uri))))]
     (try (apply rss/channel-xml
@@ -46,6 +46,6 @@
             (log/error "The :rss-channel map can only contain these keys: "
                        valid-channel-tags))
           (when (re-find #"^item" msg)
-            (log/error "A webpage marked with :rss? true must have at least one of these keys:"
+            (log/error "A page marked with :rss? true must have at least one of these keys:"
                        required-item-tags)))
         (throw e)))))

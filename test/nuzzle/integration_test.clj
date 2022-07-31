@@ -8,7 +8,7 @@
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
 
-(defn render-webpage
+(defn render-page
   [{:keys [render-content]}]
   [:html [:body (render-content)]])
 
@@ -40,7 +40,7 @@
             (update site-datum :content #(str "test-resources/" %))))]
     (-> config
         (update :overlay-dir #(str "test-resources/" %))
-        (update :render-webpage (constantly 'nuzzle.integration-test/render-webpage))
+        (update :nuzzle/render-page (constantly 'nuzzle.integration-test/render-page))
         (update :site-data #(map update-content %))
         (update :site-data set))))
 
@@ -81,7 +81,7 @@
           :server-port 6899,
           :nuzzle/base-url "https://ashketchum.com",
           :overlay-dir "test-resources/overlay",
-          :render-webpage render-webpage
+          :nuzzle/render-page render-page
           :site-data
           {[:blog-posts :defeating-misty]
            {:title "How I Defeated Misty with Pikachu",

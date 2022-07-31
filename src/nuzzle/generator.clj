@@ -50,7 +50,7 @@
             (assoc m group-id {:index ids})))
         {})))
 
-(defn realize-webpages
+(defn realize-pages
   "Adds :uri, :render-content keys to each page in the site-data."
   [{:keys [site-data] :as config}]
   {:pre [(map? site-data)]}
@@ -94,9 +94,9 @@
       (update :site-data #(util/convert-site-data-to-map %))
       (update :site-data #(util/deep-merge % (create-tag-index %)))
       (update :site-data #(util/deep-merge % (create-group-index %)))
-      (realize-webpages)))
+      (realize-pages)))
 
-(defn generate-webpage-list
+(defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."
   [{:keys [site-data] :as _config}]
   {:pre [(map? site-data)] :post [(seq? %)]}
@@ -112,13 +112,13 @@
 
 (defn generate-debug-site-index
   "Creates a map where the keys are URIs and the values are functions that log
-  the webpage map and return the webpage's Hiccup. This datastructure is
+  the page map and return the page's Hiccup. This datastructure is
   defined by stasis."
-  [{:keys [render-webpage] :as config}]
-  {:pre [(fn? render-webpage)] :post [(map? %)]}
+  [{:keys [nuzzle/render-page] :as config}]
+  {:pre [(fn? render-page)] :post [(map? %)]}
   (->> config
-       generate-webpage-list
-       (map (fn [page] (when-let [render-result (render-webpage page)]
+       generate-page-list
+       (map (fn [page] (when-let [render-result (render-page page)]
                          [(:uri page)
                           (fn [_]
                             (log/log-rendering-page page)
@@ -128,11 +128,11 @@
 (defn generate-rendered-site-index
   "Creates a map where the keys are relative URIs and the values are Hiccup.
   This datastructure is defined by stasis."
-  [{:keys [render-webpage] :as config}]
-  {:pre [(fn? render-webpage)] :post [(map? %)]}
+  [{:keys [nuzzle/render-page] :as config}]
+  {:pre [(fn? render-page)] :post [(map? %)]}
   (->> config
-       generate-webpage-list
-       (map (fn [page] (when-let [render-result (render-webpage page)]
+       generate-page-list
+       (map (fn [page] (when-let [render-result (render-page page)]
                          [(:uri page)
                           (hiccup/html-document render-result)])))
        (into {})))

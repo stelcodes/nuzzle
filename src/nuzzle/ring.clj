@@ -25,7 +25,7 @@
                 ((wrap-file app overlay-dir))))
           (app request))))))
 
-(defn handle-webpage-request
+(defn handle-page-request
   "Handler that wraps around stasis.core/serve-pages, allowing the get-pages
   function (Stasis terminology) to access the request map. This allows the
   config to be passed down from wrap-overlay-dir, avoiding an unecessary config
@@ -47,7 +47,7 @@
 (defn start-server [config-overrides]
   (let [{:keys [server-port]} (conf/load-default-config config-overrides)]
     (log/log-start-server server-port)
-    (-> handle-webpage-request
+    (-> handle-page-request
         (wrap-overlay-dir)
         (wrap-load-config config-overrides)
         (wrap-content-type)
