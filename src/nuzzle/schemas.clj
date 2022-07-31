@@ -47,7 +47,7 @@
   [:map
    {:closed true}
    [:site-data site-data]
-   [:render-webpage fn?]
+   [:nuzzle/render-page fn?]
    [:nuzzle/base-url base-url]
    [:markdown-opts {:optional true} markdown-opts]
    [:overlay-dir {:optional true} string?]

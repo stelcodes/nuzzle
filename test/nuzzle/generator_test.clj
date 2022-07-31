@@ -49,10 +49,10 @@
           {:index #{[:about] [:blog]}}}
          (gen/create-group-index (site-data-map)))))
 
-(deftest realize-webpages
+(deftest realize-pages
   (let [mod-site-data (-> (config)
                           (update :site-data util/convert-site-data-to-map)
-                          (gen/realize-webpages)
+                          (gen/realize-pages)
                           (:site-data))
         without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
                                           {}

@@ -45,15 +45,15 @@
           (catch Exception e
             (log/error "Could not read config file.")
             (throw e)))
-        {render-webpage-symbol :render-webpage :as full-config}
+        {render-page-symbol :nuzzle/render-page :as full-config}
         (merge config-defaults edn-config config-overrides)
-        render-webpage-fn
-        (try (var-get (requiring-resolve render-webpage-symbol))
+        render-page-fn
+        (try (var-get (requiring-resolve render-page-symbol))
           (catch Exception e
-            (log/error ":render-webpage function" render-webpage-symbol "cannot be resolved")
+            (log/error ":nuzzle/render-page function" render-page-symbol "cannot be resolved")
             (throw e)))]
     (-> full-config
-        (assoc :render-webpage render-webpage-fn))))
+        (assoc :nuzzle/render-page render-page-fn))))
 
 (defn load-specified-config
   "Read the site-data EDN file and validate it."
