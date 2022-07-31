@@ -39,7 +39,7 @@
             site-datum
             (update site-datum :content #(str "test-resources/" %))))]
     (-> config
-        (update :overlay-dir #(str "test-resources/" %))
+        (update :nuzzle/overlay-dir #(str "test-resources/" %))
         (update :nuzzle/render-page (constantly 'nuzzle.integration-test/render-page))
         (update :site-data #(map update-content %))
         (update :site-data set))))
@@ -80,7 +80,7 @@
          {:nuzzle/publish-dir "out",
           :server-port 6899,
           :nuzzle/base-url "https://ashketchum.com",
-          :overlay-dir "test-resources/overlay",
+          :nuzzle/overlay-dir "test-resources/overlay",
           :nuzzle/render-page render-page
           :site-data
           {[:blog-posts :defeating-misty]

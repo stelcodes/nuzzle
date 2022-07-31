@@ -5,7 +5,7 @@
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}
  :sitemap? true
- :overlay-dir "public"
+ :nuzzle/overlay-dir "public"
  :nuzzle/publish-dir "/tmp/nuzzle-test-out"
  :site-data
  #{{:id []}

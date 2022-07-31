@@ -30,7 +30,7 @@
           {:title "Foo's blog",
            :description "Rants about foo and thoughts about bar",
            :link "https://foobar.com"}
-          :overlay-dir "public",
+          :nuzzle/overlay-dir "public",
           :site-data
           #{{:id []}
             {:id [:blog :nuzzle-rocks],

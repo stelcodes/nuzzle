@@ -56,7 +56,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:site-data` - A set of maps describing the structure and content of your website. Required.
 - `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
-- `:overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
+- `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
 - `:markdown-opts` - A map of markdown processing options (syntax highlighting, shortcodes)
 - `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be removed. Defaults to nil (no draft removal).
@@ -65,7 +65,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
 {:nuzzle/base-url "https://ashketchum.com"
- :overlay-dir "overlay"
+ :nuzzle/overlay-dir "overlay"
  :nuzzle/render-page views/render-page
  :site-data
  #{{:id []
