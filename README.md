@@ -59,7 +59,7 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
 - `:markdown-opts` - A map of markdown processing options (syntax highlighting, shortcodes)
 - `:rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
-- `:remove-drafts?` - A boolean that indicates whether pages marked as a draft should be removed. Defaults to nil (no draft removal).
+- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be removed. Defaults to nil (no draft removal).
 - `:server-port` - A port number for the development server to listen on. Defaults to 6899.
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:

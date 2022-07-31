@@ -57,5 +57,5 @@
                                    [:link string?]
                                    [:description string?]]]
    [:sitemap? {:optional true} :boolean]
-   [:remove-drafts? {:optional true} boolean?]
+   [:nuzzle/build-drafts? {:optional true} boolean?]
    [:server-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
