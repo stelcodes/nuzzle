@@ -14,7 +14,7 @@
   [app]
   (let [last-overlay-dir (atom nil)]
     (fn [{:keys [config] :as request}]
-      (let [{:keys [overlay-dir]} config]
+      (let [{:nuzzle/keys [overlay-dir]} config]
         (if overlay-dir
           (do
             (when-not (= overlay-dir @last-overlay-dir)

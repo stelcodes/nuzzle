@@ -50,7 +50,7 @@
   [overlay-dir-path]
   (when (not (fs/directory? overlay-dir-path))
     (throw (ex-info (str "Overlay directory " (fs/canonicalize overlay-dir-path) " does not exist")
-                    {:overlay-dir overlay-dir-path}))))
+                    {:nuzzle/overlay-dir overlay-dir-path}))))
 
 (defn safe-sh [command & args]
   (try (apply sh/sh command (remove nil? args))
