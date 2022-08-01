@@ -22,11 +22,6 @@
      (fn [{:keys [rss? title description]}]
        (or (not rss?) (or title description)))]]])
 
-(def markdown-opts
-  [:map
-   {:optional true
-    :closed true}])
-
 (def syntax-highlighter
   [:map
    ;; TODO: Add option to specify custom highlighting command
@@ -46,7 +41,6 @@
    [:site-data site-data]
    [:nuzzle/render-page fn?]
    [:nuzzle/base-url base-url]
-   [:markdown-opts {:optional true} markdown-opts]
    [:nuzzle/syntax-highlighter {:optional true} syntax-highlighter]
    [:nuzzle/custom-elements {:optional true} [:map-of :keyword :symbol]]
    [:nuzzle/overlay-dir {:optional true} string?]
