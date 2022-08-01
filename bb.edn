@@ -1,6 +1,7 @@
 {:min-bb-version "0.4.0",
  :tasks {format (when (seq *command-line-args*)
                   (shell (str "zprint '{:style [:community :respect-bl :hiccup] :width 100}' -w "
-                              (clojure.string/join " " *command-line-args*)))),
+                              (clojure.string/join " " *command-line-args*))))
+         lint (shell "bb clojure -M:clj-kondo --lint src test")
          repl (shell "rlwrap bb clojure -M:repl")
          test (shell (clojure.string/join " " (into ["bb clojure -M:test -m kaocha.runner"] *command-line-args*)))}}
