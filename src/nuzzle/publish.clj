@@ -9,21 +9,21 @@
    [stasis.core :as stasis]))
 
 (defn publish-rss
-  [{:keys [publish-dir] :as config}]
+  [{:nuzzle/keys [publish-dir] :as config}]
   (let [rss-file (fs/file publish-dir "feed.xml")
         _ (log/log-rss rss-file)
         rss-feed (rss/create-rss-feed config)]
     (spit rss-file rss-feed)))
 
 (defn publish-sitemap
-  [{:keys [publish-dir] :as config} rendered-site-index]
+  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index]
   (let [sitemap-file (fs/file publish-dir "sitemap.xml")
         _ (log/log-sitemap sitemap-file)
         sitemap-str (sitemap/create-sitemap config rendered-site-index)]
     (spit sitemap-file sitemap-str)))
 
 (defn publish-site
-  [{:nuzzle/keys [overlay-dir] :keys [sitemap? publish-dir rss-channel] :as config}]
+  [{:nuzzle/keys [overlay-dir publish-dir] :keys [sitemap? rss-channel] :as config}]
   (let [rendered-site-index (gen/generate-rendered-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
