@@ -51,7 +51,7 @@
         {})))
 
 (defn realize-pages
-  "Adds :nuzzle/url, :render-content keys to each page in the site-data."
+  "Adds :nuzzle/url, :nuzzle/render-content keys to each page in the site-data."
   [{:keys [site-data] :as config}]
   {:pre [(map? site-data)]}
   (->> site-data
@@ -59,9 +59,9 @@
         (fn [m id {:keys [content url] :as v}]
           (if (vector? id)
             (assoc m id (merge v {:nuzzle/url (or url (util/id->url id))
-                                  :render-content
+                                  :nuzzle/render-content
                                   (con/create-render-content-fn id content config)}))
-            (assoc m id (merge v {:render-content
+            (assoc m id (merge v {:nuzzle/render-content
                                   (con/create-render-content-fn id content config)}))))
         {})
        (assoc config :site-data)))

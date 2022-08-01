@@ -54,12 +54,12 @@
                           (update :site-data util/convert-site-data-to-map)
                           (gen/realize-pages)
                           (:site-data))
-        without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :render-content))
+        without-render-content (reduce-kv #(assoc %1 %2 (dissoc %3 :nuzzle/render-content))
                                           {}
                                           mod-site-data)]
     (doseq [[id info] mod-site-data
             :when (vector? id)]
-      (is (fn? (:render-content info))))
+      (is (fn? (:nuzzle/render-content info))))
     (is (= {[]
             {:nuzzle/url "/"}
             [:blog :nuzzle-rocks]

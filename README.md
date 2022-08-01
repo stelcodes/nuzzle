@@ -172,12 +172,12 @@ A key part of this process is the first arrow: Nuzzle's additions. Nuzzle calls 
 ### Adding Keys to Page Maps
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
-- `:render-content`: A function that renders the page's associated content file if `:content` key is present, otherwise returns `nil`.
+- `:nuzzle/render-content`: A function that renders the page's associated content file if `:content` key is present, otherwise returns `nil`.
 - `:get-site-data`: A function that allows you to freely reach into your site data from inside of your page rendering function.
 
 ### Adding Keys to Peripheral Maps
 Nuzzle adds these keys to every peripheral map:
-- `:render-content`: Same as above.
+- `:nuzzle/render-content`: Same as above.
 - `:get-site-data`: Same as above.
 
 ### Adding Page Maps (Index Pages)
@@ -210,7 +210,8 @@ Here's an example of a page rendering function called `simple-render-page`:
   [:html [:head [:title title]]
    (into [:body] body)])
 
-(defn simple-render-page [{:keys [id title render-content] :as page}]
+(defn simple-render-page
+  [{:nuzzle/keys [render-content] :keys [id title] :as _page}]
   (cond
     ;; Decide what the page should look like based on the data in the page map
     (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
@@ -270,7 +271,7 @@ There are many use cases for the `get-site-data` function. It's great for creati
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
             [:a {:href (-> [:tags :clojure] get-site-data :nuzzle/url)} "here!"]]))
 
-(defn render-page [{:keys [id title render-content] :as page}]
+(defn render-page [{:nuzzle/keys [render-content] :keys [id title] :as page}]
   (cond
    (= [] id) (render-homepage page)
    (= [:about] id) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
@@ -278,7 +279,7 @@ There are many use cases for the `get-site-data` function. It's great for creati
    :else (layout page [:h1 title] (render-content))))
 ```
 
-At the bottom of the function we can see the function from `:render-content` being used. Recall that this function will be present in every page map, and it will either return `nil` or some Hiccup that was generated from the associated content file.
+At the bottom of the function we can see the function from `:nuzzle/render-content` being used. Recall that this function will be present in every page map, and it will either return `nil` or some Hiccup that was generated from the associated content file.
 
 ## Generating an RSS feed
 Nuzzle comes with support for generating an RSS feed. (TODO)

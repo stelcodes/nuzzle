@@ -9,7 +9,7 @@
    [nuzzle.util :as util]))
 
 (defn render-page
-  [{:keys [render-content]}]
+  [{:nuzzle/keys [render-content]}]
   [:html [:body (render-content)]])
 
 (defn read-ash-config []
@@ -59,15 +59,15 @@
 (comment (-> (read-ash-config) transform-ash-config create-ash-config-file))
 
 (defn normalize-loaded-config
-  "Calls the :render-content function in each :site-data value so it's easier
-  to test equality"
+  "Calls the :nuzzle/render-content function in each :site-data value so it's
+  easier to test equality"
   [config]
   {:pre [(map? config) (map? (:site-data config))]}
   (let [trigger-render-content
         (fn [site-datum]
-          (if-not (:render-content site-datum)
+          (if-not (:nuzzle/render-content site-datum)
             site-datum
-            (update site-datum :render-content #(%))))]
+            (update site-datum :nuzzle/render-content #(%))))]
     (-> config
         (update :site-data #(update-vals % trigger-render-content)))))
 
@@ -87,28 +87,28 @@
            {:title "How I Defeated Misty with Pikachu",
             :content "test-resources/markdown/how-i-defeated-misty.md",
             :nuzzle/url "/blog-posts/defeating-misty/",
-            :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            []
            {:content "test-resources/markdown/homepage-introduction.md",
             :index #{[:about] [:blog-posts]},
             :nuzzle/url "/",
-            :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            [:blog-posts :catching-pikachu]
            {:title "How I Caught Pikachu",
             :content "test-resources/markdown/how-i-caught-pikachu.md",
             :nuzzle/url "/blog-posts/catching-pikachu/",
-            :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            [:about]
            {:content "test-resources/markdown/about-ash.md",
             :nuzzle/url "/about/",
-            :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            :crypto
            {:bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb",
             :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979",
-            :render-content nil},
+            :nuzzle/render-content nil},
            [:blog-posts]
            {:index
             #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
             :title "Blog Posts",
             :nuzzle/url "/blog-posts/",
-            :render-content nil}}})))
+            :nuzzle/render-content nil}}})))
