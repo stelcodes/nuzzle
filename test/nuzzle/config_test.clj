@@ -5,7 +5,7 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn render-page [_] (constantly [:h1 "test"]))
+(def render-page (constantly [:h1 "test"]))
 
 (deftest decode-config
   (is (= {:nuzzle/render-page render-page
