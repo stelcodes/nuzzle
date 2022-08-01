@@ -56,14 +56,14 @@
 
 (defn generate-chroma-command
   [file-path language config]
-  (let [{:keys [style line-numbers?]} (get-in config [:markdown-opts :syntax-highlighting])]
+  (let [{:keys [style line-numbers?]} (:nuzzle/syntax-highlighter config)]
     ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
      "--html-prevent-surrounding-pre" (when style "--html-inline-styles")
      (when style (str "--style=" style)) (when line-numbers? "--html-lines")  file-path]))
 
 (defn generate-pygments-command
   [file-path language config]
-  (let [{:keys [style line-numbers?]} (get-in config [:markdown-opts :syntax-highlighting])
+  (let [{:keys [style line-numbers?]} (:nuzzle/syntax-highlighter config)
         ;; TODO: turn nowrap on for everything if they release my PR
         ;; https://github.com/pygments/pygments/issues/2127
         options [(when-not line-numbers? "nowrap") (when style "noclasses")
@@ -75,7 +75,7 @@
 (defn generate-highlight-command
   [file-path language config]
   (->>
-   (case (get-in config [:markdown-opts :syntax-highlighting :provider])
+   (case (get-in config [:nuzzle/syntax-highlighter :provider])
     :chroma (generate-chroma-command file-path language config)
     :pygments (generate-pygments-command file-path language config))
    (remove nil?)))
@@ -96,7 +96,7 @@
         out))))
 
 (defn code-block->hiccup [[_tag-name {:keys [language]} code] config]
-  (if (and language (get-in config [:markdown-opts :syntax-highlighting]))
+  (if (and language (:nuzzle/syntax-highlighter config))
     [:pre
      [:code.code-block (hiccup/raw (highlight-code code language config))]]
     [:pre [:code.code-block code]]))

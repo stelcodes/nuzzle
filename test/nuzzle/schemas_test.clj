@@ -5,11 +5,10 @@
    [malli.transform :as mt]
    [nuzzle.schemas :as schemas]))
 
-(deftest markdown
-  (is (m/validate schemas/markdown-opts
-                  {:syntax-highlighting
-                   {:provider :chroma
-                    :style "emacs"}})))
+(deftest syntax-highlighter
+  (is (m/validate schemas/syntax-highlighter
+                  {:provider :chroma
+                   :style "emacs"})))
 
 (deftest local-date
   (is (m/validate schemas/local-date
