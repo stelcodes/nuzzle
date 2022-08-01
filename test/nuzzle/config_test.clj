@@ -26,7 +26,7 @@
           :sitemap? true
           :nuzzle/build-drafts? true,
           :nuzzle/render-page render-page,
-          :rss-channel
+          :nuzzle/rss-channel
           {:title "Foo's blog",
            :description "Rants about foo and thoughts about bar",
            :link "https://foobar.com"}
