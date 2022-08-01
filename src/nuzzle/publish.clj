@@ -23,7 +23,7 @@
     (spit sitemap-file sitemap-str)))
 
 (defn publish-site
-  [{:nuzzle/keys [overlay-dir publish-dir rss-channel] :keys [sitemap?] :as config}]
+  [{:nuzzle/keys [overlay-dir publish-dir rss-channel sitemap?] :as config}]
   (let [rendered-site-index (gen/generate-rendered-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)

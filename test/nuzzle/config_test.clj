@@ -23,7 +23,7 @@
          {:nuzzle/publish-dir "/tmp/nuzzle-test-out",
           :server-port 6899,
           :nuzzle/base-url "https://foobar.com"
-          :sitemap? true
+          :nuzzle/sitemap? true
           :nuzzle/build-drafts? true,
           :nuzzle/render-page render-page,
           :nuzzle/rss-channel
