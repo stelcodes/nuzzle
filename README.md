@@ -53,7 +53,7 @@ All three functions have exactly the same interface:
 ## Configuration File
 Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory containing these keys:
 
-- `:nuzzle/base-url` - URI where site will be hosted. Must start with "http://" or "https://". Required.
+- `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
 - `:site-data` - A set of maps describing the structure and content of your website. Required.
 - `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
@@ -88,7 +88,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ## Site Data
 The `:site-data` value defines the attributes of all the static site's pages as well as any supplemental information. Site data must be a set of maps, and those maps have just one required key: `:id`.
 
-If the `:id` is a **vector of keywords**, the map represents a single page of the website. The `:id` `[:blog-posts :catching-pikachu]` translates to the URI `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls one of these a *page map*.
+If the `:id` is a **vector of keywords**, the map represents a single page of the website. The `:id` `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls one of these a *page map*.
 
 If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. Nuzzle calls these *peripheral maps*. The last map in the example above with the `:id` of `:crypto` is a peripheral map.
 
@@ -99,10 +99,10 @@ Here's another `:site-data` example with annotations:
   ;; Page Maps
 
   ;; The homepage
-  {:id []          ; <- This represents the URI "/"
+  {:id []          ; <- This represents the URL "/"
    :title "Home"}
 
-  {:id [:about]    ; <- This represents the URI "/about"
+  {:id [:about]    ; <- This represents the URL "/about"
    :title "About"} ; <- Add a title if you'd like
 
   {:id [:blog-posts :using-clojure]
@@ -170,7 +170,7 @@ A key part of this process is the first arrow: Nuzzle's additions. Nuzzle calls 
 
 ### Adding Keys to Page Maps
 Nuzzle adds these keys to every page map:
-- `:uri`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
+- `:nuzzle/url`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
 - `:render-content`: A function that renders the page's associated content file if `:content` key is present, otherwise returns `nil`.
 - `:get-site-data`: A function that allows you to freely reach into your site data from inside of your page rendering function.
 
@@ -245,12 +245,12 @@ There are many use cases for the `get-site-data` function. It's great for creati
 
 (defn layout [{:keys [title get-site-data] :as _page} & body]
   (let [{:keys [twitter]} (get-site-data :social)
-        {about-uri :uri} (get-site-data [:about])]
+        {about-url :nuzzle/url} (get-site-data [:about])]
     [:html [:head [:title title]]
      (into [:body
             [:header
              (unordered-list
-              [:a {:href about-uri} "About"]
+              [:a {:href about-url} "About"]
               [:a {:href twitter} "My Tweets"])]]
            body)]))
 
@@ -259,15 +259,15 @@ There are many use cases for the `get-site-data` function. It's great for creati
           [:h1 (str "Index page for " title)]
           (->>
            (for [id index
-                 :let [{:keys [uri title]} (get-site-data id)]]
-             [:a {:href uri} title])
+                 :let [{:nuzzle/keys [url] :keys [title]} (get-site-data id)]]
+             [:a {:href url} title])
            (apply unordered-list))))
 
 (defn render-homepage [{:keys [get-site-data] :as page}]
   (layout page
           [:h1 "Home Page"]
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
-            [:a {:href (-> [:tags :clojure] get-site-data :uri)} "here!"]]))
+            [:a {:href (-> [:tags :clojure] get-site-data :nuzzle/url)} "here!"]]))
 
 (defn render-page [{:keys [id title render-content] :as page}]
   (cond

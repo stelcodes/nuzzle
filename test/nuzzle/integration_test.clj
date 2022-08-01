@@ -86,21 +86,21 @@
           {[:blog-posts :defeating-misty]
            {:title "How I Defeated Misty with Pikachu",
             :content "test-resources/markdown/how-i-defeated-misty.md",
-            :uri "/blog-posts/defeating-misty/",
+            :nuzzle/url "/blog-posts/defeating-misty/",
             :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            []
            {:content "test-resources/markdown/homepage-introduction.md",
             :index #{[:about] [:blog-posts]},
-            :uri "/",
+            :nuzzle/url "/",
             :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            [:blog-posts :catching-pikachu]
            {:title "How I Caught Pikachu",
             :content "test-resources/markdown/how-i-caught-pikachu.md",
-            :uri "/blog-posts/catching-pikachu/",
+            :nuzzle/url "/blog-posts/catching-pikachu/",
             :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            [:about]
            {:content "test-resources/markdown/about-ash.md",
-            :uri "/about/",
+            :nuzzle/url "/about/",
             :render-content '([:h1 {:id "placeholder"} "Placeholder"])},
            :crypto
            {:bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb",
@@ -110,5 +110,5 @@
            {:index
             #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
             :title "Blog Posts",
-            :uri "/blog-posts/",
+            :nuzzle/url "/blog-posts/",
             :render-content nil}}})))

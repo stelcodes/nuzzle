@@ -16,15 +16,15 @@
     {:tag :urlset
      :attrs {:xmlns "http://www.sitemaps.org/schemas/sitemap/0.9"}
      :content
-     (for [[uri _hiccup] rendered-site-index
-           :let [id (util/uri->id uri)
+     (for [[url _hiccup] rendered-site-index
+           :let [id (util/url->id url)
                  {:keys [modified]} (get site-data id)
-                 page-url (str base-url uri)]]
+                 url (str base-url url)]]
        {:tag :url
         :content
         (remove nil?
                 [{:tag :loc
-                  :content [page-url]}
+                  :content [url]}
                  (when modified
                    {:tag :lastmod
                     :content [(util/format-simple-date modified)]})])})}

@@ -12,16 +12,16 @@
     (apply merge-with deep-merge a maps)
     (apply merge-with deep-merge maps)))
 
-(defn id->uri
+(defn id->url
   [id]
   {:pre [(vector? id)]}
   (if (= [] id) "/"
     (str "/" (string/join "/" (map name id)) "/")))
 
-(defn uri->id
-  [uri]
-  {:pre [(string? uri)]}
-  (->> (string/split uri #"/")
+(defn url->id
+  [url]
+  {:pre [(string? url)]}
+  (->> (string/split url #"/")
        (remove string/blank?)
        (map keyword)
        vec))

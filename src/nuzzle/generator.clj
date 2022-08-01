@@ -51,14 +51,14 @@
         {})))
 
 (defn realize-pages
-  "Adds :uri, :render-content keys to each page in the site-data."
+  "Adds :nuzzle/url, :render-content keys to each page in the site-data."
   [{:keys [site-data] :as config}]
   {:pre [(map? site-data)]}
   (->> site-data
        (reduce-kv
-        (fn [m id {:keys [content uri] :as v}]
+        (fn [m id {:keys [content url] :as v}]
           (if (vector? id)
-            (assoc m id (merge v {:uri (or uri (util/id->uri id))
+            (assoc m id (merge v {:nuzzle/url (or url (util/id->url id))
                                   :render-content
                                   (con/create-render-content-fn id content config)}))
             (assoc m id (merge v {:render-content
@@ -112,7 +112,7 @@
        (map #(assoc % :get-site-data (gen-get-site-data site-data)))))
 
 (defn generate-debug-site-index
-  "Creates a map where the keys are URIs and the values are functions that log
+  "Creates a map where the keys are URLs and the values are functions that log
   the page map and return the page's Hiccup. This datastructure is
   defined by stasis."
   [{:keys [nuzzle/render-page] :as config}]
@@ -120,20 +120,20 @@
   (->> config
        generate-page-list
        (map (fn [page] (when-let [render-result (render-page page)]
-                         [(:uri page)
+                         [(:nuzzle/url page)
                           (fn [_]
                             (log/log-rendering-page page)
                             (hiccup/html-document render-result))])))
        (into {})))
 
 (defn generate-rendered-site-index
-  "Creates a map where the keys are relative URIs and the values are Hiccup.
+  "Creates a map where the keys are relative URLs and the values are Hiccup.
   This datastructure is defined by stasis."
   [{:keys [nuzzle/render-page] :as config}]
   {:pre [(fn? render-page)] :post [(map? %)]}
   (->> config
        generate-page-list
        (map (fn [page] (when-let [render-result (render-page page)]
-                         [(:uri page)
+                         [(:nuzzle/url page)
                           (hiccup/html-document render-result)])))
        (into {})))

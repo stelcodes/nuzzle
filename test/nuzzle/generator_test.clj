@@ -61,36 +61,36 @@
             :when (vector? id)]
       (is (fn? (:render-content info))))
     (is (= {[]
-            {:uri "/"}
+            {:nuzzle/url "/"}
             [:blog :nuzzle-rocks]
             {:title "10 Reasons Why Nuzzle Rocks",
              :content "test-resources/markdown/nuzzle-rocks.md",
              :modified "2022-05-09"
              :rss? true
              :tags #{:nuzzle},
-             :uri "/blog/nuzzle-rocks/"}
+             :nuzzle/url "/blog/nuzzle-rocks/"}
             [:blog :why-nuzzle]
             {:title "Why I Made Nuzzle",
              :content "test-resources/markdown/why-nuzzle.md",
              :rss? true
              :tags #{:nuzzle},
-             :uri "/blog/why-nuzzle/"}
+             :nuzzle/url "/blog/why-nuzzle/"}
             [:blog :favorite-color]
             {:title "What's My Favorite Color? It May Suprise You.",
              :content "test-resources/markdown/favorite-color.md",
              :rss? true
              :tags #{:colors},
-             :uri "/blog/favorite-color/"}
+             :nuzzle/url "/blog/favorite-color/"}
             [:about]
             {:title "About",
              :content "test-resources/markdown/about.md",
-             :uri "/about/"}
+             :nuzzle/url "/about/"}
             :meta
             {:twitter "https://twitter/foobar"}}
            without-render-content))))
 
-(deftest id->uri
-  (is (= "/blog-posts/my-hobbies/" (util/id->uri [:blog-posts :my-hobbies])))
-  (is (= "/about/" (util/id->uri [:about]))))
+(deftest id->url
+  (is (= "/blog-posts/my-hobbies/" (util/id->url [:blog-posts :my-hobbies])))
+  (is (= "/about/" (util/id->url [:about]))))
 
 (comment (run-tests))
