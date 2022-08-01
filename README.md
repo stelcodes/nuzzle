@@ -58,7 +58,6 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
-- `:markdown-opts` - A map of markdown processing options (syntax highlighting)
 - `:nuzzle/syntax-highlighter` - A map of syntax highlighting options for language-tagged code blocks. Defaults to `nil` (no syntax highlighting).
 - `:nuzzle/rss-channel` - A map with an RSS channel specification. Defaults to `nil` (no RSS feed).
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `nil` (no drafts included).
