@@ -78,7 +78,7 @@
   (is (= (-> (read-ash-config) transform-ash-config create-ash-config-file
              (conf/load-specified-config {}) normalize-loaded-config)
          {:nuzzle/publish-dir "out",
-          :server-port 6899,
+          :nuzzle/server-port 6899,
           :nuzzle/base-url "https://ashketchum.com",
           :nuzzle/overlay-dir "test-resources/overlay",
           :nuzzle/render-page render-page

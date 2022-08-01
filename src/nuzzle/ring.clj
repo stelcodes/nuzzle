@@ -45,7 +45,7 @@
           (app)))))
 
 (defn start-server [config-overrides]
-  (let [{:keys [server-port]} (conf/load-default-config config-overrides)]
+  (let [{:nuzzle/keys [server-port]} (conf/load-default-config config-overrides)]
     (log/log-start-server server-port)
     (-> handle-page-request
         (wrap-overlay-dir)

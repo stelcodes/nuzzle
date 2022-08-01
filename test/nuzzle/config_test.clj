@@ -21,7 +21,7 @@
 (deftest read-specified-config
   (is (= (conf/read-specified-config config-path {})
          {:nuzzle/publish-dir "/tmp/nuzzle-test-out",
-          :server-port 6899,
+          :nuzzle/server-port 6899,
           :nuzzle/base-url "https://foobar.com"
           :nuzzle/sitemap? true
           :nuzzle/build-drafts? true,
