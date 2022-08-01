@@ -25,14 +25,14 @@
 (def markdown-opts
   [:map
    {:optional true
-    :closed true}
-   [:syntax-highlighting
-    {:optional true}
-    [:map
-     ;; TODO: Add option to specify custom highlighting command
-     [:provider [:enum :chroma :pygments]]
-     [:style {:optional true} [:or :string :nil]]
-     [:line-numbers? {:optional true} :boolean]]]])
+    :closed true}])
+
+(def syntax-highlighter
+  [:map
+   ;; TODO: Add option to specify custom highlighting command
+   [:provider [:enum :chroma :pygments]]
+   [:style {:optional true} [:or :string :nil]]
+   [:line-numbers? {:optional true} :boolean]])
 
 (def base-url
   [:and
@@ -47,6 +47,7 @@
    [:nuzzle/render-page fn?]
    [:nuzzle/base-url base-url]
    [:markdown-opts {:optional true} markdown-opts]
+   [:nuzzle/syntax-highlighter {:optional true} syntax-highlighter]
    [:nuzzle/custom-elements {:optional true} [:map-of :keyword :symbol]]
    [:nuzzle/overlay-dir {:optional true} string?]
    [:nuzzle/publish-dir {:optional true} string?]

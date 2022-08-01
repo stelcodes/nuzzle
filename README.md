@@ -59,8 +59,9 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
 - `:markdown-opts` - A map of markdown processing options (syntax highlighting)
-- `:nuzzle/rss-channel` - A map with an RSS channel specification. Defaults to nil (no RSS feed).
-- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be removed. Defaults to nil (no draft removal).
+- `:nuzzle/syntax-highlighter` - A map of syntax highlighting options for language-tagged code blocks. Defaults to `nil` (no syntax highlighting).
+- `:nuzzle/rss-channel` - A map with an RSS channel specification. Defaults to `nil` (no RSS feed).
+- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `nil` (no drafts included).
 - `:nuzzle/custom-elements` - A map of keywords -> symbols which define functions to transform the Hiccup representation of custom HTML elements.
 - `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to 6899.
 
@@ -282,26 +283,15 @@ At the bottom of the function we can see the function from `:render-content` bei
 ## Generating an RSS feed
 Nuzzle comes with support for generating an RSS feed. (TODO)
 
-## Getting Fancy with Markdown
-You can configure how Nuzzle interprets your Markdown files with the top-level `:markdown-opts` map which has these keys:
-- `:syntax-highlighting` - A map of syntax highlighting options for code-blocks. Defaults to `nil` (no syntax highlighting).
-
-Here's an example:
-```
-{:syntax-highlighting
- {:provider :pygments
-  :style "algol_nu"}}
-```
-
-### Syntax Highlighting
+## Syntax Highlighting
 Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.sh/sh` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
 
-Syntax highlighting is controlled via the `:syntax-highlighting` map which has these keys:
+Syntax highlighting is controlled via the config setting `:nuzzle/syntax-highlighter` which is expected to be a map with these keys:
 - `:provider` - A keyword specifying the program to use (either `:chroma` or `:pygments`). Required.
 - `:style` - A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
 - `:line-numbers?` - A boolean indicating whether line numbers should be included.
 
-When this map is present, Nuzzle will run you code-blocks with language annotations through the chosen syntax-highlighting program. If the program supports the language found in the language annotation (check their lexers list), it will output the code as HTML with the different syntax tokens wrapped in `span` elements.
+When this map is present, Nuzzle will run you code-blocks with language annotations through the chosen syntax highlighting program. If the program supports the language found in the language annotation (check their lexers list), it will output the code as HTML with the different syntax tokens wrapped in `span` elements.
 
 If `:style` is `nil`, the programs will just attach classes to these `span` elements and it's up to you to define their CSS. If `:style` is specified, the programs will attempt to apply that style as inline CSS.
 
