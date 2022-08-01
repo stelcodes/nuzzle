@@ -1,7 +1,7 @@
 {:nuzzle/build-drafts? true
  :nuzzle/base-url "https://foobar.com"
  :nuzzle/render-page nuzzle.config-test/render-page
- :rss-channel {:title "Foo's blog"
+ :nuzzle/rss-channel {:title "Foo's blog"
                :description "Rants about foo and thoughts about bar"
                :link "https://foobar.com"}
  :sitemap? true

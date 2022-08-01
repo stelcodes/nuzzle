@@ -23,7 +23,7 @@
 (defn create-rss-feed
   "Creates a string of XML that is a valid RSS feed"
   ;; TODO: make sure that clj-rss baked in PermaLink=false is ok
-  [{:keys [site-data rss-channel] :as _config}]
+  [{:nuzzle/keys [rss-channel] :keys [site-data] :as _config}]
   {:pre [(map? site-data) (map? rss-channel)]
    :post [(string? %)]}
   (let [{:keys [link]} rss-channel
@@ -40,10 +40,10 @@
         (let [msg (.getMessage e)]
           (log/error "Unable to create RSS feed.")
           (when (re-find #"is a required element$" msg)
-            (log/error "The :rss-channel map must contain all of these keys:"
+            (log/error "The :nuzzle/rss-channel map must contain all of these keys:"
                        required-channel-tags))
           (when (re-find #"^unrecognized tags in channel" msg)
-            (log/error "The :rss-channel map can only contain these keys: "
+            (log/error "The :nuzzle/rss-channel map can only contain these keys: "
                        valid-channel-tags))
           (when (re-find #"^item" msg)
             (log/error "A page marked with :rss? true must have at least one of these keys:"

@@ -52,7 +52,7 @@
    [:markdown-opts {:optional true} markdown-opts]
    [:nuzzle/overlay-dir {:optional true} string?]
    [:nuzzle/publish-dir {:optional true} string?]
-   [:rss-channel {:optional true} [:map {:closed true}
+   [:nuzzle/rss-channel {:optional true} [:map {:closed true}
                                    [:title string?]
                                    [:link string?]
                                    [:description string?]]]
