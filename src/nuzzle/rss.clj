@@ -28,11 +28,11 @@
    :post [(string? %)]}
   (let [{:keys [link]} rss-channel
         rss-items
-        (for [{:keys [rss? uri] :as page} (vals site-data)
+        (for [{:nuzzle/keys [url] :keys [rss?] :as page} (vals site-data)
               :when rss?]
           (-> page
               (select-keys valid-item-tags)
-              (assoc :guid (str link uri))))]
+              (assoc :guid (str link url))))]
     (try (apply rss/channel-xml
                 rss-channel
                 rss-items)

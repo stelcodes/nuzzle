@@ -3,9 +3,9 @@
    [clojure.test :refer [deftest is]]
    [nuzzle.util :as util]))
 
-(deftest uri->id
+(deftest url->id
   (is (= (list [:about] [] [:blog-posts :foo])
-         (map util/uri->id ["/about/" "/" "/blog-posts/foo/"]))))
+         (map util/url->id ["/about/" "/" "/blog-posts/foo/"]))))
 
 (deftest format-simple-date
   (is (= "2016-04-03"
