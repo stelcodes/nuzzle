@@ -9,15 +9,15 @@
 
 (defn config [] (conf/load-specified-config config-path {}))
 
-(deftest vimhelp-shortcode
-    (is (= (hiccup/html-document (con/vimhelp-shortcode [:vimhelp {:src "test-resources/txt/conjure.txt"}]))
+(deftest vimhelp-element
+    (is (= (hiccup/html-document (con/vimhelp-element [:vimhelp {:src "test-resources/txt/conjure.txt"}]))
            (slurp "test-resources/html/conjure-no-badrefs-filter.html")))
-    (is (= (hiccup/html-document (con/vimhelp-shortcode [:vimhelp {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}]))
+    (is (= (hiccup/html-document (con/vimhelp-element [:vimhelp {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}]))
            (slurp "test-resources/html/conjure-with-badrefs-filter.html"))))
 
-(comment (con/vimhelp-shortcode [:vimhelp "hi"]))
-(comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (hiccup/html-document (con/vimhelp-shortcode {:src "test-resources/txt/conjure.txt"}))))
-(comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (hiccup/html-document (con/vimhelp-shortcode {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))))
+(comment (con/vimhelp-element [:vimhelp "hi"]))
+(comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (hiccup/html-document (con/vimhelp-element {:src "test-resources/txt/conjure.txt"}))))
+(comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (hiccup/html-document (con/vimhelp-element {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))))
 
 (deftest generate-highlight-command
   (testing "generating chroma command"
@@ -69,8 +69,8 @@
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
            (render-content)))))
 
-(deftest walk-hiccup-for-shortcodes
-  (let [hiccup-with-shortcode [:div {:class "hi"} [:youtube {:title "some title" :id "12345"}]]
+(deftest walk-hiccup-for-custom-elements
+  (let [hiccup-with-custom-element [:div {:class "hi"} [:youtube {:title "some title" :id "12345"}]]
         expected-result
         [:div {:class "hi"}
          [:div
@@ -82,11 +82,11 @@
             "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;",
             :title "some title",
             :allowfullscreen true}]]]]
-    (is (= (con/walk-hiccup-for-shortcodes (list [:div] hiccup-with-shortcode))
+    (is (= (con/walk-hiccup-for-custom-elements (list [:div] hiccup-with-custom-element))
            (list
             [:div]
             expected-result)))
-    (is (= (con/walk-hiccup-for-shortcodes hiccup-with-shortcode)
+    (is (= (con/walk-hiccup-for-custom-elements hiccup-with-custom-element)
            expected-result))))
 
 (comment ((con/create-render-content-fn [:inline-html] "test-resources/markdown/inline-html.md" nil))

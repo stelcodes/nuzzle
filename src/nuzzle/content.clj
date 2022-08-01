@@ -10,47 +10,47 @@
    [nuzzle.util :as util]
    [vimhelp.core :as vimhelp]))
 
-(defn quickfigure-shortcode
+(defn quickfigure-element
   [[_tag {:keys [src title] :as _attr}]]
   [:figure [:img {:src src}]
    [:figcaption [:h4 title]]])
 
-(defn gist-shortcode
+(defn gist-element
   [[_tag {:keys [user id] :as _attr}]]
   [:script {:type "application/javascript"
             :src (str "https://gist.github.com/" user "/" id ".js")}])
 
-(defn youtube-shortcode
+(defn youtube-element
   [[_tag {:keys [title id] :as _attr}]]
   [:div {:style "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"}
    [:iframe {:src (str "https://www.youtube.com/embed/" id)
              :style "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
              :title title :allowfullscreen true}]])
 
-(defn vimhelp-shortcode
+(defn vimhelp-element
   [[_tag {:keys [src badrefs] :or {badrefs ""} :as _attr}]]
   (vimhelp/help-file->hiccup src (set (str/split badrefs #","))))
 
-(defn render-shortcode
+(defn render-custom-element
   [[tag & _ :as hiccup]]
   (case tag
-    :quickfigure (quickfigure-shortcode hiccup)
-    :gist (gist-shortcode hiccup)
-    :vimhelp (vimhelp-shortcode hiccup)
-    :youtube (youtube-shortcode hiccup)
+    :quickfigure (quickfigure-element hiccup)
+    :gist (gist-element hiccup)
+    :vimhelp (vimhelp-element hiccup)
+    :youtube (youtube-element hiccup)
     hiccup))
 
-(defn walk-hiccup-for-shortcodes
+(defn walk-hiccup-for-custom-elements
   [hiccup]
   {:pre [(sequential? hiccup)]}
   (if (list? hiccup)
-    (map walk-hiccup-for-shortcodes hiccup)
+    (map walk-hiccup-for-custom-elements hiccup)
     (w/prewalk
      (fn [item]
        (if (cu/hiccup? item)
          (if (-> item second map?)
-           (render-shortcode item)
-           (render-shortcode (apply vector (first item) {} (rest item))))
+           (render-custom-element item)
+           (render-custom-element (apply vector (first item) {} (rest item))))
          item))
      hiccup)))
 
@@ -109,7 +109,7 @@
         [_ _ & hiccup] (-> file
                            slurp
                            (cm/parse-body {:lower-fns lower-fns}))]
-    (walk-hiccup-for-shortcodes hiccup)))
+    (walk-hiccup-for-custom-elements hiccup)))
 
 (defn process-html-file
   [content-file _config]

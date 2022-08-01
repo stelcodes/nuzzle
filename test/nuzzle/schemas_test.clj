@@ -9,10 +9,7 @@
   (is (m/validate schemas/markdown-opts
                   {:syntax-highlighting
                    {:provider :chroma
-                    :style "emacs"}
-                   :shortcode-fns
-                   {:foobar 'shortcodes/foobar
-                    :foobaz 'shortcodes/foobaz}})))
+                    :style "emacs"}})))
 
 (deftest local-date
   (is (m/validate schemas/local-date
