@@ -1,66 +1,67 @@
 (ns nuzzle.config
   (:require
    [clojure.edn :as edn]
-   [clojure.pprint :as pp]
-   [malli.core :as m]
-   [malli.error :as me]
-   [malli.transform :as mt]
+   [clojure.spec.alpha :as s]
    [nuzzle.log :as log]
-   [nuzzle.generator :as gen]
-   [nuzzle.schemas :as schemas]))
-
-(defn decode-config [config]
-  (m/decode schemas/config config
-            (mt/transformer {:name :local-date})))
-
-(def valid-config?
-  (m/validator schemas/config))
+   [nuzzle.schemas]
+   [nuzzle.generator :as gen]))
 
 (defn validate-config [config]
-  (let [decoded-config (decode-config config)]
-    (if (valid-config? decoded-config)
-      decoded-config
-      (let [errors (->> decoded-config
-                        (m/explain schemas/config)
-                        me/humanize)]
-        (log/error "Encountered error in nuzzle.edn config:")
-        (pp/pprint errors)
-        (throw (ex-info "Invalid Nuzzle config" errors))))))
+  (if (s/valid? :nuzzle/user-config config)
+    config
+    (let [errors (s/explain-str :nuzzle/user-config config)]
+      (log/error "Encountered error in nuzzle.edn config:")
+      (print errors)
+      (throw (ex-info "Invalid Nuzzle config"
+                      (s/explain-data :nuzzle/user-config config))))))
 
-(defn read-specified-config
-  "Read the site-data EDN file and validate it."
-  [config-path config-overrides]
-  {:pre [(string? config-path) (or (nil? config-overrides) (map? config-overrides))]
+(defn read-config-path
+  "Read the config from EDN file"
+  [config-path]
+  {:pre [(string? config-path)]}
+  (try
+    (edn/read-string (slurp config-path))
+    (catch java.io.FileNotFoundException e
+      (log/error "Config file is missing or has incorrect permissions.")
+      (throw e))
+    (catch java.lang.RuntimeException e
+      (log/error "Config file contains invalid EDN.")
+      (throw e))
+    (catch Exception e
+      (log/error "Could not read config file.")
+      (throw e))))
+
+(defn transform-config
+  "Applies defaults and transformations to a valid :nuzzle/user-config"
+  [{:nuzzle/keys [render-page] :as config} & {:as config-overrides}]
+  {:pre [(map? config) (or (nil? config-overrides) (map? config-overrides))]
    :post [(map? %)]}
   (let [config-defaults {:nuzzle/publish-dir "out" :nuzzle/server-port 6899}
-        edn-config
-        (try
-          (edn/read-string (slurp config-path))
-          (catch java.io.FileNotFoundException e
-            (log/error "Config file is missing or has incorrect permissions.")
-            (throw e))
-          (catch java.lang.RuntimeException e
-            (log/error "Config file contains invalid EDN.")
-            (throw e))
-          (catch Exception e
-            (log/error "Could not read config file.")
-            (throw e)))
-        {render-page-symbol :nuzzle/render-page :as full-config}
-        (merge config-defaults edn-config config-overrides)
-        render-page-fn
-        (try (var-get (requiring-resolve render-page-symbol))
-          (catch Exception e
-            (log/error ":nuzzle/render-page function" render-page-symbol "cannot be resolved")
-            (throw e)))]
-    (-> full-config
-        (assoc :nuzzle/render-page render-page-fn))))
+        resolve-sym (fn resolve-sym [config-key sym]
+                      (try (var-get (requiring-resolve sym))
+                        (catch Exception e
+                          (log/error config-key "symbol" sym "cannot be resolved")
+                          (throw e))))
+        render-page-fn (resolve-sym :nuzzle/render-page render-page)
+        str->time #(java.time.LocalDate/parse %)
+        config (-> (merge config-defaults config config-overrides)
+                   (assoc :nuzzle/render-page render-page-fn))]
+    (reduce-kv
+     (fn [acc k v]
+       (if-not (and (vector? k) (map? v))
+         (assoc acc k v)
+         (assoc acc k
+                (cond-> v
+                  (:modified v) (update :modified str->time)))))
+     {} config)))
 
 (defn load-specified-config
   "Read the site-data EDN file and validate it."
   [config-path config-overrides]
   (-> config-path
-      (read-specified-config config-overrides)
-      (validate-config)
+      read-config-path
+      validate-config
+      (transform-config config-overrides)
       (gen/realize-site-data)))
 
 (defn load-default-config [config-overrides]

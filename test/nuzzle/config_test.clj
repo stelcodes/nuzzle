@@ -7,25 +7,13 @@
 
 (def render-page (constantly [:h1 "test"]))
 
-(deftest decode-config
-  (is (= {:nuzzle/render-page render-page
-          :nuzzle/base-url "http://foobar.com"
-          :site-data #{{:id []
-                        :modified (java.time.LocalDate/parse "2022-05-09")}}}
-         (conf/decode-config
-          {:nuzzle/render-page render-page
-           :nuzzle/base-url "http://foobar.com"
-           :site-data #{{:id []
-                         :modified "2022-05-09"}}}))))
-
-(deftest read-specified-config
-  (is (= (conf/read-specified-config config-path {})
+(deftest read-config-path
+  (is (= (conf/read-config-path config-path)
          {:nuzzle/publish-dir "/tmp/nuzzle-test-out",
-          :nuzzle/server-port 6899,
           :nuzzle/base-url "https://foobar.com"
           :nuzzle/sitemap? true
           :nuzzle/build-drafts? true,
-          :nuzzle/render-page render-page,
+          :nuzzle/render-page 'nuzzle.config-test/render-page,
           :nuzzle/rss-channel
           {:title "Foo's blog",
            :description "Rants about foo and thoughts about bar",

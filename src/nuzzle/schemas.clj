@@ -2,74 +2,53 @@
   (:require
    [clojure.spec.alpha :as s]))
 
-(def local-date
-  [:fn {:error/message "should be a date string in format YYYY-MM-DD"
-        :decode/local-date #(try (java.time.LocalDate/parse %)
-                              (catch Exception _ %))}
-   #(= java.time.LocalDate (class %))])
+(def datetime? #(try (java.time.LocalDate/parse %) true (catch Throwable _ false)))
 
-(def id [:or [:vector keyword?] keyword?])
+;; Page map keys
+(s/def :nuzzle/title string?)
+(s/def :nuzzle/rss? boolean?)
+(s/def :nuzzle/modified datetime?)
+(s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
 
-(def site-data
-  [:set {:min 1}
-   [:and
-    [:map
-     [:id id]
-     [:modified {:optional true} local-date]
-     [:tags {:optional true}
-      [:set keyword?]]
-     [:index {:optional true}
-      [:set id]]]
-    [:fn {:error/message ":site-data map with {:rss? true} needs a :title or :description"}
-     (fn [{:keys [rss? title description]}]
-       (or (not rss?) (or title description)))]]])
+;; Syntax highlighter keys
+(s/def :nuzzle.syntax-highlighter/provider #{:chroma :pygments})
+(s/def :nuzzle.syntax-highlighter/style string?)
+(s/def :nuzzle.syntax-highlighter/line-numbers? boolean?)
 
-(def syntax-highlighter
-  [:map
-   ;; TODO: Add option to specify custom highlighting command
-   [:provider [:enum :chroma :pygments]]
-   [:style {:optional true} [:or :string :nil]]
-   [:line-numbers? {:optional true} :boolean]])
+;; Config keys
+(s/def :nuzzle/render-page symbol?)
+(s/def :nuzzle/base-url #(re-find #"^https?://" %))
+(s/def :nuzzle/syntax-highlighter
+  (s/keys :req-un [:nuzzle.syntax-highlighter/provider]
+          :opt-un [:nuzzle.syntax-highlighter/style :nuzzle.syntax-highlighter/line-numbers?]))
+(s/def :nuzzle/rss-channel
+  (s/keys :req-un [:nuzzle.rss/title :nuzzle.rss/link :nuzzle.rss/description]))
+(s/def :nuzzle/sitemap? boolean?)
+(s/def :nuzzle/server-port (s/int-in 1024 65536))
+(s/def :nuzzle/overlay-dir string?)
+(s/def :nuzzle/publish-dir string?)
+(s/def :nuzzle/build-drafts? boolean?)
+(s/def :nuzzle/custom-elements (s/map-of keyword? symbol?))
 
-(def base-url
-  [:and
-   :string
-   [:re {:error/message ":nuzzle/base-url must start with http:// or https://"}
-    #"^https?://"]])
+;; Config Rules
+(s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
+(s/def :nuzzle/page-map (s/keys :req [:nuzzle/title] :opt [:nuzzle/rss? :nuzzle/modified :nuzzle/tags]))
+(s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-map)
+                                  :option (s/tuple keyword? any?)))
 
-(def config
-  [:map
-   {:closed true}
-   [:site-data site-data]
-   [:nuzzle/render-page fn?]
-   [:nuzzle/base-url base-url]
-   [:nuzzle/syntax-highlighter {:optional true} syntax-highlighter]
-   [:nuzzle/custom-elements {:optional true} [:map-of :keyword :symbol]]
-   [:nuzzle/overlay-dir {:optional true} string?]
-   [:nuzzle/publish-dir {:optional true} string?]
-   [:nuzzle/rss-channel {:optional true} [:map {:closed true}
-                                   [:title string?]
-                                   [:link string?]
-                                   [:description string?]]]
-   [:nuzzle/sitemap? {:optional true} :boolean]
-   [:nuzzle/build-drafts? {:optional true} boolean?]
-   [:nuzzle/server-port {:optional true} [:and int? [:> 1023] [:< 65536]]]])
+;; Whole config
+(s/def :nuzzle/user-config
+  (s/and
+   (s/keys :req [:nuzzle/base-url :nuzzle/render-page]
+           :opt [:nuzzle/syntax-highlighter :nuzzle/rss-channel :nuzzle/build-drafts?
+                 :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir :nuzzle/overlay-dir])
+   (s/every :nuzzle/config-entry)))
 
-;; clojure.spec ideas
 (comment
- (def datetime? #(try (java.time.LocalDate/parse %) true (catch Throwable _ false)))
- (s/def :nuzzle/title string?)
- (s/def :nuzzle/rss? boolean?)
- (s/def :nuzzle/modified datetime?)
- (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
- (s/def :nuzzle/page-val (s/keys :req [:nuzzle/title] :opt [:nuzzle/rss? :nuzzle/modified]))
- (s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-val)
-                                   :option (s/tuple keyword? any?)))
- (s/def :nuzzle/user-config
-   (s/and
-    (s/keys :req [:nuzzle/base-url])
-    (s/every :nuzzle/config-entry)))
  (s/explain
   :nuzzle/user-config
   {:nuzzle/base-url "https://test.com"
-   [:blog-posts :test-post] {:nuzzle/title "hi" :nuzzle/rss? true :nuzzle/modified "bad-datetime"}}))
+   :nuzzle/render-page 'views.render-page
+   ;; :nuzzle/build-drafts? nil
+   ;; :nuzzle/server-port 5
+   [:blog-posts :test-post] {:nuzzle/title "hi" :nuzzle/rss? true :nuzzle/modified "2022-07-19" :nuzzle/tags #{:hi}}}))

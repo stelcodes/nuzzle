@@ -6,7 +6,7 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn config [] (conf/read-specified-config config-path {}))
+(defn config [] (conf/read-config-path config-path))
 
 (defn site-data [] (:site-data (config)))
 

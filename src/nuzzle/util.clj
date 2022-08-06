@@ -78,9 +78,10 @@
         {})))
 
 (defn format-simple-date [date]
-  {:pre [(instance? java.time.temporal.Temporal date)]}
   (let [fmt (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")]
-    (.format fmt date)))
+    (if (instance? java.time.temporal.Temporal date)
+      (.format fmt date)
+      date)))
 
 (defn find-hiccup-str
   "Find first string matching regular expression in deeply nested Hiccup tree"
