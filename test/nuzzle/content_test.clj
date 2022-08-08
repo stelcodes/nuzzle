@@ -63,7 +63,7 @@
 ;;              (con/highlight-code code "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}}))))))
 
 (deftest create-render-content-fn
-  (let [{:keys [content]} (get-in (config) [:site-data [:about]])
+  (let [{:keys [content]} (get (config) [:about])
         render-content (con/create-render-content-fn [:about] content nil)]
     (is (fn? render-content))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])

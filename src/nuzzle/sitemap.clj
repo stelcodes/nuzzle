@@ -11,14 +11,14 @@
 (defn create-sitemap
   "Assumes realized site data is in map form and that drafts have already been
   removed from rendered-site-index."
-  [{:keys [site-data nuzzle/base-url] :as _config} rendered-site-index]
+  [{:nuzzle/keys [base-url] :as config} rendered-site-index]
    (xml/emit-str
     {:tag :urlset
      :attrs {:xmlns "http://www.sitemaps.org/schemas/sitemap/0.9"}
      :content
      (for [[url _hiccup] rendered-site-index
            :let [id (util/url->id url)
-                 {:keys [modified]} (get site-data id)
+                 {:keys [modified]} (get config id)
                  url (str base-url url)]]
        {:tag :url
         :content

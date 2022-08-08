@@ -23,14 +23,15 @@
 (defn create-rss-feed
   "Creates a string of XML that is a valid RSS feed"
   ;; TODO: make sure that clj-rss baked in PermaLink=false is ok
-  [{:nuzzle/keys [rss-channel] :keys [site-data] :as _config}]
-  {:pre [(map? site-data) (map? rss-channel)]
+  [{:nuzzle/keys [rss-channel] :as config}]
+  {:pre [(map? rss-channel)]
    :post [(string? %)]}
   (let [{:keys [link]} rss-channel
         rss-items
-        (for [{:nuzzle/keys [url] :keys [rss?] :as page} (vals site-data)
-              :when rss?]
-          (-> page
+        (for [[ckey cval] config
+              :let [{:nuzzle/keys [url] :keys [rss?]} cval]
+              :when (and (vector? ckey) rss?)]
+          (-> cval
               (select-keys valid-item-tags)
               (assoc :guid (str link url))))]
     (try (apply rss/channel-xml

@@ -7,109 +7,109 @@
 
 (defn create-tag-index
   "Create a map of pages that are the tag index pages"
-  [site-data]
-  (->> site-data
+  [config]
+  (->> config
        ;; Create a map shaped like tag -> [page-ids]
        (reduce-kv
-        (fn [m id {:keys [tags]}]
+        (fn [acc pkey {:keys [tags]}]
           ;; merge-with is awesome!
-          (if tags (merge-with into m (zipmap tags (repeat #{id}))) m))
+          (if (and (vector? pkey) tags) (merge-with into acc (zipmap tags (repeat #{pkey}))) acc))
         {})
        ;; Then change the val into a map with more info
        (reduce-kv
-        (fn [m tag ids]
-          (assoc m [:tags tag] {:index ids
-                                :title (str "#" (name tag))}))
+        (fn [acc tag pkeys]
+          (assoc acc [:tags tag] {:index pkeys
+                                  :title (str "#" (name tag))}))
         {})))
 
 (defn create-group-index
   "Create a map of all pages that serve as a location-based index for other
-  pages. For example, if there is an entry in site-data with key
-  [:blog-posts :foo], then this function will create a map with a [:blog-posts]
-  entry and the value will be a map with :index [[:blog-posts :foo]]."
-  [site-data]
-  (->> site-data
+  pages"
+  [config]
+  (->> config
        ;; Create a map shaped like group -> [page-ids]
        (reduce-kv
-        (fn [index-map id _]
-          (loop [trans-index-map index-map
-                 trans-id id]
-            (if-not (and (vector? trans-id) (> (count trans-id) 0))
-              trans-index-map
-              (let [parent-id (vec (butlast trans-id))]
-                (recur (update trans-index-map parent-id
-                               #(if % (conj % trans-id) #{trans-id}))
-                       parent-id)))))
+        (fn [acc pkey _]
+          (loop [trans-acc acc
+                 trans-pkey pkey]
+            (if-not (and (vector? trans-pkey) (> (count trans-pkey) 0))
+              trans-acc
+              (let [parent-pkey (vec (butlast trans-pkey))]
+                (recur (update trans-acc parent-pkey
+                               #(if % (conj % trans-pkey) #{trans-pkey}))
+                       parent-pkey)))))
         {})
-       ;; Then change the val into a map with more info
+       ;; Then change the val into a page map with more info
        (reduce-kv
-        (fn [m group-id ids]
-          (if-let [title (last group-id)]
-            (assoc m group-id {:index ids
-                               :title (util/kebab-case->title-case title)})
-            (assoc m group-id {:index ids})))
+        (fn [m parent-pkey children-pkeys]
+          (if-let [title (last parent-pkey)]
+            (assoc m parent-pkey {:index children-pkeys
+                                  :title (util/kebab-case->title-case title)})
+            (assoc m parent-pkey {:index children-pkeys
+                                  :title "Home"})))
         {})))
 
-(defn realize-pages
-  "Adds :nuzzle/url, :nuzzle/render-content keys to each page in the site-data."
-  [{:keys [site-data] :as config}]
-  {:pre [(map? site-data)]}
-  (->> site-data
-       (reduce-kv
-        (fn [m id {:keys [content url] :as v}]
-          (if (vector? id)
-            (assoc m id (merge v {:nuzzle/url (or url (util/id->url id))
-                                  :nuzzle/render-content
-                                  (con/create-render-content-fn id content config)}))
-            (assoc m id (merge v {:nuzzle/render-content
-                                  (con/create-render-content-fn id content config)}))))
-        {})
-       (assoc config :site-data)))
+(defn gen-get-config
+  "Generate the helper function get-config from the realized config. This
+  function takes a config key and returns the corresponding value with added
+  key :get-config with value get-config function attached."
+  [config]
+  {:pre [(map? config)] :post [(fn? %)]}
+  (fn get-config
+    ([] (->> config
+             (map #(assoc % :get-config get-config))))
+    ([ckey]
+     (if-let [entity (get config ckey)]
+       (assoc entity :get-config get-config)
+       (throw (ex-info (str "get-config error: config key " ckey " not found")
+                       {:key ckey}))))))
 
-(defn gen-get-site-data
-  "Generate the helper function get-site-data from the realized-site-data. This
-  function takes a page id (vector of 0 or more keywords) and returns the page
-  information with added key :get-site-data with value get-site-data function attached."
-  [realized-site-data]
-  {:pre [(map? realized-site-data)] :post [(fn? %)]}
-  (fn get-site-data
-    ([] (->> realized-site-data
-             util/convert-site-data-to-set
-             (map #(assoc % :get-site-data get-site-data))))
-    ([id]
-     (if-let [entity (get realized-site-data id)]
-       (assoc entity :get-site-data get-site-data)
-       (throw (ex-info (str "get-site-data error: id " id " not found")
-                       {:id id}))))))
-
-(defn realize-site-data
-  "Creates fully realized site-data datastructure with or without drafts."
-  [{:keys [nuzzle/build-drafts? site-data] :as config}]
-  {:pre [(set? site-data)] :post [#(map? %)]}
+(defn realize-config
+  "Creates fully realized config with or without drafts."
+  [{:nuzzle/keys [build-drafts?] :as config}]
+  {:pre [(map? config)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
-  (-> config
-      (update :site-data #(if build-drafts?
-                            (do (log/log-build-drafts) %)
-                            (do (log/log-remove-drafts)
-                              (remove :draft? %))))
-      (update :site-data #(util/convert-site-data-to-map %))
-      (update :site-data #(util/deep-merge % (create-tag-index %)))
-      (update :site-data #(util/deep-merge % (create-group-index %)))
-      (realize-pages)))
+  (letfn [(handle-drafts [config]
+            (if build-drafts?
+              (do (log/log-build-drafts) config)
+              (do (log/log-remove-drafts)
+                (reduce-kv
+                 (fn [acc k v]
+                   (if (and (vector? k) (:draft? v))
+                     acc
+                     (assoc acc k v)))
+                 {} config))))
+          (realize-pages [config]
+            (reduce-kv
+             (fn [acc ckey {:keys [content url] :as cval}]
+               (if-not (map? cval)
+                 (assoc acc ckey cval)
+                 (assoc acc ckey
+                      (into cval
+                            [(when (vector? ckey) [:nuzzle/url (or url (util/id->url ckey))])
+                             (when (or (vector? ckey) content)
+                               [:nuzzle/render-content
+                                (con/create-render-content-fn ckey content config)])]))))
+             {} config))]
+    (as-> config $
+      (handle-drafts $)
+      (util/deep-merge $ (create-tag-index $))
+      (util/deep-merge $ (create-group-index $))
+      (realize-pages $))))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."
-  [{:keys [site-data] :as _config}]
-  {:pre [(map? site-data)] :post [(seq? %)]}
-  (->> site-data
+  [config]
+  {:pre [(map? config)] :post [(seq? %)]}
+  (->> config
        ;; If key is vector, then it is a page
-       (reduce-kv (fn [page-list id v]
-                    (if (vector? id)
+       (reduce-kv (fn [acc ckey cval]
+                    (if (vector? ckey)
                       ;; Add the page id to the map
-                      (conj page-list (assoc v :id id))
-                      page-list)) [])
-       ;; Add get-site-data helper function to each page
-       (map #(assoc % :get-site-data (gen-get-site-data site-data)))))
+                      (conj acc (assoc cval :id ckey))
+                      acc)) [])
+       ;; Add get-config helper function to each page
+       (map #(assoc % :get-config (gen-get-config config)))))
 
 (defn generate-debug-site-index
   "Creates a map where the keys are URLs and the values are functions that log

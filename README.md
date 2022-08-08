@@ -54,7 +54,6 @@ All three functions have exactly the same interface:
 Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory containing these keys:
 
 - `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
-- `:site-data` - A set of maps describing the structure and content of your website. Required.
 - `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
@@ -67,137 +66,146 @@ Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current worki
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
 {:nuzzle/base-url "https://ashketchum.com"
- :nuzzle/overlay-dir "overlay"
  :nuzzle/render-page views/render-page
- :site-data
- #{{:id []
-    :content "markdown/homepage-introduction.md"}
-   {:id [:blog-posts :catching-pikachu]
-    :title "How I Caught Pikachu"
-    :content "markdown/how-i-caught-pikachu.md"}
-   {:id [:blog-posts :defeating-misty]
-    :title "How I Defeated Misty with Pikachu"
-    :content "markdown/how-i-defeated-misty.md"}
-   {:id [:about]
-    :content "markdown/about-ash.md"}
-   {:id :crypto
-    :bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb"
-    :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979"}}}
+
+ []
+ {:title "Home"
+  :content "markdown/homepage-introduction.md"}
+
+ [:blog-posts :catching-pikachu]
+ {:title "How I Caught Pikachu"
+  :content "markdown/how-i-caught-pikachu.md"}
+
+ [:blog-posts :defeating-misty]
+ {:title "How I Defeated Misty with Pikachu"
+  :content "markdown/how-i-defeated-misty.md"}
+
+ [:about]
+ {:title "About Ash"
+  :content "markdown/about-ash.md"}}
 ```
 
-## Site Data
-The `:site-data` value defines the attributes of all the static site's pages as well as any supplemental information. Site data must be a set of maps, and those maps have just one required key: `:id`.
+## Option and Page Entries
 
-If the `:id` is a **vector of keywords**, the map represents a single page of the website. The `:id` `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. Nuzzle calls one of these a *page map*.
+> **Note:** An "entry" refers to a key-value pair of a map
 
-If the `:id` is a singular **keyword**, the map just contains extra information about the site. It has no effect on the website structure. Nuzzle calls these *peripheral maps*. The last map in the example above with the `:id` of `:crypto` is a peripheral map.
+The Nuzzle config data-structure must be a map where each key is either a keyword or a vector of keywords. The distinction is important. It separates map entries into two categories:
 
-Here's another `:site-data` example with annotations:
+1. Option Entries
+Option entries have a **keyword** key and are usually defined by Nuzzle (ex: `:nuzzle/base-url`), but you can also include your own option entries as well. The associated value can be of any type.
+
+2. Page Entries
+Page entries have a key that is a **vector of keywords**, and their associated value must be a map that represents a single page of the website. The key represents the URL of the web page: `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`.
+
+## Special Page Entry Keys
+
+Here's another example config with annotations:
 ```clojure
-#{
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Page Maps
+{;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; Option Entries
 
-  ;; The homepage
-  {:id []          ; <- This represents the URL "/"
-   :title "Home"}
+ :nuzzle/base-url "https://example.com"
+ :nuzzle/render-page views/render-page
 
-  {:id [:about]    ; <- This represents the URL "/about"
-   :title "About"} ; <- Add a title if you'd like
+ ;; Custom option entries can be anything you like
+ :twitter "https://twitter.com/clojurerulez" ; <- This will be easy to retrieve later
 
-  {:id [:blog-posts :using-clojure]
-   :title "Using Clojure"
-   ;; The special :content key associates a Markdown or HTML file
-   :content "markdown/using-clojure.md"
-   ;; The special :tags key tells Nuzzle about page tags
-   :tags #{:clojure}}
+ ;; You can also associate content with custom option entries!
+ :footer-message
+ {:content "markdown/footer-message.md"}
 
-  {:id [:blog-posts :learning-rust]
-   :title "How I Got Started Learning Rust"
-   :content "markdown/learning-rust.md"
-   :tags #{:rust}
-   ;; The special :draft? key tells Nuzzle which pages are drafts
-   :draft? true
-   ;; The special :rss key tells Nuzzle to include the page in the RSS XML file
-   :rss? true}
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; Page Entries
 
-  {:id [:blog-posts :clojure-on-fedora]
-   :title "How to Install Clojure on Fedora"
-   :content "markdown/clojure-on-fedora.md"
-   :tags #{:linux :clojure}
-   ;; Page maps are open, you can include any data you like
-   :foobar "baz"}
+ ;; The homepage
+ [] ; <- This represents the URL "/"
+ {:title "Home"}
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Peripheral Maps
+ [:about] ; <- This represents the URL "/about"
+ {:title "About"} ; <- Titles are necessary for page entries
 
-  ;; Extra information not particular to any page
-  {:id :social
-   :twitter "https://twitter.com/clojurerulez"} ; <- This will be easy to retrieve later
+ [:blog-posts :using-clojure]
+ {:title "Using Clojure"
+  ;; The optional :content key associates a Markdown or HTML file
+  :content "markdown/using-clojure.md"
+  ;; The optional :tags key tells Nuzzle about page tags
+  :tags #{:clojure}}
 
-  {:id :footer-message
-   ;; You can also associate content with peripheral maps
-   :content "markdown/footer-message.md"}
-}
+ [:blog-posts :learning-rust]
+ {:title "How I Got Started Learning Rust"
+  :content "markdown/learning-rust.md"
+  :tags #{:rust}
+  ;; The optional :draft? key tells Nuzzle which pages are drafts
+  :draft? true
+  ;; The optional :rss key tells Nuzzle to include the page in the RSS XML file
+  :rss? true}
+
+ [:blog-posts :clojure-on-fedora]
+ {:title "How to Install Clojure on Fedora"
+  :content "markdown/clojure-on-fedora.md"
+  :tags #{:linux :clojure}
+  ;; Page maps are open, you can include any data you like
+  :foobar "baz"}}
 ```
 
-### Special Keys in Page Maps
+### Special Keys in Page Entry Maps
 - `:content`: A path to an associated Markdown or HTML file.
 - `:tags`: A set of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this page is a draft or not.
 - `:rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
 
-### Special Keys in Peripheral Maps
+### Special Keys in Custom Option Entry Maps
 - `:content`: A path to an associated Markdown or HTML file.
 
-## How Nuzzle Adds to Your Site Data
-You can think of Nuzzle's core functionality as a data pipeline. Nuzzle starts with the site data in your `nuzzle.edn`, adds some spice, sends it through your page rendering function, and exports the results to disk.
+## How Nuzzle Transforms Your Config
+You can think of Nuzzle's core functionality as a data pipeline. Nuzzle starts with the config map in your `nuzzle.edn`, adds some spice, sends it through your page rendering function, and exports the results to disk.
 
-Nuzzle's site data pipeline can be visualized like so:
+Nuzzle's data pipeline can be visualized like so:
 ```
    ┌───────────┐           ┌───────────┐               ┌──────────────┐
    │           │           │           │               │              │
-   │ Site data │ ────┬───► │ Realized  │ ─────┬─────►  │  Hiccup that │
-   │   from    │     │     │ site data │      │        │ is converted │
-   │ nuzzle.edn│     │     │           │      │        │ to html and  │
+   │  Config   │ ────┬───► │ Realized  │ ─────┬─────►  │  Hiccup that │
+   │   from    │     │     │ config    │      │        │ is converted │
+   │ nuzzle.edn│     │     │           │      │        │ to HTML and  │
    │           │     │     │           │      │        │  published   │
    └───────────┘           └───────────┘               └──────────────┘
                   Nuzzle              :nuzzle/render-page
-                 additions                function
+              transformations             function
 ```
 
-A key part of this process is the first arrow: Nuzzle's additions. Nuzzle calls this **realizing** your site data. It's important to note that Nuzzle does not modify the site data, it only adds to it. The realized site data looks just like the original, but with extra page maps and extra keys in the existing page maps.
+A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle also calls this step **realizing** your config. A realized config looks very similar to the original, but with extra page entries and extra keys in the existing page entries.
 
-### Adding Keys to Page Maps
+### Adding Keys to Page Entries
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
 - `:nuzzle/render-content`: A function that renders the page's associated content file if `:content` key is present, otherwise returns `nil`.
-- `:get-site-data`: A function that allows you to freely reach into your site data from inside of your page rendering function.
+- `:get-config`: A function that allows you to freely reach into your site data from inside of your page rendering function.
 
-### Adding Keys to Peripheral Maps
+### Adding Keys to Option Entries
 Nuzzle adds these keys to every peripheral map:
 - `:nuzzle/render-content`: Same as above.
-- `:get-site-data`: Same as above.
+- `:get-config`: Same as above.
 
-### Adding Page Maps (Index Pages)
-Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have pages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a page at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Nuzzle calls these *subdirectory index pages*. Another common pattern is associating tags with pages. You may want to add index pages like `"/tags/clojure"` so you can link to all your pages about Clojure. Nuzzle calls these *tag index pages*. Nuzzle adds both subdirectory and tag index pages automatically for all subdirectories and tags present in your site data.
+### Adding Page Entries (Index Pages)
+Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have pages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a page at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Nuzzle calls these **subdirectory index pages**.
 
-> You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can control which pages get published inside your page rendering function.
+Another common pattern is associating tags with pages. You may want to add index pages like `"/tags/clojure"` so you can link to all your pages about Clojure. Nuzzle calls these **tag index pages**. Nuzzle adds both subdirectory and tag index pages automatically for all subdirectories and tags present in your site data.
 
-What makes these index page maps special? They have an `:index` key with a value that is a set of page map `id`s for any pages directly below them. For example, if you had page maps with `id`s of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a page map with an `:id` of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
+> You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can avoid publishing a page by returning `nil` from your page rendering function.
 
-It's worth noting that you can include index page maps in your `nuzzle.edn` site data, just like any other page. You can add content to your index pages by including a `:content` key:
+These added index pages have an `:index` key with a value that is a set of page entry keys for any pages directly "below" them. For example, if you had page entries with keys of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a page entry with a key of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
+
+It's worth noting that you can include index page entries in your `nuzzle.edn` site data, just like any other page. You can add content to your index pages by including a `:content` key:
 
 ```clojure
-;; Somwhere in your :site-data set...
-;; Nuzzle will append an :index value later if there are any blog posts
-{:id [:blog-posts]
- :content "markdown/blog-posts-index-blurb.md"
- :title "My Awesome Blog Posts"}
+;; Nuzzle will append an :index key later if there are any blog posts
+{[:blog-posts]
+ {:content "markdown/blog-posts-index-blurb.md"
+  :title "My Awesome Blog Posts"}}
 ```
 
 ## Creating a Page Rendering Function
-All page maps are transformed into Hiccup by a single function. This function takes a single argument (a page map) and returns a vector of Hiccup.
+All page entries are transformed into Hiccup by a single function. This function takes a single argument (a page map) and returns a vector of Hiccup.
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
@@ -222,21 +230,19 @@ The `render-page` function uses the `:id` value to determine what Hiccup to retu
 
 Just because a page exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
-### Accessing Your Site Data with `get-site-data`
-With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-site-data`. While realizing your site data, Nuzzle attaches a copy of this function to each page map under the key `:get-site-data`.
+### Accessing Your Site Data with `get-config`
+With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-config`. While realizing your site data, Nuzzle attaches a copy of this function to each page map under the key `:get-config`.
 
-In a word, `get-site-data` allows us to see the whole world while creating our Hiccup. It has two forms:
+In a word, `get-config` allows us to see the whole world while creating our Hiccup. It has two forms:
 
-1. `(get-site-data)`: With no arguments, returns the whole realized site data set.
-2. `(get-site-data [:blog-posts])`: With an `id` from the realized site data, return the corresponding map.
+1. `(get-config)`: With no arguments, returns the whole realized config map.
+2. `(get-config [:blog-posts])`: With one argument, returns value associated with provided config key or throws an exception.
 
-Since `get-site-data` returns maps from our *realized* site data, all information about the site is at your fingertips. Every page and peripheral map from your site data is always a function call away.
+Since `get-config` returns maps from our *realized* site data, all information about the site is at your fingertips. Every page and peripheral map from your site data is always a function call away.
 
-To make things even more convenient, the `get-site-data` function attaches a copy of itself to each map it returns. This makes it easy to write functions that accept a page or peripheral map without ever having to worry about passing `get-site-data` along with it. It's kind of like a self-replicating bridge between all your site data maps.
+To make things even more convenient, the `get-config` function attaches a copy of itself to each map it returns. This makes it easy to write functions that accept a page or peripheral map without ever having to worry about passing `get-config` along with it. It's kind of like a self-replicating bridge from one config value to the next!
 
-> If `get-site-data` cannot find the given `id`, it will throw an exception. This makes it easy to spot errors in your code quickly.
-
-There are many use cases for the `get-site-data` function. It's great for creating index pages, accessing peripheral maps, and countless other things:
+There are many use cases for the `get-config` function. It's great for creating index pages, accessing peripheral maps, and countless other things:
 
 ```clojure
 (defn unordered-list [& list-items]
@@ -244,9 +250,9 @@ There are many use cases for the `get-site-data` function. It's great for creati
        (map (fn [item] [:li item]))
        (into [:ul])))
 
-(defn layout [{:keys [title get-site-data] :as _page} & body]
-  (let [{:keys [twitter]} (get-site-data :social)
-        {about-url :nuzzle/url} (get-site-data [:about])]
+(defn layout [{:keys [title get-config] :as _page} & body]
+  (let [{:keys [twitter]} (get-config :social)
+        {about-url :nuzzle/url} (get-config [:about])]
     [:html [:head [:title title]]
      (into [:body
             [:header
@@ -255,20 +261,20 @@ There are many use cases for the `get-site-data` function. It's great for creati
               [:a {:href twitter} "My Tweets"])]]
            body)]))
 
-(defn render-index-page [{:keys [title index get-site-data] :as page}]
+(defn render-index-page [{:keys [title index get-config] :as page}]
   (layout page
           [:h1 (str "Index page for " title)]
           (->>
            (for [id index
-                 :let [{:nuzzle/keys [url] :keys [title]} (get-site-data id)]]
+                 :let [{:nuzzle/keys [url] :keys [title]} (get-config id)]]
              [:a {:href url} title])
            (apply unordered-list))))
 
-(defn render-homepage [{:keys [get-site-data] :as page}]
+(defn render-homepage [{:keys [get-config] :as page}]
   (layout page
           [:h1 "Home Page"]
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
-            [:a {:href (-> [:tags :clojure] get-site-data :nuzzle/url)} "here!"]]))
+           [:a {:href (-> [:tags :clojure] get-config :nuzzle/url)} "here!"]]))
 
 (defn render-page [{:nuzzle/keys [render-content] :keys [id title] :as page}]
   (cond
