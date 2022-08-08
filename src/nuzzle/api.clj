@@ -1,17 +1,17 @@
 (ns nuzzle.api
   (:require [nuzzle.config :as conf]
+            [nuzzle.generator :as gen]
             [nuzzle.publish :as publish]
             [nuzzle.log :as log]
-            [nuzzle.ring :as ring]
-            [nuzzle.util :as util]))
+            [nuzzle.ring :as ring]))
 
 (defn realize
   "Allows the user to visualize the site data after Nuzzle's modifications."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [config (conf/load-default-config config-overrides)]
-    (log/info "🔍🐈 Printing realized site data for inspection")
-    (util/convert-site-data-to-set config)))
+    (log/info "🔍🐈 Printing realized config for inspection")
+    (-> config gen/realize-config)))
 
 (defn publish
   "Publishes the website to :nuzzle/publish-dir. The overlay directory is

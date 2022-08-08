@@ -48,7 +48,7 @@
                    (assoc :nuzzle/render-page render-page-fn))]
     (reduce-kv
      (fn [acc k v]
-       (if-not (and (vector? k) (map? v))
+       (if-not (map? v)
          (assoc acc k v)
          (assoc acc k
                 (cond-> v
@@ -56,15 +56,15 @@
      {} config)))
 
 (defn load-specified-config
-  "Read the site-data EDN file and validate it."
-  [config-path config-overrides]
+  "Read a config EDN file and validate it."
+  [config-path & {:as config-overrides}]
   (-> config-path
       read-config-path
       validate-config
       (transform-config config-overrides)
-      (gen/realize-site-data)))
+      (gen/realize-config)))
 
-(defn load-default-config [config-overrides]
+(defn load-default-config [& {:as config-overrides}]
   (load-specified-config "nuzzle.edn" config-overrides))
 
-(comment (load-specified-config "test-resources/config-1.edn" {}))
+(comment (load-specified-config "test-resources/edn/config-1.edn" {}))

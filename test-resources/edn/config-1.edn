@@ -2,37 +2,37 @@
  :nuzzle/base-url "https://foobar.com"
  :nuzzle/render-page nuzzle.config-test/render-page
  :nuzzle/rss-channel {:title "Foo's blog"
-               :description "Rants about foo and thoughts about bar"
-               :link "https://foobar.com"}
+                      :description "Rants about foo and thoughts about bar"
+                      :link "https://foobar.com"}
  :nuzzle/sitemap? true
  :nuzzle/overlay-dir "public"
  :nuzzle/publish-dir "/tmp/nuzzle-test-out"
- :site-data
- #{{:id []}
 
-   {:id [:blog :nuzzle-rocks]
-    :title "10 Reasons Why Nuzzle Rocks"
-    :content "test-resources/markdown/nuzzle-rocks.md"
-    :modified "2022-05-09"
-    :rss? true
-    :tags #{:nuzzle}}
+ [] {:title "Home"}
 
-   {:id [:blog :why-nuzzle]
-    :title "Why I Made Nuzzle"
-    :content "test-resources/markdown/why-nuzzle.md"
-    :rss? true
-    :tags #{:nuzzle}}
+ [:blog :nuzzle-rocks]
+ {:title "10 Reasons Why Nuzzle Rocks"
+  :content "test-resources/markdown/nuzzle-rocks.md"
+  :modified "2022-05-09"
+  :rss? true
+  :tags #{:nuzzle}}
 
-   {:id [:blog :favorite-color]
-    :title "What's My Favorite Color? It May Suprise You."
-    :content "test-resources/markdown/favorite-color.md"
-    :rss? true
-    :tags #{:colors}}
+ [:blog :why-nuzzle]
+ {:title "Why I Made Nuzzle"
+  :content "test-resources/markdown/why-nuzzle.md"
+  :rss? true
+  :tags #{:nuzzle}}
 
-   {:id [:about]
-    :title "About"
-    :content "test-resources/markdown/about.md"}
+ [:blog :favorite-color]
+ {:title "What's My Favorite Color? It May Suprise You."
+  :content "test-resources/markdown/favorite-color.md"
+  :rss? true
+  :tags #{:colors}}
 
-   {:id :meta
-    :twitter "https://twitter/foobar"}}}
+ [:about]
+ {:title "About"
+  :content "test-resources/markdown/about.md"}
+
+ :meta
+ {:twitter "https://twitter/foobar"}}
 

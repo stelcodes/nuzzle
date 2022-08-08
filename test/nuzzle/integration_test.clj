@@ -32,23 +32,22 @@
 
 (defn transform-ash-config
   [config]
-  {:pre [(map? config) (set? (:site-data config))]}
+  {:pre [(map? config)]}
   (let [update-content
-        (fn [site-datum]
-          (if-not (:content site-datum)
-            site-datum
-            (update site-datum :content #(str "test-resources/" %))))]
+        (fn [cval]
+          (if-not (:content cval)
+            cval
+            (update cval :content #(str "test-resources/" %))))]
     (-> config
-        (update :nuzzle/overlay-dir #(str "test-resources/" %))
-        (update :nuzzle/render-page (constantly 'nuzzle.integration-test/render-page))
-        (update :site-data #(map update-content %))
-        (update :site-data set))))
+      ;; (update :nuzzle/overlay-dir #(str "test-resources/" %))
+      (update :nuzzle/render-page (constantly 'nuzzle.integration-test/render-page))
+      (update-vals update-content))))
 
 (comment (-> (read-ash-config) transform-ash-config))
 
 (defn create-ash-config-file
   [config]
-  {:pre [(map? config) (set? (:site-data config))]}
+  {:pre [(map? config)]}
   (let [tmp-file (fs/create-temp-file)
         tmp-file-path (-> tmp-file fs/canonicalize str)]
     (->> config
@@ -59,56 +58,52 @@
 (comment (-> (read-ash-config) transform-ash-config create-ash-config-file))
 
 (defn normalize-loaded-config
-  "Calls the :nuzzle/render-content function in each :site-data value so it's
+  "Calls the :nuzzle/render-content function in each page entry value so it's
   easier to test equality"
   [config]
-  {:pre [(map? config) (map? (:site-data config))]}
+  {:pre [(map? config)]}
   (let [trigger-render-content
-        (fn [site-datum]
-          (if-not (:nuzzle/render-content site-datum)
-            site-datum
-            (update site-datum :nuzzle/render-content #(%))))]
+        (fn [cval]
+          (if-not (:nuzzle/render-content cval)
+            cval
+            (update cval :nuzzle/render-content #(%))))]
     (-> config
-        (update :site-data #(update-vals % trigger-render-content)))))
+        (update-vals trigger-render-content))))
 
 (comment (-> (read-ash-config) transform-ash-config create-ash-config-file
              (conf/load-specified-config {}) normalize-loaded-config))
 
-(deftest realize-site-data
+(deftest realize-config
   (is (= (-> (read-ash-config) transform-ash-config create-ash-config-file
              (conf/load-specified-config {}) normalize-loaded-config)
          {:nuzzle/publish-dir "out",
           :nuzzle/server-port 6899,
           :nuzzle/base-url "https://ashketchum.com",
-          :nuzzle/overlay-dir "test-resources/overlay",
           :nuzzle/render-page render-page
-          :site-data
-          {[:blog-posts :defeating-misty]
-           {:title "How I Defeated Misty with Pikachu",
-            :content "test-resources/markdown/how-i-defeated-misty.md",
-            :nuzzle/url "/blog-posts/defeating-misty/",
-            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
-           []
-           {:content "test-resources/markdown/homepage-introduction.md",
-            :index #{[:about] [:blog-posts]},
-            :nuzzle/url "/",
-            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
-           [:blog-posts :catching-pikachu]
-           {:title "How I Caught Pikachu",
-            :content "test-resources/markdown/how-i-caught-pikachu.md",
-            :nuzzle/url "/blog-posts/catching-pikachu/",
-            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
-           [:about]
-           {:content "test-resources/markdown/about-ash.md",
-            :nuzzle/url "/about/",
-            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
-           :crypto
-           {:bitcoin "1GVY5eZvtc5bA6EFEGnpqJeHUC5YaV5dsb",
-            :eth "0xc0ffee254729296a45a3885639AC7E10F9d54979",
-            :nuzzle/render-content nil},
-           [:blog-posts]
-           {:index
-            #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
-            :title "Blog Posts",
-            :nuzzle/url "/blog-posts/",
-            :nuzzle/render-content nil}}})))
+          [:blog-posts :defeating-misty]
+          {:title "How I Defeated Misty with Pikachu",
+           :content "test-resources/markdown/how-i-defeated-misty.md",
+           :nuzzle/url "/blog-posts/defeating-misty/",
+           :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+          []
+          {:title "Home"
+           :content "test-resources/markdown/homepage-introduction.md",
+           :index #{[:about] [:blog-posts]},
+           :nuzzle/url "/",
+           :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+          [:blog-posts :catching-pikachu]
+          {:title "How I Caught Pikachu",
+           :content "test-resources/markdown/how-i-caught-pikachu.md",
+           :nuzzle/url "/blog-posts/catching-pikachu/",
+           :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+          [:about]
+          {:title "About Ash"
+           :content "test-resources/markdown/about-ash.md",
+           :nuzzle/url "/about/",
+           :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
+          [:blog-posts]
+          {:index
+           #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
+           :title "Blog Posts",
+           :nuzzle/url "/blog-posts/",
+           :nuzzle/render-content nil}})))

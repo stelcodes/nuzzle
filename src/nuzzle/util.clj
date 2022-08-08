@@ -4,7 +4,10 @@
    [clj-commons.digest :as digest]
    [clojure.data :as data]
    [clojure.java.shell :as sh]
+   [clojure.pprint :as pprint]
    [clojure.string :as string]))
+
+(defn spy [x] (pprint/pprint x) x)
 
 ;; Taken from https://clojuredocs.org/clojure.core/merge
 (defn deep-merge [a & maps]
@@ -58,24 +61,6 @@
   (try (apply sh/sh command (remove nil? args))
     (catch Exception _
       {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
-
-(defn convert-site-data-to-set
-  [site-data]
-  {:pre [(map? site-data)] :post [#(set? %)]}
-  (->> site-data
-       (reduce-kv
-        (fn [agg id m]
-          (conj agg (assoc m :id id)))
-        #{})))
-
-(defn convert-site-data-to-map
-  [site-data]
-  {:pre [(or (seq? site-data) (set? site-data))] :post [#(map? %)]}
-  (->> site-data
-       (reduce
-        (fn [agg {:keys [id] :as m}]
-          (assoc agg id (dissoc m :id)))
-        {})))
 
 (defn format-simple-date [date]
   (let [fmt (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")]
