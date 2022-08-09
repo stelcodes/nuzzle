@@ -11,40 +11,40 @@
 (deftest create-tag-index
   (is (= {[:tags :bar]
           {:index #{[:blog :foo]},
-           :title "#bar"}
+           :nuzzle/title "#bar"}
           [:tags :baz]
           {:index #{[:blog :foo]},
-           :title "#baz"}}
+           :nuzzle/title "#baz"}}
          (gen/create-tag-index {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}})))
   (is (= {[:tags :nuzzle]
           {:index #{[:blog :nuzzle-rocks] [:blog :why-nuzzle]},
-           :title "#nuzzle"}
+           :nuzzle/title "#nuzzle"}
           [:tags :colors]
           {:index #{[:blog :favorite-color]},
-           :title "#colors"}}
+           :nuzzle/title "#colors"}}
          (gen/create-tag-index (config)))))
 
 (deftest create-group-index
   (is (= {[:blog-posts]
-          {:index #{[:blog-posts :foo] [:blog-posts :archive]}, :title "Blog Posts"},
+          {:index #{[:blog-posts :foo] [:blog-posts :archive]}, :nuzzle/title "Blog Posts"},
           [:blog-posts :archive]
           {:index #{[:blog-posts :archive :baz]},
-           :title "Archive"}
+           :nuzzle/title "Archive"}
           [:projects]
-          {:index #{[:projects :bee]}, :title "Projects"}
+          {:index #{[:projects :bee]}, :nuzzle/title "Projects"}
           []
           {:index #{[:blog-posts] [:projects]}
-           :title "Home"}}
-         (gen/create-group-index {[:blog-posts :foo] {:title "Foo"}
-                                  [:blog-posts :archive :baz] {:title "Baz"}
-                                  [:projects :bee] {:title "Bee"}})))
+           :nuzzle/title "Home"}}
+         (gen/create-group-index {[:blog-posts :foo] {:nuzzle/title "Foo"}
+                                  [:blog-posts :archive :baz] {:nuzzle/title "Baz"}
+                                  [:projects :bee] {:nuzzle/title "Bee"}})))
   (is (= {[:blog]
           {:index
            #{[:blog :why-nuzzle] [:blog :favorite-color] [:blog :nuzzle-rocks]},
-           :title "Blog"}
+           :nuzzle/title "Blog"}
           []
           {:index #{[:about] [:blog]}
-           :title "Home"}}
+           :nuzzle/title "Home"}}
          (gen/create-group-index (config)))))
 
 (deftest id->url

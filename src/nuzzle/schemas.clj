@@ -32,7 +32,8 @@
 
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
-(s/def :nuzzle/page-map (s/keys :req-un [:nuzzle/title] :opt-un [:nuzzle/rss? :nuzzle/modified]
+(s/def :nuzzle/page-map (s/keys :opt-un [:nuzzle/rss? :nuzzle/modified]
+                                :req [:nuzzle/title]
                                 :opt [:nuzzle/tags]))
 (s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-map)
                                   :option (s/tuple keyword? any?)))

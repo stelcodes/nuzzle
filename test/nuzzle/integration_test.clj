@@ -81,29 +81,29 @@
           :nuzzle/base-url "https://ashketchum.com",
           :nuzzle/render-page render-page
           [:blog-posts :defeating-misty]
-          {:title "How I Defeated Misty with Pikachu",
+          {:nuzzle/title "How I Defeated Misty with Pikachu",
            :content "test-resources/markdown/how-i-defeated-misty.md",
            :nuzzle/url "/blog-posts/defeating-misty/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           []
-          {:title "Home"
+          {:nuzzle/title "Home"
            :content "test-resources/markdown/homepage-introduction.md",
            :index #{[:about] [:blog-posts]},
            :nuzzle/url "/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts :catching-pikachu]
-          {:title "How I Caught Pikachu",
+          {:nuzzle/title "How I Caught Pikachu",
            :content "test-resources/markdown/how-i-caught-pikachu.md",
            :nuzzle/url "/blog-posts/catching-pikachu/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:about]
-          {:title "About Ash"
+          {:nuzzle/title "About Ash"
            :content "test-resources/markdown/about-ash.md",
            :nuzzle/url "/about/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts]
           {:index
            #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
-           :title "Blog Posts",
+           :nuzzle/title "Blog Posts",
            :nuzzle/url "/blog-posts/",
            :nuzzle/render-content nil}})))

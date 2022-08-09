@@ -29,11 +29,11 @@
   (let [{:keys [link]} rss-channel
         rss-items
         (for [[ckey cval] config
-              :let [{:nuzzle/keys [url] :keys [rss?]} cval]
+              :let [{:nuzzle/keys [url title description] :keys [rss?]} cval]
               :when (and (vector? ckey) rss?)]
-          (-> cval
-              (select-keys valid-item-tags)
-              (assoc :guid (str link url))))]
+          {:title title
+           :description description
+           :guid (str link url)})]
     (try (apply rss/channel-xml
                 rss-channel
                 rss-items)
