@@ -128,13 +128,13 @@ Here's another example config with annotations:
  {:title "Using Clojure"
   ;; The optional :content key associates a Markdown or HTML file
   :content "markdown/using-clojure.md"
-  ;; The optional :tags key tells Nuzzle about page tags
-  :tags #{:clojure}}
+  ;; The optional :nuzzle/tags key tells Nuzzle about page tags
+  :nuzzle/tags #{:clojure}}
 
  [:blog-posts :learning-rust]
  {:title "How I Got Started Learning Rust"
   :content "markdown/learning-rust.md"
-  :tags #{:rust}
+  :nuzzle/tags #{:rust}
   ;; The optional :draft? key tells Nuzzle which pages are drafts
   :draft? true
   ;; The optional :rss key tells Nuzzle to include the page in the RSS XML file
@@ -143,14 +143,14 @@ Here's another example config with annotations:
  [:blog-posts :clojure-on-fedora]
  {:title "How to Install Clojure on Fedora"
   :content "markdown/clojure-on-fedora.md"
-  :tags #{:linux :clojure}
+  :nuzzle/tags #{:linux :clojure}
   ;; Page maps are open, you can include any data you like
   :foobar "baz"}}
 ```
 
 ### Special Keys in Page Entry Maps
 - `:content`: A path to an associated Markdown or HTML file.
-- `:tags`: A set of keywords where each keyword is a tag name.
+- `:nuzzle/tags`: A set of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this page is a draft or not.
 - `:rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
 
