@@ -11,7 +11,7 @@
   (->> config
        ;; Create a map shaped like tag -> [page-ids]
        (reduce-kv
-        (fn [acc pkey {:keys [tags]}]
+        (fn [acc pkey {:nuzzle/keys [tags]}]
           ;; merge-with is awesome!
           (if (and (vector? pkey) tags) (merge-with into acc (zipmap tags (repeat #{pkey}))) acc))
         {})

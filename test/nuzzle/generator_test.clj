@@ -15,7 +15,7 @@
           [:tags :baz]
           {:index #{[:blog :foo]},
            :title "#baz"}}
-         (gen/create-tag-index {[:blog :foo] {:tags #{:bar :baz}} [:about] {}})))
+         (gen/create-tag-index {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}})))
   (is (= {[:tags :nuzzle]
           {:index #{[:blog :nuzzle-rocks] [:blog :why-nuzzle]},
            :title "#nuzzle"}

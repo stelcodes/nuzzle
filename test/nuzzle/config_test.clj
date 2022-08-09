@@ -23,15 +23,15 @@
           [:about] {:content "test-resources/markdown/about.md", :title "About"},
           [:blog :favorite-color] {:content "test-resources/markdown/favorite-color.md",
                                    :rss? true,
-                                   :tags #{:colors},
+                                   :nuzzle/tags #{:colors},
                                    :title "What's My Favorite Color? It May Suprise You."},
           [:blog :nuzzle-rocks] {:content "test-resources/markdown/nuzzle-rocks.md",
                                  :modified "2022-05-09",
                                  :rss? true,
-                                 :tags #{:nuzzle},
+                                 :nuzzle/tags #{:nuzzle},
                                  :title "10 Reasons Why Nuzzle Rocks"},
           [:blog :why-nuzzle] {:content "test-resources/markdown/why-nuzzle.md",
                                :rss? true,
-                               :tags #{:nuzzle},
+                               :nuzzle/tags #{:nuzzle},
                                :title "Why I Made Nuzzle"}})))
 
