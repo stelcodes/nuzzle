@@ -69,19 +69,19 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
  :nuzzle/render-page views/render-page
 
  []
- {:title "Home"
+ {:nuzzle/title "Home"
   :content "markdown/homepage-introduction.md"}
 
  [:blog-posts :catching-pikachu]
- {:title "How I Caught Pikachu"
+ {:nuzzle/title "How I Caught Pikachu"
   :content "markdown/how-i-caught-pikachu.md"}
 
  [:blog-posts :defeating-misty]
- {:title "How I Defeated Misty with Pikachu"
+ {:nuzzle/title "How I Defeated Misty with Pikachu"
   :content "markdown/how-i-defeated-misty.md"}
 
  [:about]
- {:title "About Ash"
+ {:nuzzle/title "About Ash"
   :content "markdown/about-ash.md"}}
 ```
 
@@ -119,20 +119,20 @@ Here's another example config with annotations:
 
  ;; The homepage
  [] ; <- This represents the URL "/"
- {:title "Home"}
+ {:nuzzle/title "Home"}
 
  [:about] ; <- This represents the URL "/about"
- {:title "About"} ; <- Titles are necessary for page entries
+ {:nuzzle/title "About"} ; <- Titles are necessary for page entries
 
  [:blog-posts :using-clojure]
- {:title "Using Clojure"
+ {:nuzzle/title "Using Clojure"
   ;; The optional :content key associates a Markdown or HTML file
   :content "markdown/using-clojure.md"
   ;; The optional :nuzzle/tags key tells Nuzzle about page tags
   :nuzzle/tags #{:clojure}}
 
  [:blog-posts :learning-rust]
- {:title "How I Got Started Learning Rust"
+ {:nuzzle/title "How I Got Started Learning Rust"
   :content "markdown/learning-rust.md"
   :nuzzle/tags #{:rust}
   ;; The optional :draft? key tells Nuzzle which pages are drafts
@@ -141,7 +141,7 @@ Here's another example config with annotations:
   :rss? true}
 
  [:blog-posts :clojure-on-fedora]
- {:title "How to Install Clojure on Fedora"
+ {:nuzzle/title "How to Install Clojure on Fedora"
   :content "markdown/clojure-on-fedora.md"
   :nuzzle/tags #{:linux :clojure}
   ;; Page maps are open, you can include any data you like
@@ -201,7 +201,7 @@ It's worth noting that you can include index page entries in your `nuzzle.edn` s
 ;; Nuzzle will append an :index key later if there are any blog posts
 {[:blog-posts]
  {:content "markdown/blog-posts-index-blurb.md"
-  :title "My Awesome Blog Posts"}}
+  :nuzzle/title "My Awesome Blog Posts"}}
 ```
 
 ## Creating a Page Rendering Function
@@ -218,7 +218,7 @@ Here's an example of a page rendering function called `simple-render-page`:
    (into [:body] body)])
 
 (defn simple-render-page
-  [{:nuzzle/keys [render-content] :keys [id title] :as _page}]
+  [{:nuzzle/keys [render-content title] :keys [id] :as _page}]
   (cond
     ;; Decide what the page should look like based on the data in the page map
     (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
@@ -250,7 +250,7 @@ There are many use cases for the `get-config` function. It's great for creating 
        (map (fn [item] [:li item]))
        (into [:ul])))
 
-(defn layout [{:keys [title get-config] :as _page} & body]
+(defn layout [{:nuzzle/keys [title] :keys [get-config] :as _page} & body]
   (let [{:keys [twitter]} (get-config :social)
         {about-url :nuzzle/url} (get-config [:about])]
     [:html [:head [:title title]]
@@ -261,12 +261,12 @@ There are many use cases for the `get-config` function. It's great for creating 
               [:a {:href twitter} "My Tweets"])]]
            body)]))
 
-(defn render-index-page [{:keys [title index get-config] :as page}]
+(defn render-index-page [{:nuzzle/keys [title] :keys [index get-config] :as page}]
   (layout page
           [:h1 (str "Index page for " title)]
           (->>
            (for [id index
-                 :let [{:nuzzle/keys [url] :keys [title]} (get-config id)]]
+                 :let [{:nuzzle/keys [url title]} (get-config id)]]
              [:a {:href url} title])
            (apply unordered-list))))
 
@@ -276,7 +276,7 @@ There are many use cases for the `get-config` function. It's great for creating 
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
            [:a {:href (-> [:tags :clojure] get-config :nuzzle/url)} "here!"]]))
 
-(defn render-page [{:nuzzle/keys [render-content] :keys [id title] :as page}]
+(defn render-page [{:nuzzle/keys [render-content title] :keys [id] :as page}]
   (cond
    (= [] id) (render-homepage page)
    (= [:about] id) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])

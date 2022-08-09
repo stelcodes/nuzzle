@@ -19,7 +19,7 @@
        (reduce-kv
         (fn [acc tag pkeys]
           (assoc acc [:tags tag] {:index pkeys
-                                  :title (str "#" (name tag))}))
+                                  :nuzzle/title (str "#" (name tag))}))
         {})))
 
 (defn create-group-index
@@ -44,9 +44,9 @@
         (fn [m parent-pkey children-pkeys]
           (if-let [title (last parent-pkey)]
             (assoc m parent-pkey {:index children-pkeys
-                                  :title (util/kebab-case->title-case title)})
+                                  :nuzzle/title (util/kebab-case->title-case title)})
             (assoc m parent-pkey {:index children-pkeys
-                                  :title "Home"})))
+                                  :nuzzle/title "Home"})))
         {})))
 
 (defn gen-get-config

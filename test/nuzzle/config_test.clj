@@ -19,19 +19,19 @@
                                :link "https://foobar.com"}
           :nuzzle/overlay-dir "public",
           :meta {:twitter "https://twitter/foobar"},
-          [] {:title "Home"},
-          [:about] {:content "test-resources/markdown/about.md", :title "About"},
+          [] {:nuzzle/title "Home"},
+          [:about] {:content "test-resources/markdown/about.md", :nuzzle/title "About"},
           [:blog :favorite-color] {:content "test-resources/markdown/favorite-color.md",
                                    :rss? true,
                                    :nuzzle/tags #{:colors},
-                                   :title "What's My Favorite Color? It May Suprise You."},
+                                   :nuzzle/title "What's My Favorite Color? It May Suprise You."},
           [:blog :nuzzle-rocks] {:content "test-resources/markdown/nuzzle-rocks.md",
                                  :modified "2022-05-09",
                                  :rss? true,
                                  :nuzzle/tags #{:nuzzle},
-                                 :title "10 Reasons Why Nuzzle Rocks"},
+                                 :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
           [:blog :why-nuzzle] {:content "test-resources/markdown/why-nuzzle.md",
                                :rss? true,
                                :nuzzle/tags #{:nuzzle},
-                               :title "Why I Made Nuzzle"}})))
+                               :nuzzle/title "Why I Made Nuzzle"}})))
 

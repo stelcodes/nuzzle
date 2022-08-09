@@ -8,29 +8,29 @@
  :nuzzle/overlay-dir "public"
  :nuzzle/publish-dir "/tmp/nuzzle-test-out"
 
- [] {:title "Home"}
+ [] {:nuzzle/title "Home"}
 
  [:blog :nuzzle-rocks]
- {:title "10 Reasons Why Nuzzle Rocks"
+ {:nuzzle/title "10 Reasons Why Nuzzle Rocks"
   :content "test-resources/markdown/nuzzle-rocks.md"
   :modified "2022-05-09"
   :rss? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :why-nuzzle]
- {:title "Why I Made Nuzzle"
+ {:nuzzle/title "Why I Made Nuzzle"
   :content "test-resources/markdown/why-nuzzle.md"
   :rss? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :favorite-color]
- {:title "What's My Favorite Color? It May Suprise You."
+ {:nuzzle/title "What's My Favorite Color? It May Suprise You."
   :content "test-resources/markdown/favorite-color.md"
   :rss? true
   :nuzzle/tags #{:colors}}
 
  [:about]
- {:title "About"
+ {:nuzzle/title "About"
   :content "test-resources/markdown/about.md"}
 
  :meta
