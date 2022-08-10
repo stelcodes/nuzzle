@@ -52,7 +52,7 @@
          (assoc acc k v)
          (assoc acc k
                 (cond-> v
-                  (:modified v) (update :modified str->time)))))
+                  (:nuzzle/modified v) (update :nuzzle/modified str->time)))))
      {} config)))
 
 (defn load-specified-config

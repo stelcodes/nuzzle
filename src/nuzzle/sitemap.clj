@@ -18,7 +18,7 @@
      :content
      (for [[url _hiccup] rendered-site-index
            :let [id (util/url->id url)
-                 {:keys [modified]} (get config id)
+                 {:nuzzle/keys [modified]} (get config id)
                  url (str base-url url)]]
        {:tag :url
         :content

@@ -26,7 +26,7 @@
                                    :nuzzle/tags #{:colors},
                                    :nuzzle/title "What's My Favorite Color? It May Suprise You."},
           [:blog :nuzzle-rocks] {:nuzzle/content "test-resources/markdown/nuzzle-rocks.md",
-                                 :modified "2022-05-09",
+                                 :nuzzle/modified "2022-05-09",
                                  :rss? true,
                                  :nuzzle/tags #{:nuzzle},
                                  :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
