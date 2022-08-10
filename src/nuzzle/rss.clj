@@ -29,7 +29,7 @@
   (let [{:keys [link]} rss-channel
         rss-items
         (for [[ckey cval] config
-              :let [{:nuzzle/keys [url title description] :keys [rss?]} cval]
+              :let [{:nuzzle/keys [url title description rss?]} cval]
               :when (and (vector? ckey) rss?)]
           {:title title
            :description description
@@ -47,6 +47,6 @@
             (log/error "The :nuzzle/rss-channel map can only contain these keys: "
                        valid-channel-tags))
           (when (re-find #"^item" msg)
-            (log/error "A page marked with :rss? true must have at least one of these keys:"
+            (log/error "A page marked with :nuzzle/rss? true must have at least one of these keys:"
                        required-item-tags)))
         (throw e)))))
