@@ -9,6 +9,7 @@
 (s/def :nuzzle/rss? boolean?)
 (s/def :nuzzle/modified datetime?)
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
+(s/def :nuzzle/draft? boolean?)
 
 ;; Syntax highlighter keys
 (s/def :nuzzle.syntax-highlighter/provider #{:chroma :pygments})
@@ -33,7 +34,7 @@
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
 (s/def :nuzzle/page-map (s/keys :req [:nuzzle/title]
-                                :opt [:nuzzle/tags :nuzzle/modified :nuzzle/rss?]))
+                                :opt [:nuzzle/tags :nuzzle/modified :nuzzle/rss? :nuzzle/draft?]))
 (s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-map)
                                   :option (s/tuple keyword? any?)))
 
