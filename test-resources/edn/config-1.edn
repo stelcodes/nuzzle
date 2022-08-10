@@ -14,19 +14,19 @@
  {:nuzzle/title "10 Reasons Why Nuzzle Rocks"
   :nuzzle/content "test-resources/markdown/nuzzle-rocks.md"
   :nuzzle/modified "2022-05-09"
-  :rss? true
+  :nuzzle/rss? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :why-nuzzle]
  {:nuzzle/title "Why I Made Nuzzle"
   :nuzzle/content "test-resources/markdown/why-nuzzle.md"
-  :rss? true
+  :nuzzle/rss? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :favorite-color]
  {:nuzzle/title "What's My Favorite Color? It May Suprise You."
   :nuzzle/content "test-resources/markdown/favorite-color.md"
-  :rss? true
+  :nuzzle/rss? true
   :nuzzle/tags #{:colors}}
 
  [:about]

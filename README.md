@@ -138,7 +138,7 @@ Here's another example config with annotations:
   ;; The optional :draft? key tells Nuzzle which pages are drafts
   :draft? true
   ;; The optional :rss key tells Nuzzle to include the page in the RSS XML file
-  :rss? true}
+  :nuzzle/rss? true}
 
  [:blog-posts :clojure-on-fedora]
  {:nuzzle/title "How to Install Clojure on Fedora"
@@ -152,7 +152,7 @@ Here's another example config with annotations:
 - `:nuzzle/content`: A path to an associated Markdown or HTML file.
 - `:nuzzle/tags`: A set of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this page is a draft or not.
-- `:rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
+- `:nuzzle/rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
 
 ### Special Keys in Custom Option Entry Maps
 - `:nuzzle/content`: A path to an associated Markdown or HTML file.
