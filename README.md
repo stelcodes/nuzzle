@@ -135,8 +135,8 @@ Here's another example config with annotations:
  {:nuzzle/title "How I Got Started Learning Rust"
   :nuzzle/content "markdown/learning-rust.md"
   :nuzzle/tags #{:rust}
-  ;; The optional :draft? key tells Nuzzle which pages are drafts
-  :draft? true
+  ;; The optional :nuzzle/draft? key tells Nuzzle which pages are drafts
+  :nuzzle/draft? true
   ;; The optional :rss key tells Nuzzle to include the page in the RSS XML file
   :nuzzle/rss? true}
 
@@ -151,7 +151,7 @@ Here's another example config with annotations:
 ### Special Keys in Page Entry Maps
 - `:nuzzle/content`: A path to an associated Markdown or HTML file.
 - `:nuzzle/tags`: A set of keywords where each keyword is a tag name.
-- `:draft?`: A boolean indicating whether this page is a draft or not.
+- `:nuzzle/draft?`: A boolean indicating whether this page is a draft or not.
 - `:nuzzle/rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
 
 ### Special Keys in Custom Option Entry Maps

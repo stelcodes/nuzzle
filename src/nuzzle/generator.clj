@@ -75,7 +75,7 @@
               (do (log/log-remove-drafts)
                 (reduce-kv
                  (fn [acc k v]
-                   (if (and (vector? k) (:draft? v))
+                   (if (and (vector? k) (:nuzzle/draft? v))
                      acc
                      (assoc acc k v)))
                  {} config))))
