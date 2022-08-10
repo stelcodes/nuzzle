@@ -116,13 +116,11 @@
   (hiccup/raw (slurp content-file)))
 
 (defn create-render-content-fn
-  "Create a function that turns the :content file into the correct form for the
+  "Create a function that turns the :nuzzle/content file into the correct form for the
   hiccup compiler: vector, list, or raw string"
-  [id content config]
-  {:pre [(or (vector? id) (keyword? id)) (or (nil? content) (string? content))]}
-  (if-not content
-    ;; If :content is not defined, just make a function that returns nil
-    (constantly nil)
+  [id config]
+  {:pre [(or (vector? id) (keyword? id))]}
+  (if-let [content (get-in config [id :nuzzle/content])]
     (let [content-file (fs/file content)
           content-ext (fs/extension content-file)]
       (if (fs/exists? content-file)
@@ -134,8 +132,10 @@
          :else (throw (ex-info (str "Content file " (fs/canonicalize content-file)
                                     " for id " id " has unrecognized extension "
                                     content-ext ". Must be one of: md, markdown, html, htm")
-                               {:id id :content content})))
+                               {:id id :nuzzle/content content})))
         ;; If markdown-file is defined but it can't be found, throw an Exception
         (throw (ex-info (str "Content file " (fs/canonicalize content-file)
                              " for id " id " not found")
-                        {:id id :content content}))))))
+                        {:id id :nuzzle/content content}))))
+    ;; If :nuzzle/content is not defined, just make a function that returns nil
+    (constantly nil)))

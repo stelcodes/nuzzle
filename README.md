@@ -70,19 +70,19 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 
  []
  {:nuzzle/title "Home"
-  :content "markdown/homepage-introduction.md"}
+  :nuzzle/content "markdown/homepage-introduction.md"}
 
  [:blog-posts :catching-pikachu]
  {:nuzzle/title "How I Caught Pikachu"
-  :content "markdown/how-i-caught-pikachu.md"}
+  :nuzzle/content "markdown/how-i-caught-pikachu.md"}
 
  [:blog-posts :defeating-misty]
  {:nuzzle/title "How I Defeated Misty with Pikachu"
-  :content "markdown/how-i-defeated-misty.md"}
+  :nuzzle/content "markdown/how-i-defeated-misty.md"}
 
  [:about]
  {:nuzzle/title "About Ash"
-  :content "markdown/about-ash.md"}}
+  :nuzzle/content "markdown/about-ash.md"}}
 ```
 
 ## Option and Page Entries
@@ -112,7 +112,7 @@ Here's another example config with annotations:
 
  ;; You can also associate content with custom option entries!
  :footer-message
- {:content "markdown/footer-message.md"}
+ {:nuzzle/content "markdown/footer-message.md"}
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;; Page Entries
@@ -126,14 +126,14 @@ Here's another example config with annotations:
 
  [:blog-posts :using-clojure]
  {:nuzzle/title "Using Clojure"
-  ;; The optional :content key associates a Markdown or HTML file
-  :content "markdown/using-clojure.md"
+  ;; The optional :nuzzle/content key associates a Markdown or HTML file
+  :nuzzle/content "markdown/using-clojure.md"
   ;; The optional :nuzzle/tags key tells Nuzzle about page tags
   :nuzzle/tags #{:clojure}}
 
  [:blog-posts :learning-rust]
  {:nuzzle/title "How I Got Started Learning Rust"
-  :content "markdown/learning-rust.md"
+  :nuzzle/content "markdown/learning-rust.md"
   :nuzzle/tags #{:rust}
   ;; The optional :draft? key tells Nuzzle which pages are drafts
   :draft? true
@@ -142,20 +142,20 @@ Here's another example config with annotations:
 
  [:blog-posts :clojure-on-fedora]
  {:nuzzle/title "How to Install Clojure on Fedora"
-  :content "markdown/clojure-on-fedora.md"
+  :nuzzle/content "markdown/clojure-on-fedora.md"
   :nuzzle/tags #{:linux :clojure}
   ;; Page maps are open, you can include any data you like
   :foobar "baz"}}
 ```
 
 ### Special Keys in Page Entry Maps
-- `:content`: A path to an associated Markdown or HTML file.
+- `:nuzzle/content`: A path to an associated Markdown or HTML file.
 - `:nuzzle/tags`: A set of keywords where each keyword is a tag name.
 - `:draft?`: A boolean indicating whether this page is a draft or not.
 - `:rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
 
 ### Special Keys in Custom Option Entry Maps
-- `:content`: A path to an associated Markdown or HTML file.
+- `:nuzzle/content`: A path to an associated Markdown or HTML file.
 
 ## How Nuzzle Transforms Your Config
 You can think of Nuzzle's core functionality as a data pipeline. Nuzzle starts with the config map in your `nuzzle.edn`, adds some spice, sends it through your page rendering function, and exports the results to disk.
@@ -178,7 +178,7 @@ A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle 
 ### Adding Keys to Page Entries
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
-- `:nuzzle/render-content`: A function that renders the page's associated content file if `:content` key is present, otherwise returns `nil`.
+- `:nuzzle/render-content`: A function that renders the page's associated content file if `:nuzzle/content` key is present, otherwise returns `nil`.
 - `:get-config`: A function that allows you to freely reach into your site data from inside of your page rendering function.
 
 ### Adding Keys to Option Entries
@@ -195,12 +195,12 @@ Another common pattern is associating tags with pages. You may want to add index
 
 These added index pages have an `:index` key with a value that is a set of page entry keys for any pages directly "below" them. For example, if you had page entries with keys of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a page entry with a key of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
 
-It's worth noting that you can include index page entries in your `nuzzle.edn` site data, just like any other page. You can add content to your index pages by including a `:content` key:
+It's worth noting that you can include index page entries in your `nuzzle.edn` site data, just like any other page. You can add content to your index pages by including a `:nuzzle/content` key:
 
 ```clojure
 ;; Nuzzle will append an :index key later if there are any blog posts
 {[:blog-posts]
- {:content "markdown/blog-posts-index-blurb.md"
+ {:nuzzle/content "markdown/blog-posts-index-blurb.md"
   :nuzzle/title "My Awesome Blog Posts"}}
 ```
 
