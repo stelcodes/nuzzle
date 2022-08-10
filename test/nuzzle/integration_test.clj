@@ -35,9 +35,9 @@
   {:pre [(map? config)]}
   (let [update-content
         (fn [cval]
-          (if-not (:content cval)
+          (if-not (:nuzzle/content cval)
             cval
-            (update cval :content #(str "test-resources/" %))))]
+            (update cval :nuzzle/content #(str "test-resources/" %))))]
     (-> config
       ;; (update :nuzzle/overlay-dir #(str "test-resources/" %))
       (update :nuzzle/render-page (constantly 'nuzzle.integration-test/render-page))
@@ -82,23 +82,23 @@
           :nuzzle/render-page render-page
           [:blog-posts :defeating-misty]
           {:nuzzle/title "How I Defeated Misty with Pikachu",
-           :content "test-resources/markdown/how-i-defeated-misty.md",
+           :nuzzle/content "test-resources/markdown/how-i-defeated-misty.md",
            :nuzzle/url "/blog-posts/defeating-misty/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           []
           {:nuzzle/title "Home"
-           :content "test-resources/markdown/homepage-introduction.md",
+           :nuzzle/content "test-resources/markdown/homepage-introduction.md",
            :index #{[:about] [:blog-posts]},
            :nuzzle/url "/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts :catching-pikachu]
           {:nuzzle/title "How I Caught Pikachu",
-           :content "test-resources/markdown/how-i-caught-pikachu.md",
+           :nuzzle/content "test-resources/markdown/how-i-caught-pikachu.md",
            :nuzzle/url "/blog-posts/catching-pikachu/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:about]
           {:nuzzle/title "About Ash"
-           :content "test-resources/markdown/about-ash.md",
+           :nuzzle/content "test-resources/markdown/about-ash.md",
            :nuzzle/url "/about/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts]

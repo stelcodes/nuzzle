@@ -63,8 +63,7 @@
 ;;              (con/highlight-code code "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}}))))))
 
 (deftest create-render-content-fn
-  (let [{:keys [content]} (get (config) [:about])
-        render-content (con/create-render-content-fn [:about] content nil)]
+  (let [render-content (con/create-render-content-fn [:about] (config))]
     (is (fn? render-content))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
            (render-content)))))
@@ -89,6 +88,5 @@
     (is (= (con/walk-hiccup-for-custom-elements hiccup-with-custom-element)
            expected-result))))
 
-(comment ((con/create-render-content-fn [:inline-html] "test-resources/markdown/inline-html.md" nil))
-         (con/highlight-code "(defn hi [] \"hi\")" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}})
+(comment (con/highlight-code "(defn hi [] \"hi\")" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}})
          (run-tests))

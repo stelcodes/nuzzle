@@ -81,7 +81,7 @@
                  {} config))))
           (realize-pages [config]
             (reduce-kv
-             (fn [acc ckey {:keys [content url] :as cval}]
+             (fn [acc ckey {:nuzzle/keys [content url] :as cval}]
                (if-not (map? cval)
                  (assoc acc ckey cval)
                  (assoc acc ckey
@@ -89,7 +89,7 @@
                             [(when (vector? ckey) [:nuzzle/url (or url (util/id->url ckey))])
                              (when (or (vector? ckey) content)
                                [:nuzzle/render-content
-                                (con/create-render-content-fn ckey content config)])]))))
+                                (con/create-render-content-fn ckey config)])]))))
              {} config))]
     (as-> config $
       (handle-drafts $)
