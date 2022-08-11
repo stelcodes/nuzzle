@@ -18,7 +18,7 @@
        ;; Then change the val into a map with more info
        (reduce-kv
         (fn [acc tag pkeys]
-          (assoc acc [:tags tag] {:index pkeys
+          (assoc acc [:tags tag] {:nuzzle/index pkeys
                                   :nuzzle/title (str "#" (name tag))}))
         {})))
 
@@ -43,9 +43,9 @@
        (reduce-kv
         (fn [m parent-pkey children-pkeys]
           (if-let [title (last parent-pkey)]
-            (assoc m parent-pkey {:index children-pkeys
+            (assoc m parent-pkey {:nuzzle/index children-pkeys
                                   :nuzzle/title (util/kebab-case->title-case title)})
-            (assoc m parent-pkey {:index children-pkeys
+            (assoc m parent-pkey {:nuzzle/index children-pkeys
                                   :nuzzle/title "Home"})))
         {})))
 
