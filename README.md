@@ -179,12 +179,12 @@ A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle 
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
 - `:nuzzle/render-content`: A function that renders the page's associated content file if `:nuzzle/content` key is present, otherwise returns `nil`.
-- `:get-config`: A function that allows you to freely reach into your site data from inside of your page rendering function.
+- `:nuzzle/get-config`: A function that allows you to freely reach into your site data from inside of your page rendering function.
 
 ### Adding Keys to Option Entries
 Nuzzle adds these keys to every peripheral map:
 - `:nuzzle/render-content`: Same as above.
-- `:get-config`: Same as above.
+- `:nuzzle/get-config`: Same as above.
 
 ### Adding Page Entries (Index Pages)
 Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have pages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a page at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Nuzzle calls these **subdirectory index pages**.
@@ -231,7 +231,7 @@ The `render-page` function uses the `:id` value to determine what Hiccup to retu
 Just because a page exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
 ### Accessing Your Site Data with `get-config`
-With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-config`. While realizing your site data, Nuzzle attaches a copy of this function to each page map under the key `:get-config`.
+With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-config`. While realizing your site data, Nuzzle attaches a copy of this function to each page map under the key `:nuzzle/get-config`.
 
 In a word, `get-config` allows us to see the whole world while creating our Hiccup. It has two forms:
 
@@ -250,7 +250,7 @@ There are many use cases for the `get-config` function. It's great for creating 
        (map (fn [item] [:li item]))
        (into [:ul])))
 
-(defn layout [{:nuzzle/keys [title] :keys [get-config] :as _page} & body]
+(defn layout [{:nuzzle/keys [title get-config] :as _page} & body]
   (let [{:keys [twitter]} (get-config :social)
         {about-url :nuzzle/url} (get-config [:about])]
     [:html [:head [:title title]]
@@ -261,7 +261,7 @@ There are many use cases for the `get-config` function. It's great for creating 
               [:a {:href twitter} "My Tweets"])]]
            body)]))
 
-(defn render-index-page [{:nuzzle/keys [title index] :keys [get-config] :as page}]
+(defn render-index-page [{:nuzzle/keys [title index get-config] :as page}]
   (layout page
           [:h1 (str "Index page for " title)]
           (->>
@@ -270,7 +270,7 @@ There are many use cases for the `get-config` function. It's great for creating 
              [:a {:href url} title])
            (apply unordered-list))))
 
-(defn render-homepage [{:keys [get-config] :as page}]
+(defn render-homepage [{:nuzzle/keys [get-config] :as page}]
   (layout page
           [:h1 "Home Page"]
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
