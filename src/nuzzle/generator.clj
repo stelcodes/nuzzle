@@ -52,15 +52,15 @@
 (defn gen-get-config
   "Generate the helper function get-config from the realized config. This
   function takes a config key and returns the corresponding value with added
-  key :get-config with value get-config function attached."
+  key :nuzzle/get-config with value get-config function attached."
   [config]
   {:pre [(map? config)] :post [(fn? %)]}
   (fn get-config
     ([] (->> config
-             (map #(assoc % :get-config get-config))))
+             (map #(assoc % :nuzzle/get-config get-config))))
     ([ckey]
      (if-let [entity (get config ckey)]
-       (assoc entity :get-config get-config)
+       (assoc entity :nuzzle/get-config get-config)
        (throw (ex-info (str "get-config error: config key " ckey " not found")
                        {:key ckey}))))))
 
@@ -109,7 +109,7 @@
                       (conj acc (assoc cval :id ckey))
                       acc)) [])
        ;; Add get-config helper function to each page
-       (map #(assoc % :get-config (gen-get-config config)))))
+       (map #(assoc % :nuzzle/get-config (gen-get-config config)))))
 
 (defn generate-debug-site-index
   "Creates a map where the keys are URLs and the values are functions that log
