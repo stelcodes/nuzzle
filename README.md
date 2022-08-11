@@ -193,12 +193,12 @@ Another common pattern is associating tags with pages. You may want to add index
 
 > You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can avoid publishing a page by returning `nil` from your page rendering function.
 
-These added index pages have an `:index` key with a value that is a set of page entry keys for any pages directly "below" them. For example, if you had page entries with keys of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a page entry with a key of `[:blog-posts]` and an `:index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
+These added index pages have an `:nuzzle/index` key with a value that is a set of page entry keys for any pages directly "below" them. For example, if you had page entries with keys of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a page entry with a key of `[:blog-posts]` and an `:nuzzle/index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
 
 It's worth noting that you can include index page entries in your `nuzzle.edn` site data, just like any other page. You can add content to your index pages by including a `:nuzzle/content` key:
 
 ```clojure
-;; Nuzzle will append an :index key later if there are any blog posts
+;; Nuzzle will append an :nuzzle/index key later if there are any blog posts
 {[:blog-posts]
  {:nuzzle/content "markdown/blog-posts-index-blurb.md"
   :nuzzle/title "My Awesome Blog Posts"}}
@@ -261,7 +261,7 @@ There are many use cases for the `get-config` function. It's great for creating 
               [:a {:href twitter} "My Tweets"])]]
            body)]))
 
-(defn render-index-page [{:nuzzle/keys [title] :keys [index get-config] :as page}]
+(defn render-index-page [{:nuzzle/keys [title index] :keys [get-config] :as page}]
   (layout page
           [:h1 (str "Index page for " title)]
           (->>

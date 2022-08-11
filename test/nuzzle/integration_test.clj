@@ -88,7 +88,7 @@
           []
           {:nuzzle/title "Home"
            :nuzzle/content "test-resources/markdown/homepage-introduction.md",
-           :index #{[:about] [:blog-posts]},
+           :nuzzle/index #{[:about] [:blog-posts]},
            :nuzzle/url "/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts :catching-pikachu]
@@ -102,7 +102,7 @@
            :nuzzle/url "/about/",
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts]
-          {:index
+          {:nuzzle/index
            #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
            :nuzzle/title "Blog Posts",
            :nuzzle/url "/blog-posts/",
