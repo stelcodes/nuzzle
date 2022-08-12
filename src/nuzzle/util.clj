@@ -15,13 +15,13 @@
     (apply merge-with deep-merge a maps)
     (apply merge-with deep-merge maps)))
 
-(defn id->url
-  [id]
-  {:pre [(vector? id)]}
-  (if (= [] id) "/"
-    (str "/" (string/join "/" (map name id)) "/")))
+(defn page-key->url
+  [page-key]
+  {:pre [(vector? page-key)]}
+  (if (= [] page-key) "/"
+    (str "/" (string/join "/" (map name page-key)) "/")))
 
-(defn url->id
+(defn url->page-key
   [url]
   {:pre [(string? url)]}
   (->> (string/split url #"/")

@@ -47,8 +47,8 @@
            :nuzzle/title "Home"}}
          (gen/create-group-index (config)))))
 
-(deftest id->url
-  (is (= "/blog-posts/my-hobbies/" (util/id->url [:blog-posts :my-hobbies])))
-  (is (= "/about/" (util/id->url [:about]))))
+(deftest page-key->url
+  (is (= "/blog-posts/my-hobbies/" (util/page-key->url [:blog-posts :my-hobbies])))
+  (is (= "/about/" (util/page-key->url [:about]))))
 
 (comment (run-tests))

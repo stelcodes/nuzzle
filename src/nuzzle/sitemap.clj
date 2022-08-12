@@ -17,8 +17,8 @@
      :attrs {:xmlns "http://www.sitemaps.org/schemas/sitemap/0.9"}
      :content
      (for [[url _hiccup] rendered-site-index
-           :let [id (util/url->id url)
-                 {:nuzzle/keys [modified]} (get config id)
+           :let [page-key (util/url->page-key url)
+                 {:nuzzle/keys [modified]} (get config page-key)
                  url (str base-url url)]]
        {:tag :url
         :content
