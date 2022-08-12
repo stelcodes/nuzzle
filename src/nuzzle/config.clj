@@ -2,6 +2,7 @@
   (:require
    [clojure.edn :as edn]
    [clojure.spec.alpha :as s]
+   [expound.alpha :as expound]
    [nuzzle.log :as log]
    [nuzzle.schemas]
    [nuzzle.generator :as gen]))
@@ -9,11 +10,11 @@
 (defn validate-config [config]
   (if (s/valid? :nuzzle/user-config config)
     config
-    (let [errors (s/explain-str :nuzzle/user-config config)]
-      (log/error "Encountered error in nuzzle.edn config:")
-      (print errors)
-      (throw (ex-info "Invalid Nuzzle config"
-                      (s/explain-data :nuzzle/user-config config))))))
+    (do (expound/expound :nuzzle/user-config config {:theme :figwheel-theme})
+      (log/error "Encountered error in Nuzzle config:")
+      (throw (ex-info (str "Invalid Nuzzle config! "
+                           (re-find #"failed: .*" (s/explain-str :nuzzle/user-config config)))
+                      {})))))
 
 (defn read-config-path
   "Read the config from EDN file"

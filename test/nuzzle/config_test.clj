@@ -5,6 +5,8 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
+(def config-2-path "test-resources/edn/config-2-bad.edn")
+
 (def render-page (constantly [:h1 "test"]))
 
 (deftest read-config-path
@@ -35,3 +37,9 @@
                                :nuzzle/tags #{:nuzzle},
                                :nuzzle/title "Why I Made Nuzzle"}})))
 
+(deftest validate-config
+  (let [config-2 (conf/read-config-path config-2-path)
+        error-str (with-out-str (try (conf/validate-config config-2) (catch Throwable _ nil)))]
+    (spit "/tmp/poop.txt" (pr-str error-str))
+    (is (re-find #"Spec failed" error-str))
+    (is (re-find #"should contain key:.{6}:nuzzle/base-url" error-str))))
