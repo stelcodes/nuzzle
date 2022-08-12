@@ -9,7 +9,7 @@
   "Create a map of pages that are the tag index pages"
   [config]
   (->> config
-       ;; Create a map shaped like tag -> [page-ids]
+       ;; Create a map shaped like tag -> [page-keys]
        (reduce-kv
         (fn [acc pkey {:nuzzle/keys [tags]}]
           ;; merge-with is awesome!
@@ -27,7 +27,7 @@
   pages"
   [config]
   (->> config
-       ;; Create a map shaped like group -> [page-ids]
+       ;; Create a map shaped like group -> [page-keys]
        (reduce-kv
         (fn [acc pkey _]
           (loop [trans-acc acc
@@ -86,7 +86,7 @@
                  (assoc acc ckey cval)
                  (assoc acc ckey
                       (into cval
-                            [(when (vector? ckey) [:nuzzle/url (or url (util/id->url ckey))])
+                            [(when (vector? ckey) [:nuzzle/url (or url (util/page-key->url ckey))])
                              (when (or (vector? ckey) content)
                                [:nuzzle/render-content
                                 (con/create-render-content-fn ckey config)])]))))
@@ -105,9 +105,10 @@
        ;; If key is vector, then it is a page
        (reduce-kv (fn [acc ckey cval]
                     (if (vector? ckey)
-                      ;; Add the page id to the map
-                      (conj acc (assoc cval :id ckey))
-                      acc)) [])
+                      ;; Add the page key to the map
+                      (conj acc (assoc cval :nuzzle/page-key ckey))
+                      acc))
+                  [])
        ;; Add get-config helper function to each page
        (map #(assoc % :nuzzle/get-config (gen-get-config config)))))
 

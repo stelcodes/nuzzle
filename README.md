@@ -218,15 +218,15 @@ Here's an example of a page rendering function called `simple-render-page`:
    (into [:body] body)])
 
 (defn simple-render-page
-  [{:nuzzle/keys [render-content title] :keys [id] :as _page}]
+  [{:nuzzle/keys [page-key render-content title] :as _page}]
   (cond
     ;; Decide what the page should look like based on the data in the page map
-    (= [] id) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
-    (= [:about] id) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
+    (= [] page-key) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
+    (= [:about] page-key) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
     :else nil))
 ```
 
-The `render-page` function uses the `:id` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
+The `render-page` function uses the `:nuzzle/page-key` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
 
 Just because a page exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
@@ -265,8 +265,8 @@ There are many use cases for the `get-config` function. It's great for creating 
   (layout page
           [:h1 (str "Index page for " title)]
           (->>
-           (for [id index
-                 :let [{:nuzzle/keys [url title]} (get-config id)]]
+           (for [page-key index
+                 :let [{:nuzzle/keys [url title]} (get-config page-key)]]
              [:a {:href url} title])
            (apply unordered-list))))
 
@@ -276,11 +276,11 @@ There are many use cases for the `get-config` function. It's great for creating 
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
            [:a {:href (-> [:tags :clojure] get-config :nuzzle/url)} "here!"]]))
 
-(defn render-page [{:nuzzle/keys [render-content title] :keys [id] :as page}]
+(defn render-page [{:nuzzle/keys [page-key render-content title] :as page}]
   (cond
-   (= [] id) (render-homepage page)
-   (= [:about] id) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
-   (= [:tags :clojure] id) (render-index-page page)
+   (= [] page-key) (render-homepage page)
+   (= [:about] page-key) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
+   (= [:tags :clojure] page-key) (render-index-page page)
    :else (layout page [:h1 title] (render-content))))
 ```
 
