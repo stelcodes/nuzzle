@@ -22,11 +22,11 @@ Nuzzle is a static site generator for people who love:
 Nuzzle is a Clojure library, but you could also think about it as a micro-framework. It's goal is to define a simple yet powerful process for turning data and functions into a static site.
 
 **With Nuzzle you can...**
-- Manage all website data and structure inside an EDN file
-- Write a single function to produce Hiccup for every page of the website
-- Easy retrieve all website data while inside that function
-- Utilize a built-in, REPL-driven, hot-reloading web server for lightning fast feedback
-- Statically render syntax highlighting for Markdown code-blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
+- Manage all website data and structure declaratively in an EDN file
+- Plug in a single function to produce HTML markup (via Hiccup) for every page of the website
+- Easily retrieve all website data while inside that function
+- Utilize a built-in, REPL-driven, hot-reloading web server for lightning-fast development feedback
+- Statically render syntax highlighting for Markdown code blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
 - Generate index pages for page groupings and tags
 - Generate an RSS feed
 - Generate a sitemap
@@ -51,7 +51,7 @@ All three functions have exactly the same interface:
 - They accept keyword arguments which you can use to override the values of your configuration file.
 
 ## Configuration File
-Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory. This file is where you will store your Nuzzle config. The config is validated by `clojure.spec`. You can find the config spec [here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
+Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory. This file is where you will store your Nuzzle config. The config is validated by `clojure.spec`. You can find the [config spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
@@ -84,7 +84,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 
 > **Note:** An "entry" refers to a key-value pair of a map
 
-The Nuzzle config data-structure must be a map where each key is either a keyword or a vector of keywords. The distinction is important. It separates map entries into two categories:
+The Nuzzle config must be a map where each key is either a keyword or a vector of keywords. The distinction is important. It separates map entries into two categories:
 
 1. **Option Entries:** Option entries have a **keyword** key and are usually defined by Nuzzle, but you can also include your own custom option entries as well. The associated value can be of any type. Here is a brief summary of all the option entry keys specified by Nuzzle:
 
