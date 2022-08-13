@@ -7,6 +7,10 @@
   (is (= (list [:about] [] [:blog-posts :foo])
          (map util/url->page-key ["/about/" "/" "/blog-posts/foo/"]))))
 
+(deftest page-key->url
+  (is (= "/blog-posts/my-hobbies/" (util/page-key->url [:blog-posts :my-hobbies])))
+  (is (= "/about/" (util/page-key->url [:about]))))
+
 (deftest format-simple-date
   (is (= "2016-04-03"
          (util/format-simple-date (java.time.LocalDateTime/parse "2016-04-03T10:15:30"))))
