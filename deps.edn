@@ -8,8 +8,6 @@
            :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}},
                   :extra-paths ["test" "test-resources"]}}
  :deps {clj-rss/clj-rss {:mvn/version "0.3.0"}
-        ; io.github.stelcodes/vimhelp-minimal {:local/root "../clj-vimhelp"}
-        io.github.stelcodes/vimhelp-minimal {:git/sha "a4ee25b90d53696aa9f5698721f4e4d763a5928e"}
         expound/expound {:mvn/version "0.9.0"}
         ring/ring-core {:mvn/version "1.9.5"} ,
         ring/ring-devel {:mvn/version "1.9.5"} ,

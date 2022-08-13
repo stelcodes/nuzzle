@@ -7,8 +7,7 @@
    [cybermonday.utils :as cu]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
-   [nuzzle.util :as util]
-   [vimhelp.core :as vimhelp]))
+   [nuzzle.util :as util]))
 
 (defn quickfigure-element
   [[_tag {:keys [src title] :as _attr}]]
@@ -27,16 +26,11 @@
              :style "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
              :title title :allowfullscreen true}]])
 
-(defn vimhelp-element
-  [[_tag {:keys [src badrefs] :or {badrefs ""} :as _attr}]]
-  (vimhelp/help-file->hiccup src (set (str/split badrefs #","))))
-
 (defn render-custom-element
   [[tag & _ :as hiccup]]
   (case tag
     :quickfigure (quickfigure-element hiccup)
     :gist (gist-element hiccup)
-    :vimhelp (vimhelp-element hiccup)
     :youtube (youtube-element hiccup)
     hiccup))
 
