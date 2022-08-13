@@ -81,15 +81,12 @@
                  {} config))))
           (transform-pages [config]
             (reduce-kv
-             (fn [acc ckey {:nuzzle/keys [content url] :as cval}]
-               (if-not (map? cval)
-                 (assoc acc ckey cval)
-                 (assoc acc ckey
-                      (into cval
-                            [(when (vector? ckey) [:nuzzle/url (or url (util/page-key->url ckey))])
-                             (when (or (vector? ckey) content)
-                               [:nuzzle/render-content
-                                (con/create-render-content-fn ckey config)])]))))
+             (fn [acc ckey {:nuzzle/keys [content] :as cval}]
+               (assoc acc ckey
+                      (cond-> cval
+                        (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey))
+                        (or (vector? ckey) content) (assoc :nuzzle/render-content
+                                                           (con/create-render-content-fn ckey config)))))
              {} config))]
     (as-> config $
       (handle-drafts $)
