@@ -298,17 +298,26 @@ Just because a page exists in your transformed config doesn't mean you have to i
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
-### Accessing Your Config with `get-config`
+### Accessing the Config with `get-config`
 With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is heavily data-oriented, this problem becomes much easier to solve.
 
 Instead of requiring your page rendering function to accept multiple arguments (ex: one for the page entry map, one for the whole config), Nuzzle adds a function to each page entry map passed to your page rendering function under the key `:nuzzle/get-config`.
 
 In a word, `get-config` allows us to see the whole world while creating our Hiccup and let's us know if we are looking for something that doesn't exist. It has two forms:
 
-1. `(get-config)`: With no arguments, returns the whole transformed config map.
-2. `(get-config [:blog-posts])`: With one argument, returns value associated with provided config key or throws an exception.
+1. With no arguments, returns the whole transformed config map.
+```
+(get-config)
+```
+2. With one or more arguments, uses arguments one by one as keys to dive into the config map. This is similar to `clojure.core/get-in` but will throw an exception if a key does not exist. You can use this behavior of `get-config` to guarantee a value exists.
+```
+(get-config :nuzzle/base-url)
+(get-config [:blog-posts])
+(get-config [:blog-posts] :nuzzle/url)
+(get-config :my-custom-option)
+```
 
-Since `get-config` returns maps from our *transformed* config, all information about the site is at your fingertips. Every option and page entry from your config is always a function call away.
+Since `get-config` returns values from our *transformed* config, all information about the site is at your fingertips. Every option and page entry from your config is always a single function call away.
 
 Of course, any page entry map returned from `get-config` will also have a `:nuzzle/get-config` key attached to it. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your Nuzzle config.
 
@@ -321,30 +330,30 @@ There are many use cases for the `get-config` function. It's great for creating 
        (into [:ul])))
 
 (defn layout [{:nuzzle/keys [title get-config] :as _page} & body]
-  (let [{:keys [twitter]} (get-config :social)
-        {about-url :nuzzle/url} (get-config [:about])]
+  (let [twitter-url (get-config :social :twitter)
+        about-url (get-config [:about] :nuzzle/url)]
     [:html [:head [:title title]]
      (into [:body
             [:header
              (unordered-list
               [:a {:href about-url} "About"]
-              [:a {:href twitter} "My Tweets"])]]
+              [:a {:href twitter-url} "My Tweets"])]]
            body)]))
 
 (defn render-index-page [{:nuzzle/keys [title index get-config] :as page}]
   (layout page
           [:h1 (str "Index page for " title)]
           (->>
-           (for [page-key index
-                 :let [{:nuzzle/keys [url title]} (get-config page-key)]]
-             [:a {:href url} title])
+           (for [page-key index]
+             [:a {:href (get-config page-key :nuzzle/url}
+                 (get-config page-key :nuzzle/title)])
            (apply unordered-list))))
 
 (defn render-homepage [{:nuzzle/keys [get-config] :as page}]
   (layout page
           [:h1 "Home Page"]
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
-           [:a {:href (-> [:tags :clojure] get-config :nuzzle/url)} "here!"]]))
+           [:a {:href (get-config [:tags :clojure] :nuzzle/url)} "here!"]]))
 
 (defn render-page [{:nuzzle/keys [page-key render-content title] :as page}]
   (cond
