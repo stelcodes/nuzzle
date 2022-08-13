@@ -9,16 +9,6 @@
 
 (defn config [] (conf/load-specified-config config-path {}))
 
-(deftest vimhelp-element
-    (is (= (hiccup/html-document (con/vimhelp-element [:vimhelp {:src "test-resources/txt/conjure.txt"}]))
-           (slurp "test-resources/html/conjure-no-badrefs-filter.html")))
-    (is (= (hiccup/html-document (con/vimhelp-element [:vimhelp {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}]))
-           (slurp "test-resources/html/conjure-with-badrefs-filter.html"))))
-
-(comment (con/vimhelp-element [:vimhelp "hi"]))
-(comment (spit "test-resources/html/conjure-no-badrefs-filter.html" (hiccup/html-document (con/vimhelp-element {:src "test-resources/txt/conjure.txt"}))))
-(comment (spit "test-resources/html/conjure-with-badrefs-filter.html" (hiccup/html-document (con/vimhelp-element {:src "test-resources/txt/conjure.txt" :badrefs "omnifunc,maplocalleader,splitbelow,splitright,Ctrl-O,mark,searchpairpos(),User,autocmds,complete-functions,ExitPre"}))))
-
 (deftest generate-highlight-command
   (testing "generating chroma command"
     (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "/tmp/foo.clj")
