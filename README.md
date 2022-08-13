@@ -358,7 +358,7 @@ There are many use cases for the `get-config` function. It's great for creating 
 Nuzzle comes with support for generating an RSS feed. (TODO)
 
 ## Syntax Highlighting
-Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.sh/sh` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
+Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.shell` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
 
 Syntax highlighting is controlled via the config setting `:nuzzle/syntax-highlighter` which is expected to be a map with these keys:
 - `:provider` - A keyword specifying the program to use (either `:chroma` or `:pygments`). Required.
