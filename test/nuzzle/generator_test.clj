@@ -1,7 +1,6 @@
 (ns nuzzle.generator-test
   (:require [clojure.test :refer [deftest is run-tests]]
             [nuzzle.config :as conf]
-            [nuzzle.util :as util]
             [nuzzle.generator :as gen]))
 
 (def config-path "test-resources/edn/config-1.edn")
