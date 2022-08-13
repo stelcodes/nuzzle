@@ -184,9 +184,7 @@ Nuzzle adds these keys to every page map:
 - `:nuzzle/page-key`: The key associated with the respective page entry is added to the page entry map for access in your page rendering function.
 
 ### Adding Keys to Option Entries
-Nuzzle adds these keys to every peripheral map:
-- `:nuzzle/render-content`: Same as above. Only added if the associated value is a map and `:nuzzle/content` is present. Can be used to create content snippets to use on several pages.
-- `:nuzzle/get-config`: Same as above.
+- `:nuzzle/render-content`: Same as above but only added if the associated value is a map and `:nuzzle/content` is present. Can be used to create content snippets to use on several pages.
 
 ### Adding More Page Entries (Index Pages)
 Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. Nuzzle calls these **index pages**. Nuzzle has two categories for index pages:
