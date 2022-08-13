@@ -40,8 +40,8 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 - [Pygments](https://github.com/pygments/pygments) >= 2.12.0 (optional)
 - [Chroma](https://github.com/alecthomas/chroma) >= 2.0.0 (optional)
 
-## Nuzzle's API
-Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
+## Usage
+Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
 - `publish`: Exports the static site to disk.
 - `serve`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
 - `transform`: Returns your config after Nuzzle's transformations.
@@ -50,6 +50,27 @@ Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 All three functions have exactly the same interface:
 - They require no arguments.
 - They accept keyword arguments which you can use to override the values of your configuration file.
+
+```clojure
+;; Nuzzle is not currently available on Clojars (work in progress)
+;; Example deps.edn git coordinates:
+;; io.github.stelcodes/nuzzle {:git/sha "d42215bf38b6224f2b958e4cab36cac697a6454f"}
+
+(require '[nuzzle.api :as nuzz])
+
+;; You will need a config file at nuzzle.edn before running these functions successfully
+
+;; Start development server
+;; You can stop the development server by saving the returned function
+(def stop (nuzz/serve :nuzzle/build-drafts true))
+;; Call (stop) later
+
+;; Publish the static site
+(nuzz/publish)
+
+;; Visualize Nuzzle's data pipeline
+(nuzz/transform-diff)
+```
 
 ## Configuration File
 Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory. This file is where you will store your Nuzzle config. The config is validated by `clojure.spec`. You can find the [config spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
