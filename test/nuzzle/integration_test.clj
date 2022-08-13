@@ -71,20 +71,15 @@
         (update-vals trigger-render-content))))
 
 (comment (-> (read-ash-config) transform-ash-config create-ash-config-file
-             (conf/load-specified-config {}) normalize-loaded-config))
+             (conf/load-specified-config) normalize-loaded-config))
 
 (deftest realize-config
   (is (= (-> (read-ash-config) transform-ash-config create-ash-config-file
-             (conf/load-specified-config {}) normalize-loaded-config)
+             (conf/load-specified-config) normalize-loaded-config)
          {:nuzzle/publish-dir "out",
           :nuzzle/server-port 6899,
           :nuzzle/base-url "https://ashketchum.com",
           :nuzzle/render-page render-page
-          [:blog-posts :defeating-misty]
-          {:nuzzle/title "How I Defeated Misty with Pikachu",
-           :nuzzle/content "test-resources/markdown/how-i-defeated-misty.md",
-           :nuzzle/url "/blog-posts/defeating-misty/",
-           :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           []
           {:nuzzle/title "Home"
            :nuzzle/content "test-resources/markdown/homepage-introduction.md",
@@ -103,7 +98,8 @@
            :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
           [:blog-posts]
           {:nuzzle/index
-           #{[:blog-posts :defeating-misty] [:blog-posts :catching-pikachu]},
+           #{[:blog-posts :catching-pikachu]},
            :nuzzle/title "Blog Posts",
            :nuzzle/url "/blog-posts/",
-           :nuzzle/render-content nil}})))
+           :nuzzle/content "test-resources/markdown/blog-header.md"
+           :nuzzle/render-content '([:p {} "Hi I'm Ash and this is my blog!"])}})))
