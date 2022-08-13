@@ -1,5 +1,6 @@
 (ns nuzzle.api
-  (:require [nuzzle.config :as conf]
+  (:require [lambdaisland.deep-diff2 :as ddiff]
+            [nuzzle.config :as conf]
             [nuzzle.generator :as gen]
             [nuzzle.publish :as publish]
             [nuzzle.log :as log]
@@ -12,6 +13,16 @@
   (let [config (conf/load-default-config config-overrides)]
     (log/info "🔍🐈 Printing realized config for inspection")
     (-> config gen/realize-config)))
+
+(defn transform-diff
+  "Pretty prints the diff between the config in nuzzle.edn and the config after
+  Nuzzle's transformations."
+  [& {:as config-overrides}]
+  {:pre [(or (nil? config-overrides) (map? config-overrides))]}
+  (let [raw-config (conf/read-config-path "nuzzle.edn")
+        transformed-config (-> config-overrides conf/load-default-config gen/realize-config)]
+    (log/info "🔍🐈 Printing Nuzzle's config transformations diff")
+    (ddiff/pretty-print (ddiff/diff raw-config transformed-config))))
 
 (defn publish
   "Publishes the website to :nuzzle/publish-dir. The overlay directory is
