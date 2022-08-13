@@ -187,7 +187,7 @@ Nuzzle adds these keys to every page map:
 - `:nuzzle/render-content`: Same as above but only added if the associated value is a map and `:nuzzle/content` is present. Can be used to create content snippets to use on several pages.
 
 ### Adding More Page Entries (Index Pages)
-Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. Nuzzle calls these **index pages**. Nuzzle has two categories for index pages:
+Often people want to create index pages in static sites which link to other pages that share a common trait. Nuzzle calls these **index pages**. Nuzzle has two categories for index pages:
 
 1. **Hierarchical Index Pages:** For every subdirectory in your website, their will be a natural hierarchy of content. For example, `"/blog-posts/foo"` and `"/blog-posts/bar"` naturally have a shared hierarchical index page at `"/blog-posts"`.
 
