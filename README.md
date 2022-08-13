@@ -237,7 +237,7 @@ Nuzzle adds both hierarchical and tag index pages automatically for all hierarch
   :nuzzle/index #{[:tags :comfort-food] [:tags :japanese]}}}
 ```
 
-> You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can avoid publishing any page by returning `nil` from your page rendering function.
+> You may not want to publish all the index pages that Nuzzle adds to your config. That's ok! You can avoid publishing any page by returning `nil` from your page rendering function.
 
 These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys.
 
@@ -272,11 +272,11 @@ Here's an example of a page rendering function called `simple-render-page`:
 
 The `render-page` function uses the `:nuzzle/page-key` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
 
-Just because a page exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
+Just because a page exists in your realized config doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
-### Accessing Your Site Data with `get-config`
+### Accessing Your Config with `get-config`
 With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is heavily data-oriented, this problem becomes much easier to solve.
 
 Instead of requiring your page rendering function to accept multiple arguments (ex: one for the page entry map, one for the whole config), Nuzzle adds a function to each page entry map passed to your page rendering function under the key `:nuzzle/get-config`.
@@ -286,7 +286,7 @@ In a word, `get-config` allows us to see the whole world while creating our Hicc
 1. `(get-config)`: With no arguments, returns the whole realized config map.
 2. `(get-config [:blog-posts])`: With one argument, returns value associated with provided config key or throws an exception.
 
-Since `get-config` returns maps from our *realized* site data, all information about the site is at your fingertips. Every option and page entry from your config is always a function call away.
+Since `get-config` returns maps from our *realized* config, all information about the site is at your fingertips. Every option and page entry from your config is always a function call away.
 
 Of course, any page entry map returned from `get-config` will also have a `:nuzzle/get-config` key attached to it. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your Nuzzle config.
 
