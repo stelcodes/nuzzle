@@ -96,36 +96,39 @@
              (fn [acc ckey {:nuzzle/keys [content] :as cval}]
                (assoc acc ckey
                       (cond-> cval
-                        (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey))
+                        (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey)
+                                              :nuzzle/page-key ckey)
                         (or (vector? ckey) content) (assoc :nuzzle/render-content
                                                            (con/create-render-content-fn ckey config)))))
-             {} config))]
+             {} config))
+          (add-get-config-to-pages [config]
+            (let [get-config (gen-get-config config)]
+              (reduce-kv
+               (fn [acc ckey cval]
+                 (assoc acc ckey (cond-> cval
+                                   (vector? ckey) (assoc :nuzzle/get-config get-config))))
+               {} config)))]
     (as-> config $
       (handle-drafts $)
       (util/deep-merge $ (create-tag-index $))
       (util/deep-merge $ (create-group-index $))
-      (transform-pages $))))
+      (transform-pages $)
+      ;; Adding get-config must come after all other transformations
+      (add-get-config-to-pages $))))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."
   [config]
   {:pre [(map? config)] :post [(seq? %)]}
-  (->> config
-       ;; If key is vector, then it is a page
        (reduce-kv (fn [acc ckey cval]
-                    (if (vector? ckey)
-                      ;; Add the page key to the map
-                      (conj acc (assoc cval :nuzzle/page-key ckey))
-                      acc))
-                  [])
-       ;; Add get-config helper function to each page
-       (map #(assoc % :nuzzle/get-config (gen-get-config config)))))
+                    (if (vector? ckey) (conj acc cval) acc))
+                  (list) config))
 
 (defn generate-debug-site-index
   "Creates a map where the keys are URLs and the values are functions that log
   the page map and return the page's Hiccup. This datastructure is
   defined by stasis."
-  [{:keys [nuzzle/render-page] :as config}]
+  [{:nuzzle/keys [render-page] :as config}]
   {:pre [(fn? render-page)] :post [(map? %)]}
   (->> config
        generate-page-list
@@ -139,7 +142,7 @@
 (defn generate-rendered-site-index
   "Creates a map where the keys are relative URLs and the values are Hiccup.
   This datastructure is defined by stasis."
-  [{:keys [nuzzle/render-page] :as config}]
+  [{:nuzzle/keys [render-page] :as config}]
   {:pre [(fn? render-page)] :post [(map? %)]}
   (->> config
        generate-page-list
