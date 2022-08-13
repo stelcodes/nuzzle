@@ -56,13 +56,25 @@
   [config]
   {:pre [(map? config)] :post [(fn? %)]}
   (fn get-config
-    ([] (->> config
-             (map #(assoc % :nuzzle/get-config get-config))))
-    ([ckey]
-     (if-let [entity (get config ckey)]
-       (assoc entity :nuzzle/get-config get-config)
-       (throw (ex-info (str "get-config error: config key " ckey " not found")
-                       {:key ckey}))))))
+    ([& ckeys]
+     ;; If no args, return the whole config
+     (if (empty? ckeys)
+       (reduce-kv (fn [acc ckey cval]
+                    (assoc acc ckey
+                           (cond-> cval
+                             ;; Add get-config to all page entry maps
+                             (vector? ckey) (assoc :nuzzle/get-config get-config))))
+                  {} config)
+       (reduce (fn [acc ckey]
+                 (if (try (contains? acc ckey) (catch Throwable _ false))
+                   (cond-> (get acc ckey)
+                     ;; Only add get-config to returned value if it's a page entry map
+                     (and (vector? ckey) (map? acc) (:nuzzle/title acc))
+                     (assoc :nuzzle/get-config get-config))
+                   (throw (ex-info (str "get-config error: config key sequence "
+                                        (-> ckeys vec pr-str) " cannot be resolved")
+                                   {:invalid-key ckey}))))
+               config ckeys)))))
 
 (defn transform-config
   "Creates fully transformed config with or without drafts."
