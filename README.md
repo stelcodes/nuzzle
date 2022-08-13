@@ -86,7 +86,7 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 
 The Nuzzle config data-structure must be a map where each key is either a keyword or a vector of keywords. The distinction is important. It separates map entries into two categories:
 
-1. **Option Entries:** Option entries have a **keyword** key and are usually defined by Nuzzle (ex: `:nuzzle/base-url`), but you can also include your own option entries as well. The associated value can be of any type. Here is a brief summary of all the option entry keys specified by Nuzzle:
+1. **Option Entries:** Option entries have a **keyword** key and are usually defined by Nuzzle, but you can also include your own custom option entries as well. The associated value can be of any type. Here is a brief summary of all the option entry keys specified by Nuzzle:
 
 - `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
 - `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
