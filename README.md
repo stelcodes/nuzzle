@@ -62,7 +62,7 @@ All three functions have exactly the same interface:
 
 ;; Start development server
 ;; You can stop the development server by saving the returned function
-(def stop (nuzz/serve :nuzzle/build-drafts true))
+(def stop (nuzz/serve :nuzzle/build-drafts? true))
 ;; Call (stop) later
 
 ;; Publish the static site
