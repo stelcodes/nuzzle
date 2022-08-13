@@ -73,7 +73,7 @@
 (comment (-> (read-ash-config) transform-ash-config create-ash-config-file
              (conf/load-specified-config) normalize-loaded-config))
 
-(deftest realize-config
+(deftest transform-config
   (is (= (-> (read-ash-config) transform-ash-config create-ash-config-file
              (conf/load-specified-config) normalize-loaded-config)
          {:nuzzle/publish-dir "out",
