@@ -239,12 +239,12 @@ Nuzzle adds both hierarchical and tag index pages automatically for all hierarch
 
 > You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can avoid publishing any page by returning `nil` from your page rendering function.
 
-These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys. 
+These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys.
 
 It's worth noting that you can include index page entries in your Nuzzle config yourself, just like any other page. In this case Nuzzle will just add the `:nuzzle/index` entry to the page value you've already defined. This is useful for specifying a non-standard title or adding content to your index pages:
 
 ```clojure
-;; Nuzzle will append an :nuzzle/index key later if there are any blog posts
+;; Nuzzle will append an :nuzzle/index key later if there are any pages under the recipes subdirectory
 [:recipes]
 {:nuzzle/content "markdown/recipes-introduction.md"
  :nuzzle/title "All My Yummy Recipes!"}
