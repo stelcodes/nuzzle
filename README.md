@@ -23,13 +23,13 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 
 **With Nuzzle you can...**
 - Manage all website data and structure inside an EDN file
-- Plug in a single function to produce Hiccup
-- Retrieve all website data while inside that function
-- Statically render CSS syntax highlighting for Markdown code-blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
-- Utilize a built-in, REPL-driven, hot-reloading web server
-- Tag pages
-- Create subdirectory and tag index pages
-- Create an RSS feed
+- Write a single function to produce Hiccup for every page of the website
+- Easy retrieve all website data while inside that function
+- Utilize a built-in, REPL-driven, hot-reloading web server for lightning fast feedback
+- Statically render syntax highlighting for Markdown code-blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
+- Generate index pages for page groupings and tags
+- Generate an RSS feed
+- Generate a sitemap
 
 ## Real World Example
 Want to read some code already? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build my personal developer blog deployed at [stel.codes](https://stel.codes).
@@ -44,24 +44,14 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 - `publish`: Exports the static site to disk.
 - `serve`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
-- `realize`: Helper function for visualizing your site data after Nuzzle's additions.
+- `realize`: Helper function for visualizing your config data after Nuzzle has transformed it.
 
 All three functions have exactly the same interface:
 - They require no arguments.
-- They accept keyword arguments which you can use to override the values in your configuration file.
+- They accept keyword arguments which you can use to override the values of your configuration file.
 
 ## Configuration File
-Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory containing these keys:
-
-- `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
-- `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
-- `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
-- `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
-- `:nuzzle/syntax-highlighter` - A map of syntax highlighting options for language-tagged code blocks. Defaults to `nil` (no syntax highlighting).
-- `:nuzzle/rss-channel` - A map with an RSS channel specification. Defaults to `nil` (no RSS feed).
-- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `nil` (no drafts included).
-- `:nuzzle/custom-elements` - A map of keywords -> symbols which define functions to transform the Hiccup representation of custom HTML elements.
-- `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to 6899.
+Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory. This file is where you will store your Nuzzle config. The config is validated by `clojure.spec`. You can find the config spec [here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
@@ -72,13 +62,18 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
  {:nuzzle/title "Home"
   :nuzzle/content "markdown/homepage-introduction.md"}
 
+ [:blog-posts]
+ {:nuzzle/title "Blog Posts"
+  :nuzzle/content "markdown/blog-header.md"}
+
  [:blog-posts :catching-pikachu]
  {:nuzzle/title "How I Caught Pikachu"
   :nuzzle/content "markdown/how-i-caught-pikachu.md"}
 
  [:blog-posts :defeating-misty]
  {:nuzzle/title "How I Defeated Misty with Pikachu"
-  :nuzzle/content "markdown/how-i-defeated-misty.md"}
+  :nuzzle/content "markdown/how-i-defeated-misty.md"
+  :nuzzle/draft? true}
 
  [:about]
  {:nuzzle/title "About Ash"
@@ -91,13 +86,27 @@ If you're from Pallet town, your `nuzzle.edn` config might look like this:
 
 The Nuzzle config data-structure must be a map where each key is either a keyword or a vector of keywords. The distinction is important. It separates map entries into two categories:
 
-1. Option Entries
-Option entries have a **keyword** key and are usually defined by Nuzzle (ex: `:nuzzle/base-url`), but you can also include your own option entries as well. The associated value can be of any type.
+1. **Option Entries:** Option entries have a **keyword** key and are usually defined by Nuzzle (ex: `:nuzzle/base-url`), but you can also include your own option entries as well. The associated value can be of any type. Here is a brief summary of all the option entry keys specified by Nuzzle:
 
-2. Page Entries
-Page entries have a key that is a **vector of keywords**, and their associated value must be a map that represents a single page of the website. The key represents the URL of the web page: `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`.
+- `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
+- `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
+- `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
+- `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
+- `:nuzzle/syntax-highlighter` - A map of syntax highlighting options for language-tagged code blocks. Defaults to `nil` (no syntax highlighting).
+- `:nuzzle/rss-channel` - A map with an RSS channel specification. Defaults to `nil` (no RSS feed).
+- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `nil` (no drafts included).
+- `:nuzzle/custom-elements` - A map of keywords -> symbols which define functions to transform the Hiccup representation of custom HTML elements. Defaults to `{}` (no custom elements).
+- `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to `6899`.
 
-## Special Page Entry Keys
+2. **Page Entries:** Page entries have a key that is a **vector of keywords**, and their associated value must be a map. Each entry represents a single page of the website. The key of the entry represents the URL of the web page: `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. Here is a summary of all the page entry keys specified by Nuzzle to be used inside the associated map value:
+
+- `:nuzzle/title`: A title for the web page. Required.
+- `:nuzzle/content`: A path to an associated Markdown or HTML file.
+- `:nuzzle/tags`: A set of keywords where each keyword represents a tag name.
+- `:nuzzle/draft?`: A boolean indicating whether this page is a draft or not.
+- `:nuzzle/rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
+
+## Understanding the Nuzzle Config
 
 Here's another example config with annotations:
 ```clojure
@@ -148,15 +157,6 @@ Here's another example config with annotations:
   :foobar "baz"}}
 ```
 
-### Special Keys in Page Entry Maps
-- `:nuzzle/content`: A path to an associated Markdown or HTML file.
-- `:nuzzle/tags`: A set of keywords where each keyword is a tag name.
-- `:nuzzle/draft?`: A boolean indicating whether this page is a draft or not.
-- `:nuzzle/rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
-
-### Special Keys in Custom Option Entry Maps
-- `:nuzzle/content`: A path to an associated Markdown or HTML file.
-
 ## How Nuzzle Transforms Your Config
 You can think of Nuzzle's core functionality as a data pipeline. Nuzzle starts with the config map in your `nuzzle.edn`, adds some spice, sends it through your page rendering function, and exports the results to disk.
 
@@ -177,39 +177,85 @@ A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle 
 
 ### Adding Keys to Page Entries
 Nuzzle adds these keys to every page map:
-- `:nuzzle/url`: the path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
-- `:nuzzle/render-content`: A function that renders the page's associated content file if `:nuzzle/content` key is present, otherwise returns `nil`.
-- `:nuzzle/get-config`: A function that allows you to freely reach into your site data from inside of your page rendering function.
+- `:nuzzle/url`: The path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
+- `:nuzzle/index`: A set of page entry keys that should be indexed by the respective web page.
+- `:nuzzle/render-content`: A function that returns the page's associated content file converted to HTML (if `:nuzzle/content` key is present, otherwise returns `nil`).
+- `:nuzzle/get-config`: A function that allows you to freely access your Nuzzle config from inside your page rendering function.
+- `:nuzzle/page-key`: The key associated with the respective page entry is added to the page entry map for access in your page rendering function.
 
 ### Adding Keys to Option Entries
 Nuzzle adds these keys to every peripheral map:
-- `:nuzzle/render-content`: Same as above.
+- `:nuzzle/render-content`: Same as above. Only added if the associated value is a map and `:nuzzle/content` is present. Can be used to create content snippets to use on several pages.
 - `:nuzzle/get-config`: Same as above.
 
-### Adding Page Entries (Index Pages)
-Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. For example, if you have pages like `"/blog-posts/foo"` and `"/blog-posts/bar"`, you may want a page at `"/blog-posts"` that links to `"/blog-posts/foo"` and `"/blog-posts/bar"`. Nuzzle calls these **subdirectory index pages**.
+### Adding More Page Entries (Index Pages)
+Often people want to create index pages in static sites which serve as a page that links to other pages which share a common trait. Nuzzle calls these **index pages**. Nuzzle has two categories for index pages:
 
-Another common pattern is associating tags with pages. You may want to add index pages like `"/tags/clojure"` so you can link to all your pages about Clojure. Nuzzle calls these **tag index pages**. Nuzzle adds both subdirectory and tag index pages automatically for all subdirectories and tags present in your site data.
+1. **Hierarchical Index Pages:** For every subdirectory in your website, their will be a natural hierarchy of content. For example, `"/blog-posts/foo"` and `"/blog-posts/bar"` naturally have a shared hierarchical index page at `"/blog-posts"`.
 
-> You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can avoid publishing a page by returning `nil` from your page rendering function.
+2. **Tag Index Pages:** Another common pattern is associating tags with pages. A page like `"/tags/clojure"` indexes all your web pages about Clojure.
 
-These added index pages have an `:nuzzle/index` key with a value that is a set of page entry keys for any pages directly "below" them. For example, if you had page entries with keys of `[:blog-posts :foo]` and `[:blog-posts :bar]`, Nuzzle would add a page entry with a key of `[:blog-posts]` and an `:nuzzle/index` of `#{[:blog-posts :foo] [:blog-posts :bar]}`.
+Nuzzle adds both hierarchical and tag index pages automatically for all hierarchies and tags present in your website. This example illustrates how Nuzzle adds both types of index page entries to a Nuzzle config:
 
-It's worth noting that you can include index page entries in your `nuzzle.edn` site data, just like any other page. You can add content to your index pages by including a `:nuzzle/content` key:
+```clojure
+;; Example config (option entries omitted for brevity)
+
+{[:recipes :grilled-cheese]
+ {:nuzzle/title "My World Famous Grilled Cheese"
+  :nuzzle/tags #{:comfort-food}}
+
+ [:recipes :ramen-noodles]
+ {:nuzzle/title "The Best Ramen Noodle Recipe"
+  :nuzzle/tags #{:comfort-food :japanese}}}
+
+;; After transformations:
+
+{[:recipes :grilled-cheese]
+ {:nuzzle/title "My World Famous Grilled Cheese"
+  :nuzzle/url "/recipes/grilled-cheese/"}
+
+ [:recipes :ramen-noodles]
+ {:nuzzle/title "The Best Ramen Noodle Recipe"
+  :nuzzle/url "/recipes/ramen-noodles/"}
+
+ [:recipes]
+ {:nuzzle/title "Recipes"
+  :nuzzle/url "/recipes/"
+  :nuzzle/index #{[:recipes :grilled-cheese] [:recipes :ramen-noodles]}}
+
+ [:tags :comfort-food]
+ {:nuzzle/title "#comfort-food"
+  :nuzzle/url "/tags/comfort-food/"
+  :nuzzle/index #{[:recipes :grilled-cheese] [:recipes :ramen-noodles]}}
+
+ [:tags :japanese]
+ {:nuzzle/title "#japanese"
+  :nuzzle/url "/tags/japanese/"
+  :nuzzle/index #{[:recipes :ramen-noodles]}}
+
+ [:tags]
+ {:nuzzle/title "Tags"
+  :nuzzle/url "/tags/"
+  :nuzzle/index #{[:tags :comfort-food] [:tags :japanese]}}}
+```
+
+> You may not want to publish all the index pages that Nuzzle adds to your site data. That's ok! You can avoid publishing any page by returning `nil` from your page rendering function.
+
+These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys. 
+
+It's worth noting that you can include index page entries in your Nuzzle config yourself, just like any other page. In this case Nuzzle will just add the `:nuzzle/index` entry to the page value you've already defined. This is useful for specifying a non-standard title or adding content to your index pages:
 
 ```clojure
 ;; Nuzzle will append an :nuzzle/index key later if there are any blog posts
-{[:blog-posts]
- {:nuzzle/content "markdown/blog-posts-index-blurb.md"
-  :nuzzle/title "My Awesome Blog Posts"}}
+[:recipes]
+{:nuzzle/content "markdown/recipes-introduction.md"
+ :nuzzle/title "All My Yummy Recipes!"}
 ```
 
 ## Creating a Page Rendering Function
-All page entries are transformed into Hiccup by a single function. This function takes a single argument (a page map) and returns a vector of Hiccup.
+All page entries are transformed into Hiccup by a single function. This function takes a single argument (a page entry map) and returns a vector of Hiccup.
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
-
-> In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
 Here's an example of a page rendering function called `simple-render-page`:
 ```clojure
@@ -230,19 +276,23 @@ The `render-page` function uses the `:nuzzle/page-key` value to determine what H
 
 Just because a page exists in your realized site data doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
-### Accessing Your Site Data with `get-config`
-With many static site generators, accessing global data inside markup templates can be painful to say the least. Nuzzle strives to solve this difficult problem elegantly with a function called `get-config`. While realizing your site data, Nuzzle attaches a copy of this function to each page map under the key `:nuzzle/get-config`.
+> In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
-In a word, `get-config` allows us to see the whole world while creating our Hiccup. It has two forms:
+### Accessing Your Site Data with `get-config`
+With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is heavily data-oriented, this problem becomes much easier to solve.
+
+Instead of requiring your page rendering function to accept multiple arguments (ex: one for the page entry map, one for the whole config), Nuzzle adds a function to each page entry map passed to your page rendering function under the key `:nuzzle/get-config`.
+
+In a word, `get-config` allows us to see the whole world while creating our Hiccup and let's us know if we are looking for something that doesn't exist. It has two forms:
 
 1. `(get-config)`: With no arguments, returns the whole realized config map.
 2. `(get-config [:blog-posts])`: With one argument, returns value associated with provided config key or throws an exception.
 
-Since `get-config` returns maps from our *realized* site data, all information about the site is at your fingertips. Every page and peripheral map from your site data is always a function call away.
+Since `get-config` returns maps from our *realized* site data, all information about the site is at your fingertips. Every option and page entry from your config is always a function call away.
 
-To make things even more convenient, the `get-config` function attaches a copy of itself to each map it returns. This makes it easy to write functions that accept a page or peripheral map without ever having to worry about passing `get-config` along with it. It's kind of like a self-replicating bridge from one config value to the next!
+Of course, any page entry map returned from `get-config` will also have a `:nuzzle/get-config` key attached to it. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your Nuzzle config.
 
-There are many use cases for the `get-config` function. It's great for creating index pages, accessing peripheral maps, and countless other things:
+There are many use cases for the `get-config` function. It's great for creating index pages, accessing custom option entries, and countless other things:
 
 ```clojure
 (defn unordered-list [& list-items]
@@ -283,8 +333,6 @@ There are many use cases for the `get-config` function. It's great for creating 
    (= [:tags :clojure] page-key) (render-index-page page)
    :else (layout page [:h1 title] (render-content))))
 ```
-
-At the bottom of the function we can see the function from `:nuzzle/render-content` being used. Recall that this function will be present in every page map, and it will either return `nil` or some Hiccup that was generated from the associated content file.
 
 ## Generating an RSS feed
 Nuzzle comes with support for generating an RSS feed. (TODO)
