@@ -50,7 +50,7 @@
         {})))
 
 (defn gen-get-config
-  "Generate the helper function get-config from the realized config. This
+  "Generate the helper function get-config from the transformed config. This
   function takes a config key and returns the corresponding value with added
   key :nuzzle/get-config with value get-config function attached."
   [config]
@@ -64,8 +64,8 @@
        (throw (ex-info (str "get-config error: config key " ckey " not found")
                        {:key ckey}))))))
 
-(defn realize-config
-  "Creates fully realized config with or without drafts."
+(defn transform-config
+  "Creates fully transformed config with or without drafts."
   [{:nuzzle/keys [build-drafts?] :as config}]
   {:pre [(map? config)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
@@ -79,7 +79,7 @@
                      acc
                      (assoc acc k v)))
                  {} config))))
-          (realize-pages [config]
+          (transform-pages [config]
             (reduce-kv
              (fn [acc ckey {:nuzzle/keys [content url] :as cval}]
                (if-not (map? cval)
@@ -95,7 +95,7 @@
       (handle-drafts $)
       (util/deep-merge $ (create-tag-index $))
       (util/deep-merge $ (create-group-index $))
-      (realize-pages $))))
+      (transform-pages $))))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."

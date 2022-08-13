@@ -63,7 +63,7 @@
       read-config-path
       validate-config
       (transform-config config-overrides)
-      (gen/realize-config)))
+      (gen/transform-config)))
 
 (defn load-default-config [& {:as config-overrides}]
   (load-specified-config "nuzzle.edn" config-overrides))

@@ -44,7 +44,8 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 Nuzzle's whole interface is just three functions in the `nuzzle.api` namespace:
 - `publish`: Exports the static site to disk.
 - `serve`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
-- `realize`: Helper function for visualizing your config data after Nuzzle has transformed it.
+- `transform`: Returns your config after Nuzzle's transformations.
+- `transform-diff`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
 
 All three functions have exactly the same interface:
 - They require no arguments.
@@ -164,7 +165,7 @@ Nuzzle's data pipeline can be visualized like so:
 ```
    ┌───────────┐           ┌───────────┐               ┌──────────────┐
    │           │           │           │               │              │
-   │  Config   │ ────┬───► │ Realized  │ ─────┬─────►  │  Hiccup that │
+   │  Config   │ ────┬───► │Transformed│ ─────┬─────►  │  Hiccup that │
    │   from    │     │     │ config    │      │        │ is converted │
    │ nuzzle.edn│     │     │           │      │        │ to HTML and  │
    │           │     │     │           │      │        │  published   │
@@ -173,7 +174,7 @@ Nuzzle's data pipeline can be visualized like so:
               transformations             function
 ```
 
-A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle also calls this step **realizing** your config. A realized config looks very similar to the original, but with extra page entries and extra keys in the existing page entries.
+A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle also calls this step **transforming** your config. A transformed config looks very similar to the original, but with extra page entries and extra keys in the existing page entries.
 
 ### Adding Keys to Page Entries
 Nuzzle adds these keys to every page map:
@@ -272,7 +273,7 @@ Here's an example of a page rendering function called `simple-render-page`:
 
 The `render-page` function uses the `:nuzzle/page-key` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
 
-Just because a page exists in your realized config doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
+Just because a page exists in your transformed config doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
@@ -283,10 +284,10 @@ Instead of requiring your page rendering function to accept multiple arguments (
 
 In a word, `get-config` allows us to see the whole world while creating our Hiccup and let's us know if we are looking for something that doesn't exist. It has two forms:
 
-1. `(get-config)`: With no arguments, returns the whole realized config map.
+1. `(get-config)`: With no arguments, returns the whole transformed config map.
 2. `(get-config [:blog-posts])`: With one argument, returns value associated with provided config key or throws an exception.
 
-Since `get-config` returns maps from our *realized* config, all information about the site is at your fingertips. Every option and page entry from your config is always a function call away.
+Since `get-config` returns maps from our *transformed* config, all information about the site is at your fingertips. Every option and page entry from your config is always a function call away.
 
 Of course, any page entry map returned from `get-config` will also have a `:nuzzle/get-config` key attached to it. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your Nuzzle config.
 
