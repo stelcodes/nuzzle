@@ -5,17 +5,20 @@
                   :extra-paths ["dev" "test" "test-resources"],
                   :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"
                               "--interactive"]},
-           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}},
-                  :extra-paths ["test" "test-resources"]}}
+           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}
+                               org.clj-commons/digest {:mvn/version "1.4.1069"}},
+                  :extra-paths ["test" "test-resources"]}
+           :build ;; added by neil
+           {:deps {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}
+                   slipset/deps-deploy {:mvn/version "0.2.0"}}
+            :ns-default build}}
  :deps {clj-rss/clj-rss {:mvn/version "0.3.0"}
         expound/expound {:mvn/version "0.9.0"}
         ring/ring-core {:mvn/version "1.9.5"} ,
         ring/ring-devel {:mvn/version "1.9.5"} ,
         http-kit/http-kit {:mvn/version "2.5.3"},
-        io.github.kiranshila/cybermonday {:git/sha "17bb2c412171283440276a0a8e2cfd6f252aad91"}
+        com.kiranshila/cybermonday {:mvn/version "0.4.184"}
         babashka/fs {:mvn/version "0.1.4"},
-        metosin/malli {:mvn/version "0.8.4"}
-        org.clj-commons/digest {:mvn/version "1.4.100"}
         org.clojure/clojure {:mvn/version "1.11.1"},
         org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}
         hiccup/hiccup {:mvn/version "2.0.0-alpha2"},
