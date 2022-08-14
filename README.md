@@ -310,11 +310,11 @@ Instead of requiring your page rendering function to accept multiple arguments (
 In a word, `get-config` allows us to see the whole world while creating our Hiccup and let's us know if we are looking for something that doesn't exist. It has two forms:
 
 1. With no arguments, returns the whole transformed config map.
-```
+```clojure
 (get-config)
 ```
 2. With one or more arguments, uses arguments one by one as keys to dive into the config map. This is similar to `clojure.core/get-in` but will throw an exception if a key does not exist. You can use this behavior of `get-config` to guarantee a value exists.
-```
+```clojure
 (get-config :nuzzle/base-url)
 (get-config [:blog-posts])
 (get-config [:blog-posts] :nuzzle/url)
