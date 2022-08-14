@@ -7,6 +7,7 @@
 <div align="center">
   <img src="https://github.com/stelcodes/nuzzle/actions/workflows/unit-tests.yaml/badge.svg" alt="unit tests">
   <img src="https://github.com/stelcodes/nuzzle/actions/workflows/clj-kondo.yaml/badge.svg" alt="clj-kondo">
+  <a href="https://clojars.org/codes.stel/nuzzle"><img src="https://img.shields.io/clojars/v/codes.stel/nuzzle.svg" alt="Clojars Project"></a>
 </div>
 <hr>
 
@@ -51,11 +52,11 @@ All three functions have exactly the same interface:
 - They require no arguments.
 - They accept keyword arguments which you can use to override the values of your configuration file.
 
-```clojure
-;; Nuzzle is not currently available on Clojars (work in progress)
-;; Example deps.edn git coordinates:
-;; io.github.stelcodes/nuzzle {:git/sha "d42215bf38b6224f2b958e4cab36cac697a6454f"}
+```
+clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.4.294"}}}'
+```
 
+```clojure
 (require '[nuzzle.api :as nuzz])
 
 ;; You will need a config file at nuzzle.edn before running these functions successfully
