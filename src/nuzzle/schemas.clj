@@ -1,6 +1,7 @@
 (ns nuzzle.schemas
   (:require
-   [clojure.spec.alpha :as s]))
+   [clojure.spec.alpha :as s]
+   [spell-spec.alpha :as spell]))
 
 (def datetime? #(try (java.time.LocalDate/parse %) true (catch Throwable _ false)))
 
@@ -20,10 +21,10 @@
 (s/def :nuzzle/render-page symbol?)
 (s/def :nuzzle/base-url #(re-find #"^https?://" %))
 (s/def :nuzzle/syntax-highlighter
-  (s/keys :req-un [:nuzzle.syntax-highlighter/provider]
-          :opt-un [:nuzzle.syntax-highlighter/style :nuzzle.syntax-highlighter/line-numbers?]))
+  (spell/keys :req-un [:nuzzle.syntax-highlighter/provider]
+              :opt-un [:nuzzle.syntax-highlighter/style :nuzzle.syntax-highlighter/line-numbers?]))
 (s/def :nuzzle/rss-channel
-  (s/keys :req-un [:nuzzle.rss/title :nuzzle.rss/link :nuzzle.rss/description]))
+  (spell/keys :req-un [:nuzzle.rss/title :nuzzle.rss/link :nuzzle.rss/description]))
 (s/def :nuzzle/sitemap? boolean?)
 (s/def :nuzzle/server-port (s/int-in 1024 65536))
 (s/def :nuzzle/overlay-dir string?)
@@ -33,17 +34,17 @@
 
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
-(s/def :nuzzle/page-map (s/keys :req [:nuzzle/title]
-                                :opt [:nuzzle/tags :nuzzle/modified :nuzzle/rss? :nuzzle/draft?]))
+(s/def :nuzzle/page-map (spell/keys :req [:nuzzle/title]
+                                    :opt [:nuzzle/tags :nuzzle/modified :nuzzle/rss? :nuzzle/draft?]))
 (s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-map)
                                   :option (s/tuple keyword? any?)))
 
 ;; Whole config
 (s/def :nuzzle/user-config
   (s/and
-   (s/keys :req [:nuzzle/base-url :nuzzle/render-page]
-           :opt [:nuzzle/syntax-highlighter :nuzzle/rss-channel :nuzzle/build-drafts?
-                 :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir :nuzzle/overlay-dir])
+   (spell/keys :req [:nuzzle/base-url :nuzzle/render-page]
+               :opt [:nuzzle/syntax-highlighter :nuzzle/rss-channel :nuzzle/build-drafts?
+                     :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir :nuzzle/overlay-dir])
    (s/every :nuzzle/config-entry)))
 
 (comment

@@ -5,7 +5,9 @@
    [expound.alpha :as expound]
    [nuzzle.log :as log]
    [nuzzle.schemas]
-   [nuzzle.generator :as gen]))
+   [nuzzle.generator :as gen]
+   ;; Register spell-spec expound helpers after requiring expound.alpha
+   [spell-spec.expound]))
 
 (defn validate-config [config]
   (if (s/valid? :nuzzle/user-config config)
