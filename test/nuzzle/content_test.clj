@@ -2,7 +2,6 @@
   (:require
    [clojure.test :refer [deftest testing is run-tests]]
    [nuzzle.config :as conf]
-   [nuzzle.hiccup :as hiccup]
    [nuzzle.content :as con]))
 
 (def config-path "test-resources/edn/config-1.edn")
