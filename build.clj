@@ -11,6 +11,9 @@
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 
 (defn tag [_]
+  #_(when-not (re-find (re-pattern (str "v" version))
+                     (slurp "README.md"))
+    (throw (ex-info (str "Version v" version " not found in README.md") {})))
   (b/git-process {:git-args (list "tag" "-a" "-m" (str "Bump version to v" version) (str "v" version))}))
 
 (defn ensure-tag [_]
