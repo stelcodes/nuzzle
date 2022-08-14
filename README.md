@@ -111,14 +111,17 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 1. **Option Entries:** Option entries have a **keyword** key and are usually defined by Nuzzle, but you can also include your own custom option entries as well. The associated value can be of any type. Here is a brief summary of all the option entry keys specified by Nuzzle:
 
 - `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
-- `:nuzzle/render-page` - A fully qualified symbol pointing to your page rendering function. Required.
+- `:nuzzle/render-page` - A fully qualified symbol that must resolve to your page rendering function. Required.
+- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
-- `:nuzzle/syntax-highlighter` - A map of syntax highlighting options for language-tagged code blocks. Defaults to `nil` (no syntax highlighting).
-- `:nuzzle/rss-channel` - A map with an RSS channel specification. Defaults to `nil` (no RSS feed).
-- `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `nil` (no drafts included).
-- `:nuzzle/custom-elements` - A map of keywords -> symbols which define functions to transform the Hiccup representation of custom HTML elements. Defaults to `{}` (no custom elements).
 - `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to `6899`.
+
+The following config options provide functionality above and beyond basic static site generation. They are totally optional.
+
+- `:nuzzle/rss-channel` - Enables RSS feed generation. Value is a map with an RSS channel specification according to [clj-rss](https://github.com/yogthos/clj-rss). Defaults to `nil` (no RSS feed).
+- `:nuzzle/syntax-highlighter` - Enables syntax highlighting for language-tagged Markdown code blocks. Value is a map of highlighting options. Defaults to `nil` (no syntax highlighting).
+- `:nuzzle/custom-elements` - Enables custom hiccup processing. Value is a map of keyword element tags to symbols which must resolve to functions that accept and return a Hiccup vector. Defaults to `{}` (no custom elements).
 
 2. **Page Entries:** Page entries have a key that is a **vector of keywords**, and their associated value must be a map. Each entry represents a single page of the website. The key of the entry represents the URL of the web page: `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. Here is a summary of all the page entry keys specified by Nuzzle to be used inside the associated map value:
 
