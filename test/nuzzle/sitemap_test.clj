@@ -16,7 +16,7 @@
          (sitemap/create-sitemap (config) (gen/generate-rendered-site-index (config)))))
   (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns:a=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://foo.com/</loc></url><url><loc>https://foo.com/about/</loc><lastmod>2022-05-09</lastmod></url><url><loc>https://foo.com/blog-posts/foobar/</loc></url></urlset>"
          (sitemap/create-sitemap {:nuzzle/base-url "https://foo.com"
-                                  [:about] {:nuzzle/modified (java.time.LocalDate/parse "2022-05-09")}}
+                                  [:about] {:nuzzle/updated (java.time.LocalDate/parse "2022-05-09")}}
                                  {"/" []
                                   "/about/" []
                                   "/blog-posts/foobar/" []}))))
