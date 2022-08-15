@@ -18,14 +18,14 @@
      :content
      (for [[url _hiccup] rendered-site-index
            :let [page-key (util/url->page-key url)
-                 {:nuzzle/keys [modified]} (get config page-key)
+                 {:nuzzle/keys [updated]} (get config page-key)
                  url (str base-url url)]]
        {:tag :url
         :content
         (remove nil?
                 [{:tag :loc
                   :content [url]}
-                 (when modified
+                 (when updated
                    {:tag :lastmod
-                    :content [(util/format-simple-date modified)]})])})}
+                    :content [(util/format-simple-date updated)]})])})}
     {:encoding "UTF-8"}))

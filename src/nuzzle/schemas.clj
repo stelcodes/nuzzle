@@ -8,7 +8,7 @@
 ;; Page map keys
 (s/def :nuzzle/title string?)
 (s/def :nuzzle/rss? boolean?)
-(s/def :nuzzle/modified datetime?)
+(s/def :nuzzle/updated datetime?)
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
 (s/def :nuzzle/draft? boolean?)
 
@@ -35,7 +35,7 @@
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
 (s/def :nuzzle/page-map (spell/keys :req [:nuzzle/title]
-                                    :opt [:nuzzle/tags :nuzzle/modified :nuzzle/rss? :nuzzle/draft?]))
+                                    :opt [:nuzzle/tags :nuzzle/updated :nuzzle/rss? :nuzzle/draft?]))
 (s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-map)
                                   :option (s/tuple keyword? any?)))
 
@@ -54,4 +54,4 @@
    :nuzzle/render-page 'views.render-page
    ;; :nuzzle/build-drafts? nil
    ;; :nuzzle/server-port 5
-   [:blog-posts :test-post] {:nuzzle/title "hi" :nuzzle/rss? true :nuzzle/modified "2022-07-19" :nuzzle/tags #{:hi}}}))
+   [:blog-posts :test-post] {:nuzzle/title "hi" :nuzzle/rss? true :nuzzle/updated "2022-07-19" :nuzzle/tags #{:hi}}}))
