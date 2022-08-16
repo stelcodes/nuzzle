@@ -3,12 +3,14 @@
    [clojure.spec.alpha :as s]
    [spell-spec.alpha :as spell]))
 
-(def datetime? #(try (java.time.LocalDate/parse %) true (catch Throwable _ false)))
+(def date-str? #(try (java.time.LocalDate/parse %) (catch Throwable _ nil)))
+(def datetime-str? #(try (java.time.LocalDateTime/parse %) (catch Throwable _ nil)))
+(def zoned-datetime-str? #(try (java.time.ZonedDateTime/parse %) (catch Throwable _ nil)))
 
 ;; Page map keys
 (s/def :nuzzle/title string?)
 (s/def :nuzzle/rss? boolean?)
-(s/def :nuzzle/updated datetime?)
+(s/def :nuzzle/updated (s/or :date date-str? :datetime datetime-str? :zoned-datetime zoned-datetime-str?))
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
 (s/def :nuzzle/draft? boolean?)
 

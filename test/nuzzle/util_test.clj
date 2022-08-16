@@ -11,11 +11,15 @@
   (is (= "/blog-posts/my-hobbies/" (util/page-key->url [:blog-posts :my-hobbies])))
   (is (= "/about/" (util/page-key->url [:about]))))
 
-(deftest format-simple-date
-  (is (= "2016-04-03"
-         (util/format-simple-date (java.time.LocalDateTime/parse "2016-04-03T10:15:30"))))
-  (is (= "2016-04-03"
-         (util/format-simple-date (java.time.LocalDate/parse "2016-04-03")))))
+(deftest time-str->?inst
+  (is (inst? (util/time-str->?inst "2022-05-04")))
+  (is (inst? (util/time-str->?inst "2022-05-04T05:04")))
+  (is (inst? (util/time-str->?inst "2022-05-04T05:04:03")))
+  (is (inst? (util/time-str->?inst "2022-05-04T05:04:03Z")))
+  (is (nil? (util/time-str->?inst "2022-05-32")))
+  (is (nil? (util/time-str->?inst "2022-05-04T05:0")))
+  (is (nil? (util/time-str->?inst "2022-05-04T05:72")))
+  (is (nil? (util/time-str->?inst "2022-05-04T05:04:039Z"))))
 
 (deftest find-hiccup-str
   (is (= "foobar"

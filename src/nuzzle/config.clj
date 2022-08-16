@@ -6,6 +6,7 @@
    [nuzzle.log :as log]
    [nuzzle.schemas]
    [nuzzle.generator :as gen]
+   [nuzzle.util :as util]
    ;; Register spell-spec expound helpers after requiring expound.alpha
    [spell-spec.expound]))
 
@@ -46,16 +47,20 @@
                           (log/error config-key "symbol" sym "cannot be resolved")
                           (throw e))))
         render-page-fn (resolve-sym :nuzzle/render-page render-page)
-        str->time #(java.time.LocalDate/parse %)
+        parse-time (fn [time-str ckey pkey]
+                     (or (util/time-str->?inst time-str)
+                         (throw (ex-info (str "Time string " (pr-str time-str)
+                                              " in page entry " (pr-str ckey) " is invalid")
+                                         {:config-key ckey :page-key pkey :time-str time-str}))))
         config (-> (merge config-defaults config config-overrides)
                    (assoc :nuzzle/render-page render-page-fn))]
     (reduce-kv
-     (fn [acc k v]
-       (if-not (map? v)
-         (assoc acc k v)
-         (assoc acc k
-                (cond-> v
-                  (:nuzzle/updated v) (update :nuzzle/updated str->time)))))
+     (fn [acc ckey {:nuzzle/keys [updated] :as cval}]
+       (if-not (and (vector? ckey) (map? cval))
+         (assoc acc ckey cval)
+         (assoc acc ckey
+                (cond-> cval
+                  updated (assoc :nuzzle/updated (parse-time updated ckey :nuzzle/updated))))))
      {} config)))
 
 (defn load-specified-config

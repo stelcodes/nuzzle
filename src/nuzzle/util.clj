@@ -62,11 +62,22 @@
     (catch Exception _
       {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
 
-(defn format-simple-date [date]
-  (let [fmt (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")]
-    (if (instance? java.time.temporal.Temporal date)
-      (.format fmt date)
-      date)))
+(defn time-str->?inst
+  "Converts date, datetime, or zoned datetime string into Instant. Returns nil
+  if conversion cannot be done"
+  [time-str]
+  (letfn [(parse-date [ts] (try (-> (java.time.LocalDate/parse ts)
+                                    (.atStartOfDay (java.time.ZoneId/systemDefault))
+                                    (.toInstant))
+                             (catch Throwable _ nil)))
+          (parse-datetime [ts] (try (-> (java.time.LocalDateTime/parse ts)
+                                        (.atZone (java.time.ZoneId/systemDefault))
+                                        (.toInstant))
+                                 (catch Throwable _ nil)))
+          (parse-zoned-datetime [ts] (try (-> (java.time.ZonedDateTime/parse ts)
+                                              (.toInstant))
+                                       (catch Throwable _ nil)))]
+    (or (parse-date time-str) (parse-datetime time-str) (parse-zoned-datetime time-str))))
 
 (defn find-hiccup-str
   "Find first string matching regular expression in deeply nested Hiccup tree"
