@@ -16,16 +16,15 @@
     {:tag :urlset
      :attrs {:xmlns "http://www.sitemaps.org/schemas/sitemap/0.9"}
      :content
-     (for [[url _hiccup] rendered-site-index
-           :let [page-key (util/url->page-key url)
+     (for [[rel-url _hiccup] rendered-site-index
+           :let [page-key (util/url->page-key rel-url)
                  {:nuzzle/keys [updated]} (get config page-key)
-                 url (str base-url url)]]
+                 abs-url (str base-url rel-url)]]
        {:tag :url
         :content
-        (remove nil?
-                [{:tag :loc
-                  :content [url]}
-                 (when updated
-                   {:tag :lastmod
-                    :content [(util/format-simple-date updated)]})])})}
+        [{:tag :loc
+          :content [abs-url]}
+         (when updated
+           {:tag :lastmod
+            :content (str updated)})]})}
     {:encoding "UTF-8"}))
