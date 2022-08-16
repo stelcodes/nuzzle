@@ -1,6 +1,7 @@
 (ns nuzzle.publish-test
   (:require
    [babashka.fs :as fs]
+   [clojure.string :as str]
    [clojure.test :refer [deftest is]]
    [nuzzle.config :as conf]
    [nuzzle.generator :as gen]
@@ -20,8 +21,8 @@
     (publish/publish-rss config)
     (is (fs/exists? rss-path))
     (is (fs/exists? reference-rss-path))
-    (is (= (slurp (str rss-path))
-           (slurp (str reference-rss-path))))))
+    (is (= (-> rss-path str slurp str/trim)
+           (-> reference-rss-path str slurp str/trim)))))
 
 (deftest publish-sitemap
   (let [temp-dir (fs/create-temp-dir)
@@ -32,8 +33,8 @@
     (publish/publish-sitemap config rendered-site-index)
     (is (fs/exists? sitemap-path))
     (is (fs/exists? reference-sitemap-path))
-    (is (= (slurp (str sitemap-path))
-           (slurp (str reference-sitemap-path))))))
+    (is (= (-> sitemap-path str slurp str/trim)
+           (-> reference-sitemap-path str slurp str/trim)))))
 
 (deftest publish-site
   (let [temp-site-dir (str (fs/create-temp-dir))
