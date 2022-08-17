@@ -1,6 +1,6 @@
 (ns nuzzle.config-test
   (:require
-   [clojure.test :refer [deftest is]]
+   [clojure.test :refer [deftest testing is]]
    [nuzzle.config :as conf]))
 
 (def config-path "test-resources/edn/config-1.edn")
@@ -16,6 +16,11 @@
           :nuzzle/sitemap? true
           :nuzzle/build-drafts? true,
           :nuzzle/render-page 'nuzzle.config-test/render-page,
+          :nuzzle/author-registry {:donna {:email "donnah@mail.com",
+                                           :name "Donna Hayward",
+                                           :url "https://donnahayward.com"},
+                                   :josie {:name "Josie Packard"},
+                                   :shelly {:email "shellyj@mail.com", :name "Shelly Johnson"}}
           :nuzzle/rss-channel {:title "Foo's blog",
                                :description "Rants about foo and thoughts about bar",
                                :link "https://foobar.com"}
@@ -25,21 +30,33 @@
           [:about] {:nuzzle/content "test-resources/markdown/about.md", :nuzzle/title "About"},
           [:blog :favorite-color] {:nuzzle/content "test-resources/markdown/favorite-color.md",
                                    :nuzzle/rss? true,
+                                   :nuzzle/author :josie
                                    :nuzzle/tags #{:colors},
                                    :nuzzle/title "What's My Favorite Color? It May Suprise You."},
           [:blog :nuzzle-rocks] {:nuzzle/content "test-resources/markdown/nuzzle-rocks.md",
                                  :nuzzle/updated "2022-05-09T12:00Z",
+                                 :nuzzle/author :shelly
                                  :nuzzle/rss? true,
                                  :nuzzle/tags #{:nuzzle},
                                  :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
           [:blog :why-nuzzle] {:nuzzle/content "test-resources/markdown/why-nuzzle.md",
                                :nuzzle/rss? true,
+                               :nuzzle/author :donna
                                :nuzzle/tags #{:nuzzle},
                                :nuzzle/title "Why I Made Nuzzle"}})))
 
 (deftest validate-config
-  (let [config-2 (conf/read-config-path config-2-path)
-        error-str (with-out-str (try (conf/validate-config config-2) (catch Throwable _ nil)))]
-    (spit "/tmp/poop.txt" (pr-str error-str))
-    (is (re-find #"Spec failed" error-str))
-    (is (re-find #"should contain key:.{6}:nuzzle/base-url" error-str))))
+  (testing "bad config fails with expound output"
+    (let [config-2 (conf/read-config-path config-2-path)
+          error-str (with-out-str (try (conf/validate-config config-2) (catch Throwable _ nil)))]
+      (is (re-find #"Spec failed" error-str))
+      (is (re-find #"should contain key:.{6}:nuzzle/base-url" error-str))))
+  (testing "author registry author validation works"
+    (let [config {:nuzzle/base-url "https://twin.peaks"
+                  :nuzzle/render-page 'nuzzle.config-test/render-page
+                  :nuzzle/author-registry {:laura {:name "Laura Palmer"}}
+                  [:blog :douglas-firs] {:nuzzle/title "Douglas Firs Smell Really Freakin Good"
+                                         :nuzzle/author :agent-cooper}}
+          error-str (with-out-str (try (conf/validate-config config) (catch Throwable _ nil)))]
+      (is (re-find #"Spec failed" error-str))
+      (is (re-find #"->\W*config\W*:nuzzle\/author-registry\W*keys\W*set" error-str)))))

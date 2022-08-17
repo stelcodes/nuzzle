@@ -1,14 +1,14 @@
-(ns nuzzle.schemas-test)
+(ns nuzzle.schemas-test
+  (:require
+   [clojure.spec.alpha :as s]
+   [clojure.test :refer [deftest is]]
+   [nuzzle.schemas]))
 
-;; (deftest syntax-highlighter
-;;   (is (m/validate schemas/syntax-highlighter
-;;                   {:provider :chroma
-;;                    :style "emacs"})))
-;;
-;; (deftest local-date
-;;   (is (m/validate schemas/local-date
-;;                   (m/decode schemas/local-date "2022-05-04"
-;;                             (mt/transformer {:name :local-date}))))
-;;   (is (not (m/validate schemas/local-date
-;;                        (m/decode schemas/local-date "2022-05-04jhfklsdjf"
-;;                                  (mt/transformer {:name :local-date}))))))
+(deftest author-registry
+  (is (s/valid? :nuzzle/author-registry {:stel {:name "Stelly Luna"}}))
+  (is (s/valid? :nuzzle/author-registry {:stel {:name "Stelly Luna" :email "stel@email.com"}}))
+  (is (s/valid? :nuzzle/author-registry {:stel {:name "Stelly Luna" :email "stel@email.com" :url "https://stel.com"}}))
+  (is (not (s/valid? :nuzzle/author-registry {:stel {:name 77777777777}})))
+  (is (not (s/valid? :nuzzle/author-registry {:stel {:name "Stelly Luna" :email "stel@email.com" :url "stel.com"}})))
+  (is (not (s/valid? :nuzzle/author-registry {:stel {:name "Stelly Luna" :emailz "stel@email.com"}}))))
+  (is (not (s/valid? :nuzzle/author-registry {:stel {:email "stel@email.com"}})))

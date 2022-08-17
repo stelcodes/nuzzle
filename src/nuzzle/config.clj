@@ -4,13 +4,15 @@
    [clojure.spec.alpha :as s]
    [expound.alpha :as expound]
    [nuzzle.log :as log]
-   [nuzzle.schemas]
+   [nuzzle.schemas :as schemas]
    [nuzzle.generator :as gen]
    [nuzzle.util :as util]
    ;; Register spell-spec expound helpers after requiring expound.alpha
    [spell-spec.expound]))
 
 (defn validate-config [config]
+  ;; Redefine valid authors
+  (schemas/redefine-author-spec config)
   (if (s/valid? :nuzzle/user-config config)
     config
     (do (expound/expound :nuzzle/user-config config {:theme :figwheel-theme})
