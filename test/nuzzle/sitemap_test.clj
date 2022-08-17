@@ -16,7 +16,7 @@
          (sitemap/create-sitemap {} {})))
   (is (= (-> "test-resources/xml/config-1-sitemap.xml" slurp str/trim)
          (sitemap/create-sitemap (config) (gen/generate-rendered-site-index (config)))))
-  (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns:a=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://foo.com/</loc></url><url><loc>https://foo.com/about/</loc><lastmod>2022-05-09T12:00:00Z</lastmod></url><url><loc>https://foo.com/blog-posts/foobar/</loc></url></urlset>"
+  (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a:urlset xmlns:a=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><a:url><a:loc>https://foo.com/</a:loc></a:url><a:url><a:loc>https://foo.com/about/</a:loc><a:lastmod>2022-05-09T12:00:00Z</a:lastmod></a:url><a:url><a:loc>https://foo.com/blog-posts/foobar/</a:loc></a:url></a:urlset>"
          (sitemap/create-sitemap {:nuzzle/base-url "https://foo.com"
                                   [:about] {:nuzzle/updated (util/time-str->?inst "2022-05-09T12:00Z")}}
                                  {"/" []
