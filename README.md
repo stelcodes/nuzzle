@@ -29,7 +29,7 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 - Utilize a built-in, REPL-driven, hot-reloading web server for lightning-fast development feedback
 - Statically render syntax highlighting for Markdown code blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
 - Generate index pages for page groupings and tags
-- Generate an RSS feed
+- Generate an Atom feed
 - Generate a sitemap
 
 ## Real World Example
@@ -121,7 +121,7 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 
 The following config options provide functionality above and beyond basic static site generation. They are totally optional.
 
-- `:nuzzle/rss-channel` - Enables RSS feed generation. Value is a map with an RSS channel specification according to [clj-rss](https://github.com/yogthos/clj-rss). Defaults to `nil` (no RSS feed).
+- `:nuzzle/atom-feed` - Enables Atom feed generation. Value is a map of feed metadata. Defaults to `nil` (no Atom feed).
 - `:nuzzle/syntax-highlighter` - Enables syntax highlighting for language-tagged Markdown code blocks. Value is a map of highlighting options. Defaults to `nil` (no syntax highlighting).
 - `:nuzzle/custom-elements` - Enables custom hiccup processing. Value is a map of keyword element tags to symbols which must resolve to functions that accept and return a Hiccup vector. Defaults to `{}` (no custom elements).
 
@@ -129,9 +129,12 @@ The following config options provide functionality above and beyond basic static
 
 - `:nuzzle/title`: A title for the web page. Required.
 - `:nuzzle/content`: A path to an associated Markdown or HTML file.
-- `:nuzzle/tags`: A set of keywords where each keyword represents a tag name.
 - `:nuzzle/draft?`: A boolean indicating whether this page is a draft or not.
-- `:nuzzle/rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
+- `:nuzzle/feed?`: A boolean indicating whether the page should be included in the optional Atom feed.
+- `:nuzzle/tags`: A set of keywords where each keyword represents a tag name.
+- `:nuzzle/subtitle`: A string subtitle for the web page.
+- `:nuzzle/updated`: A timestamp string representing when the page was last updated.
+- `:nuzzle/summary`: A string summary of the page content.
 - `:nuzzle/author`: A keyword representing the author of the page. The author must be registered in the `:nuzzle/author-registry` map.
 
 ## Understanding the Nuzzle Config
@@ -174,8 +177,8 @@ Here's another example config with annotations:
   :nuzzle/tags #{:rust}
   ;; The optional :nuzzle/draft? key tells Nuzzle which pages are drafts
   :nuzzle/draft? true
-  ;; The optional :rss key tells Nuzzle to include the page in the RSS XML file
-  :nuzzle/rss? true}
+  ;; The optional :feed? key tells Nuzzle to include the page in the Atom feed XML file
+  :nuzzle/feed? true}
 
  [:blog-posts :clojure-on-fedora]
  {:nuzzle/title "How to Install Clojure on Fedora"
@@ -368,9 +371,6 @@ There are many use cases for the `get-config` function. It's great for creating 
    (= [:tags :clojure] page-key) (render-index-page page)
    :else (layout page [:h1 title] (render-content))))
 ```
-
-## Generating an RSS feed
-Nuzzle comes with support for generating an RSS feed. (TODO)
 
 ## Syntax Highlighting
 Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.shell` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.

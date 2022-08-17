@@ -79,6 +79,9 @@
                                        (catch Throwable _ nil)))]
     (or (parse-date time-str) (parse-datetime time-str) (parse-zoned-datetime time-str))))
 
+(defn now-trunc-sec []
+  (.truncatedTo (java.time.Instant/now) java.time.temporal.ChronoUnit/SECONDS))
+
 (defn find-hiccup-str
   "Find first string matching regular expression in deeply nested Hiccup tree"
   [regex hiccup]

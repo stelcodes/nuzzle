@@ -1,9 +1,9 @@
 {:nuzzle/build-drafts? true
  :nuzzle/base-url "https://foobar.com"
  :nuzzle/render-page nuzzle.config-test/render-page
- :nuzzle/rss-channel {:title "Foo's blog"
-                      :description "Rants about foo and thoughts about bar"
-                      :link "https://foobar.com"}
+ :nuzzle/atom-feed {:title "Foo's blog"
+                    :subtitle "Rants about foo and thoughts about bar"
+                    :author :donna}
  :nuzzle/author-registry {:shelly {:name "Shelly Johnson" :email "shellyj@mail.com"}
                           :donna {:name "Donna Hayward" :email "donnah@mail.com" :url "https://donnahayward.com"}
                           :josie {:name "Josie Packard"}}
@@ -18,7 +18,7 @@
   :nuzzle/content "test-resources/markdown/nuzzle-rocks.md"
   :nuzzle/updated "2022-05-09T12:00Z"
   :nuzzle/author :shelly
-  :nuzzle/rss? true
+  :nuzzle/feed? true
   :nuzzle/tags #{:nuzzle}}
 
  ;; All page entries with :nuzzle/content keys must have :nuzzle/updated keys
@@ -30,7 +30,7 @@
   :nuzzle/content "test-resources/markdown/why-nuzzle.md"
   :nuzzle/updated "2022-05-09T12:00Z"
   :nuzzle/author :donna
-  :nuzzle/rss? true
+  :nuzzle/feed? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :favorite-color]
@@ -38,7 +38,7 @@
   :nuzzle/content "test-resources/markdown/favorite-color.md"
   :nuzzle/updated "2022-05-09T12:00Z"
   :nuzzle/author :josie
-  :nuzzle/rss? true
+  :nuzzle/feed? true
   :nuzzle/tags #{:colors}}
 
  [:about]

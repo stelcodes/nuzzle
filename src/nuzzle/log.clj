@@ -31,8 +31,8 @@
 (defn log-build-drafts []
   (info "🔨🐈 Building drafts"))
 
-(defn log-rss [rss-file]
-  (info "📰🐈 Creating RSS file:" (fs/canonicalize rss-file)))
+(defn log-feed [feed-file]
+  (info "📰🐈 Creating Atom feed file:" (fs/canonicalize feed-file)))
 
 (defn log-sitemap [sitemap-file]
   (info "📖🐈 Creating sitemap file:" (fs/canonicalize sitemap-file)))

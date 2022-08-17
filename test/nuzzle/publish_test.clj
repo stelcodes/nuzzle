@@ -13,16 +13,17 @@
 
 (defn config [] (conf/load-specified-config config-path {}))
 
-(deftest publish-rss
+(deftest publish-feed
   (let [temp-dir (fs/create-temp-dir)
-        rss-path (fs/path temp-dir "feed.xml")
-        reference-rss-path (fs/path "test-resources/sites/config-1-site/feed.xml")
-        config (assoc (config) :nuzzle/publish-dir (str temp-dir))]
-    (publish/publish-rss config)
-    (is (fs/exists? rss-path))
-    (is (fs/exists? reference-rss-path))
-    (is (= (-> rss-path str slurp str/trim)
-           (-> reference-rss-path str slurp str/trim)))))
+        feed-path (fs/path temp-dir "feed.xml")
+        reference-feed-path (fs/path "test-resources/sites/config-1-site/feed.xml")
+        config (assoc (config) :nuzzle/publish-dir (str temp-dir))
+        rendered-site-index (gen/generate-rendered-site-index config)]
+    (publish/publish-atom-feed config rendered-site-index {:deterministic? true})
+    (is (fs/exists? feed-path))
+    (is (fs/exists? reference-feed-path))
+    (is (= (-> feed-path str slurp str/trim)
+           (-> reference-feed-path str slurp str/trim)))))
 
 (deftest publish-sitemap
   (let [temp-dir (fs/create-temp-dir)
@@ -42,7 +43,7 @@
         config (-> (config)
                    (assoc :nuzzle/publish-dir (str temp-site-dir))
                    (update :nuzzle/overlay-dir #(str "test-resources/" %)))
-        _ (publish/publish-site config)
+        _ (publish/publish-site config {:deterministic? true})
         mismatches (util/diff-dirs temp-site-dir reference-site-dir)]
     (doseq [mismatch mismatches
             :let [rel->abs-path (fn [parent-dir path] (str parent-dir "/" path))
