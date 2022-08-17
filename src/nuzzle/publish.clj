@@ -3,17 +3,19 @@
    [babashka.fs :as fs]
    [nuzzle.generator :as gen]
    [nuzzle.log :as log]
-   [nuzzle.rss :as rss]
+   [nuzzle.feed :as feed]
    [nuzzle.sitemap :as sitemap]
    [nuzzle.util :as util]
    [stasis.core :as stasis]))
 
-(defn publish-rss
-  [{:nuzzle/keys [publish-dir] :as config}]
-  (let [rss-file (fs/file publish-dir "feed.xml")
-        _ (log/log-rss rss-file)
-        rss-feed (rss/create-rss-feed config)]
-    (spit rss-file rss-feed)))
+(defn publish-atom-feed
+  "The optional test-ops map can make build deterministic by setting
+  :deterministic? true"
+  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:as test-opts}]
+  (let [feed-file (fs/file publish-dir "feed.xml")
+        _ (log/log-feed feed-file)
+        feed-str (feed/create-atom-feed config rendered-site-index test-opts)]
+    (spit feed-file feed-str)))
 
 (defn publish-sitemap
   [{:nuzzle/keys [publish-dir] :as config} rendered-site-index]
@@ -23,7 +25,9 @@
     (spit sitemap-file sitemap-str)))
 
 (defn publish-site
-  [{:nuzzle/keys [overlay-dir publish-dir rss-channel sitemap?] :as config}]
+  "The optional test-ops map can make build deterministic by setting
+  :deterministic? true"
+  [{:nuzzle/keys [overlay-dir publish-dir atom-feed sitemap?] :as config} & {:as test-opts}]
   (let [rendered-site-index (gen/generate-rendered-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
@@ -33,8 +37,8 @@
       (log/log-overlay-dir overlay-dir)
       (util/ensure-overlay-dir overlay-dir)
       (fs/copy-tree overlay-dir publish-dir))
-    (when rss-channel
-      (publish-rss config))
+    (when atom-feed
+      (publish-atom-feed config rendered-site-index test-opts))
     (when sitemap?
       (publish-sitemap config rendered-site-index))
     (log/log-publish-end)))

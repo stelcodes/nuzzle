@@ -21,9 +21,9 @@
                                            :url "https://donnahayward.com"},
                                    :josie {:name "Josie Packard"},
                                    :shelly {:email "shellyj@mail.com", :name "Shelly Johnson"}}
-          :nuzzle/rss-channel {:title "Foo's blog",
-                               :description "Rants about foo and thoughts about bar",
-                               :link "https://foobar.com"}
+          :nuzzle/atom-feed {:author :donna,
+                             :subtitle "Rants about foo and thoughts about bar",
+                             :title "Foo's blog"}
           :nuzzle/overlay-dir "public",
           :meta {:twitter "https://twitter/foobar"},
           [] {:nuzzle/title "Home"},
@@ -31,20 +31,20 @@
                     :nuzzle/content "test-resources/markdown/about.md",
                     :nuzzle/title "About"},
           [:blog :favorite-color] {:nuzzle/content "test-resources/markdown/favorite-color.md",
-                                   :nuzzle/rss? true,
                                    :nuzzle/updated "2022-05-09T12:00Z"
+                                   :nuzzle/feed? true,
                                    :nuzzle/author :josie
                                    :nuzzle/tags #{:colors},
                                    :nuzzle/title "What's My Favorite Color? It May Suprise You."},
           [:blog :nuzzle-rocks] {:nuzzle/content "test-resources/markdown/nuzzle-rocks.md",
                                  :nuzzle/updated "2022-05-09T12:00Z",
                                  :nuzzle/author :shelly
-                                 :nuzzle/rss? true,
+                                 :nuzzle/feed? true,
                                  :nuzzle/tags #{:nuzzle},
                                  :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
           [:blog :why-nuzzle] {:nuzzle/content "test-resources/markdown/why-nuzzle.md",
-                               :nuzzle/rss? true,
                                :nuzzle/updated "2022-05-09T12:00Z"
+                               :nuzzle/feed? true,
                                :nuzzle/author :donna
                                :nuzzle/tags #{:nuzzle},
                                :nuzzle/title "Why I Made Nuzzle"}})))

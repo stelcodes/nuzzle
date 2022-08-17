@@ -12,7 +12,8 @@
 
 (defn validate-config [config]
   ;; Redefine valid authors
-  (schemas/redefine-author-spec config)
+  (schemas/redefine-page-author-spec config)
+  (schemas/redefine-feed-author-spec config)
   (if (s/valid? :nuzzle/user-config config)
     config
     (do (expound/expound :nuzzle/user-config config {:theme :figwheel-theme})
