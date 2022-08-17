@@ -21,9 +21,14 @@
   :nuzzle/rss? true
   :nuzzle/tags #{:nuzzle}}
 
+ ;; All page entries with :nuzzle/content keys must have :nuzzle/updated keys
+ ;; here to make the sitemap output deterministic. The content files will not
+ ;; have consistent lastModified attributes.
+
  [:blog :why-nuzzle]
  {:nuzzle/title "Why I Made Nuzzle"
   :nuzzle/content "test-resources/markdown/why-nuzzle.md"
+  :nuzzle/updated "2022-05-09T12:00Z"
   :nuzzle/author :donna
   :nuzzle/rss? true
   :nuzzle/tags #{:nuzzle}}
@@ -31,12 +36,14 @@
  [:blog :favorite-color]
  {:nuzzle/title "What's My Favorite Color? It May Suprise You."
   :nuzzle/content "test-resources/markdown/favorite-color.md"
+  :nuzzle/updated "2022-05-09T12:00Z"
   :nuzzle/author :josie
   :nuzzle/rss? true
   :nuzzle/tags #{:colors}}
 
  [:about]
  {:nuzzle/title "About"
+  :nuzzle/updated "2022-05-09T12:00Z"
   :nuzzle/content "test-resources/markdown/about.md"}
 
  :meta

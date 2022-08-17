@@ -15,13 +15,13 @@
      :content
      (for [[rel-url _hiccup] rendered-site-index
            :let [page-key (util/url->page-key rel-url)
-                 {:nuzzle/keys [updated]} (get config page-key)
+                 {:nuzzle/keys [content updated]} (get config page-key)
                  abs-url (str base-url rel-url)]]
        {:tag ::sm/url
         :content
         [{:tag ::sm/loc
           :content [abs-url]}
-         (when updated
+         (when (or updated content)
            {:tag ::sm/lastmod
-            :content (str updated)})]})}
+            :content (str (or updated (util/path->last-mod-inst content)))})]})}
     {:encoding "UTF-8"}))
