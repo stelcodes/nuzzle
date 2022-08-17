@@ -10,16 +10,18 @@
 (def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 
+(def git-tag (str "v" version))
+
 (defn tag [_]
-  #_(when-not (re-find (re-pattern (str "v" version))
-                     (slurp "README.md"))
-    (throw (ex-info (str "Version v" version " not found in README.md") {})))
-  (b/git-process {:git-args (list "tag" "-a" "-m" (str "Bump version to v" version) (str "v" version))}))
+  (when-not (re-find (re-pattern version) (slurp "README.md"))
+    (throw (ex-info (str "Version " version " not found in README.md") {})))
+  (b/git-process {:git-args (list "tag" "-a" "-m" (str "Bump version to " git-tag) git-tag)})
+  (println "Tagged latest commit with" git-tag))
 
 (defn ensure-tag [_]
-  (when-not (re-find (re-pattern (str "v" version))
+  (when-not (re-find (re-pattern git-tag)
                      (b/git-process {:git-args "tag"}))
-    (throw (ex-info (str "Version " version " not found in git tags") {}))))
+    (throw (ex-info (str "Tag " git-tag " not found in git tags") {}))))
 
 (defn clean [_]
   (b/delete {:path "target"}))
