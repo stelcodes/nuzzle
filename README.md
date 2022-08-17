@@ -116,6 +116,7 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
+- `:nuzzle/author-registry` - A map of keyword keys to map values which contain information about a website author. Used in conjunction with the `:nuzzle/author` page entry key.
 - `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to `6899`.
 
 The following config options provide functionality above and beyond basic static site generation. They are totally optional.
@@ -131,6 +132,7 @@ The following config options provide functionality above and beyond basic static
 - `:nuzzle/tags`: A set of keywords where each keyword represents a tag name.
 - `:nuzzle/draft?`: A boolean indicating whether this page is a draft or not.
 - `:nuzzle/rss?`: A boolean indicating whether the page should be included in the optional RSS feed.
+- `:nuzzle/author`: A keyword representing the author of the page. The author must be registered in the `:nuzzle/author-registry` map.
 
 ## Understanding the Nuzzle Config
 

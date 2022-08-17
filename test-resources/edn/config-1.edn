@@ -4,6 +4,9 @@
  :nuzzle/rss-channel {:title "Foo's blog"
                       :description "Rants about foo and thoughts about bar"
                       :link "https://foobar.com"}
+ :nuzzle/author-registry {:shelly {:name "Shelly Johnson" :email "shellyj@mail.com"}
+                          :donna {:name "Donna Hayward" :email "donnah@mail.com" :url "https://donnahayward.com"}
+                          :josie {:name "Josie Packard"}}
  :nuzzle/sitemap? true
  :nuzzle/overlay-dir "public"
  :nuzzle/publish-dir "/tmp/nuzzle-test-out"
@@ -14,18 +17,21 @@
  {:nuzzle/title "10 Reasons Why Nuzzle Rocks"
   :nuzzle/content "test-resources/markdown/nuzzle-rocks.md"
   :nuzzle/updated "2022-05-09T12:00Z"
+  :nuzzle/author :shelly
   :nuzzle/rss? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :why-nuzzle]
  {:nuzzle/title "Why I Made Nuzzle"
   :nuzzle/content "test-resources/markdown/why-nuzzle.md"
+  :nuzzle/author :donna
   :nuzzle/rss? true
   :nuzzle/tags #{:nuzzle}}
 
  [:blog :favorite-color]
  {:nuzzle/title "What's My Favorite Color? It May Suprise You."
   :nuzzle/content "test-resources/markdown/favorite-color.md"
+  :nuzzle/author :josie
   :nuzzle/rss? true
   :nuzzle/tags #{:colors}}
 
