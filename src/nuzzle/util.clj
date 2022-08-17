@@ -119,3 +119,13 @@
         [d1 d2 _] (data/diff cm1 cm2)
         mismatches (-> (merge d1 d2) keys)]
     mismatches))
+
+(defn path->last-mod-inst
+  "Returns Instant of last modified time of a file specified by path"
+  [path]
+  (-> path
+      fs/last-modified-time
+      fs/file-time->instant
+      (.truncatedTo java.time.temporal.ChronoUnit/SECONDS)))
+
+(comment (path->last-mod-inst "deps.edn"))

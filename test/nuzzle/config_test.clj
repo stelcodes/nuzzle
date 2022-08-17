@@ -27,9 +27,12 @@
           :nuzzle/overlay-dir "public",
           :meta {:twitter "https://twitter/foobar"},
           [] {:nuzzle/title "Home"},
-          [:about] {:nuzzle/content "test-resources/markdown/about.md", :nuzzle/title "About"},
+          [:about] {:nuzzle/updated "2022-05-09T12:00Z",
+                    :nuzzle/content "test-resources/markdown/about.md",
+                    :nuzzle/title "About"},
           [:blog :favorite-color] {:nuzzle/content "test-resources/markdown/favorite-color.md",
                                    :nuzzle/rss? true,
+                                   :nuzzle/updated "2022-05-09T12:00Z"
                                    :nuzzle/author :josie
                                    :nuzzle/tags #{:colors},
                                    :nuzzle/title "What's My Favorite Color? It May Suprise You."},
@@ -41,6 +44,7 @@
                                  :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
           [:blog :why-nuzzle] {:nuzzle/content "test-resources/markdown/why-nuzzle.md",
                                :nuzzle/rss? true,
+                               :nuzzle/updated "2022-05-09T12:00Z"
                                :nuzzle/author :donna
                                :nuzzle/tags #{:nuzzle},
                                :nuzzle/title "Why I Made Nuzzle"}})))
