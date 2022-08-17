@@ -65,12 +65,13 @@
                              ;; Add get-config to all page entry maps
                              (vector? ckey) (assoc :nuzzle/get-config get-config))))
                   {} config)
-       (reduce (fn [acc ckey]
-                 (if (try (contains? acc ckey) (catch Throwable _ false))
-                   (cond-> (get acc ckey)
-                     ;; Only add get-config to returned value if it's a page entry map
-                     (and (vector? ckey) (map? acc) (:nuzzle/title acc))
-                     (assoc :nuzzle/get-config get-config))
+       (reduce (fn [last-match ckey]
+                 (if (try (contains? last-match ckey) (catch Throwable _ false))
+                   (let [next-match (get last-match ckey)]
+                     (cond-> next-match
+                       ;; Only add get-config to returned value if it's a page entry map
+                       (and (vector? ckey) (map? next-match) (:nuzzle/title next-match))
+                       (assoc :nuzzle/get-config get-config)))
                    (throw (ex-info (str "get-config error: config key sequence "
                                         (-> ckeys vec pr-str) " cannot be resolved")
                                    {:invalid-key ckey}))))
