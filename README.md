@@ -53,7 +53,7 @@ All three functions have exactly the same interface:
 - They accept keyword arguments which you can use to override the values of your configuration file.
 
 ```
-clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.306"}}}'
+clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.308"}}}'
 ```
 
 ```clojure
