@@ -42,6 +42,61 @@
 (defn read-default-config []
   (read-config-from-path "nuzzle.edn"))
 
+(defn create-tag-index-page-entries
+  "Add config page entries for pages that index all the pages which are tagged
+  with a particular tag. Each one of these tag index pages goes under the
+  /tags/ subdirectory"
+  [config]
+  (->> config
+       ;; Create a map shaped like {tag-kw #{page-keys-with-tag}}
+       (reduce-kv
+        ;; For every key value pair in config
+        (fn [acc ckey {:nuzzle/keys [tags]}]
+          (if (and (vector? ckey) tags)
+            ;; If entry is a page with tags, create a map with an entry for
+            ;; every tag the page is tagged with and merge it into acc
+            (merge-with into acc (zipmap tags (repeat #{ckey})))
+            ;; if entry is an option or tagless page, don't change acc
+            acc))
+        {})
+       ;; Then change each entry into a proper page entry
+       (reduce-kv
+        (fn [acc tag ckeys]
+          (assoc acc [:tags tag] {:nuzzle/index ckeys
+                                  :nuzzle/title (str "#" (name tag))}))
+        {})))
+
+(defn create-hierarchical-index-page-entries
+  "Create config page entries for pages that are hierarchically located 'above'
+  the page entries present in the config according to their path such that all
+  pages have parent pages going up to the root page"
+  [config]
+  (->> config
+       ;; Create a map shaped like {page-key #{child-page-keys}}
+       (reduce-kv
+        ;; For every key value pair in config
+        (fn [acc ckey _]
+          ;; Start loop because each config entry may add multiple entries to acc
+          (loop [acc acc
+                 ckey ckey]
+            (if (or (not (vector? ckey)) (empty? ckey))
+              ;; If config key is option or root page, don't change acc map
+              acc
+              ;; If config key is a non-root page, associate with parent page key in the acc map
+              (let [parent-ckey (vec (butlast ckey))]
+                ;; Add the page key to acc map in a set under the parent key
+                (recur (update acc parent-ckey #(if % (conj % ckey) #{ckey}))
+                       ;; Repeat the process with parent key
+                       parent-ckey)))))
+        {})
+       ;; Then change the vals into proper page maps
+       (reduce-kv
+        (fn [acc ckey child-pages]
+          (let [title-kw (last ckey)
+                title (if title-kw (util/kebab-case->title-case title-kw) "Home")]
+            (assoc acc ckey {:nuzzle/index child-pages :nuzzle/title title})))
+        {})))
+
 (defn transform-config
   "Creates fully transformed config with or without drafts."
   [{:nuzzle/keys [build-drafts?] :as config}]
@@ -95,8 +150,8 @@
       (handle-drafts $)
       (resolve-symbols $)
       (convert-time-strs $)
-      (util/deep-merge $ (gen/create-tag-index-page-entries $))
-      (util/deep-merge $ (gen/create-hierarchical-index-page-entries $))
+      (util/deep-merge $ (create-tag-index-page-entries $))
+      (util/deep-merge $ (create-hierarchical-index-page-entries $))
       (add-page-keys $)
       ;; Adding get-config must come after all other transformations
       (add-get-config-to-pages $))))
