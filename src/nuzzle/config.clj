@@ -95,7 +95,7 @@
       (handle-drafts $)
       (resolve-symbols $)
       (convert-time-strs $)
-      (util/deep-merge $ (gen/create-tag-index $))
+      (util/deep-merge $ (gen/create-tag-index-page-entries $))
       (util/deep-merge $ (gen/create-hierarchical-index-page-entries $))
       (add-page-keys $)
       ;; Adding get-config must come after all other transformations

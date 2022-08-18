@@ -4,20 +4,27 @@
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
 
-(defn create-tag-index
-  "Create a map of pages that are the tag index pages"
+(defn create-tag-index-page-entries
+  "Add config page entries for pages that index all the pages which are tagged
+  with a particular tag. Each one of these tag index pages goes under the
+  /tags/ subdirectory"
   [config]
   (->> config
-       ;; Create a map shaped like tag -> [page-keys]
+       ;; Create a map shaped like {tag-kw #{page-keys-with-tag}}
        (reduce-kv
-        (fn [acc pkey {:nuzzle/keys [tags]}]
-          ;; merge-with is awesome!
-          (if (and (vector? pkey) tags) (merge-with into acc (zipmap tags (repeat #{pkey}))) acc))
+        ;; for every key value pair in config
+        (fn [acc ckey {:nuzzle/keys [tags]}]
+          (if (and (vector? ckey) tags)
+            ;; if entry is a page with tags, create a map with an entry for
+            ;; every tag the page is tagged with and merge it into acc
+            (merge-with into acc (zipmap tags (repeat #{ckey})))
+            ;; if entry is an option or tagless page, don't change acc
+            acc))
         {})
-       ;; Then change the val into a map with more info
+       ;; Then change each entry into a proper page entry
        (reduce-kv
-        (fn [acc tag pkeys]
-          (assoc acc [:tags tag] {:nuzzle/index pkeys
+        (fn [acc tag ckeys]
+          (assoc acc [:tags tag] {:nuzzle/index ckeys
                                   :nuzzle/title (str "#" (name tag))}))
         {})))
 
