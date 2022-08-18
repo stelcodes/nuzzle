@@ -53,7 +53,7 @@
               :content subtitle})]
           (for [[rel-url _] rendered-site-index
                 :let [page-key (util/url->page-key rel-url)
-                      {:nuzzle/keys [updated summary author title subtitle content render-content feed?]} (get config page-key)
+                      {:nuzzle/keys [updated summary author title content render-content feed?]} (get config page-key)
                       content-result (when (fn? render-content) (render-content))
                       abs-url (str base-url rel-url)]
                 :when feed?]
@@ -62,9 +62,6 @@
                         :content title}
                        {:tag ::atom/id
                         :content abs-url}
-                       (when subtitle
-                         {:tag ::atom/subtitle
-                          :content subtitle})
                        (when content-result
                          {:tag ::atom/content
                           :attrs {:type "html"}
