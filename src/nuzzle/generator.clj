@@ -2,7 +2,6 @@
   (:require
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
-   [nuzzle.content :as con]
    [nuzzle.util :as util]))
 
 (defn create-tag-index
@@ -76,46 +75,6 @@
                                         (-> ckeys vec pr-str) " cannot be resolved")
                                    {:invalid-key ckey}))))
                config ckeys)))))
-
-(defn transform-config
-  "Creates fully transformed config with or without drafts."
-  [{:nuzzle/keys [build-drafts?] :as config}]
-  {:pre [(map? config)] :post [#(map? %)]}
-  ;; Allow users to define their own overrides via deep-merge
-  (letfn [(handle-drafts [config]
-            (if build-drafts?
-              (do (log/log-build-drafts) config)
-              (do (log/log-remove-drafts)
-                (reduce-kv
-                 (fn [acc k v]
-                   (if (and (vector? k) (:nuzzle/draft? v))
-                     acc
-                     (assoc acc k v)))
-                 {} config))))
-          (transform-pages [config]
-            (reduce-kv
-             (fn [acc ckey {:nuzzle/keys [content] :as cval}]
-               (assoc acc ckey
-                      (cond-> cval
-                        (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey)
-                                              :nuzzle/page-key ckey)
-                        (or (vector? ckey) content) (assoc :nuzzle/render-content
-                                                           (con/create-render-content-fn ckey config)))))
-             {} config))
-          (add-get-config-to-pages [config]
-            (let [get-config (gen-get-config config)]
-              (reduce-kv
-               (fn [acc ckey cval]
-                 (assoc acc ckey (cond-> cval
-                                   (vector? ckey) (assoc :nuzzle/get-config get-config))))
-               {} config)))]
-    (as-> config $
-      (handle-drafts $)
-      (util/deep-merge $ (create-tag-index $))
-      (util/deep-merge $ (create-group-index $))
-      (transform-pages $)
-      ;; Adding get-config must come after all other transformations
-      (add-get-config-to-pages $))))
 
 (defn generate-page-list
   "Creates a seq of maps which each represent a page in the website."

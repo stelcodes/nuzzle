@@ -9,8 +9,8 @@
 
 (def render-page (constantly [:h1 "test"]))
 
-(deftest read-config-path
-  (is (= (conf/read-config-path config-path)
+(deftest read-config-from-path
+  (is (= (conf/read-config-from-path config-path)
          {:nuzzle/publish-dir "/tmp/nuzzle-test-out",
           :nuzzle/base-url "https://foobar.com"
           :nuzzle/sitemap? true
@@ -51,8 +51,10 @@
 
 (deftest validate-config
   (testing "bad config fails with expound output"
-    (let [config-2 (conf/read-config-path config-2-path)
-          error-str (with-out-str (try (conf/validate-config config-2) (catch Throwable _ nil)))]
+    (let [error-str (with-out-str (try (-> config-2-path
+                                           conf/read-config-from-path
+                                           conf/validate-config)
+                                    (catch Throwable _ nil)))]
       (is (re-find #"Spec failed" error-str))
       (is (re-find #"should contain key:.{6}:nuzzle/base-url" error-str))))
   (testing "author registry author validation works"

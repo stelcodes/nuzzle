@@ -1,7 +1,6 @@
 (ns nuzzle.api
   (:require [lambdaisland.deep-diff2 :as ddiff]
             [nuzzle.config :as conf]
-            [nuzzle.generator :as gen]
             [nuzzle.publish :as publish]
             [nuzzle.log :as log]
             [nuzzle.ring :as ring]))
@@ -10,17 +9,16 @@
   "Allows the user to visualize the site data after Nuzzle's modifications."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [config (conf/load-default-config config-overrides)]
-    (log/info "🔍🐈 Printing transformed config for inspection")
-    (-> config gen/transform-config)))
+  (log/info "🔍🐈 Returning transformed config")
+  (conf/load-default-config config-overrides))
 
 (defn transform-diff
   "Pretty prints the diff between the config in nuzzle.edn and the config after
   Nuzzle's transformations."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (let [raw-config (conf/read-config-path "nuzzle.edn")
-        transformed-config (-> config-overrides conf/load-default-config gen/transform-config)]
+  (let [raw-config (conf/read-config-from-path "nuzzle.edn")
+        transformed-config (conf/load-default-config config-overrides)]
     (log/info "🔍🐈 Printing Nuzzle's config transformations diff")
     (ddiff/pretty-print (ddiff/diff raw-config transformed-config))))
 

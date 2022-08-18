@@ -3,6 +3,7 @@
    [clojure.edn :as edn]
    [clojure.spec.alpha :as s]
    [expound.alpha :as expound]
+   [nuzzle.content :as content]
    [nuzzle.log :as log]
    [nuzzle.schemas :as schemas]
    [nuzzle.generator :as gen]
@@ -22,7 +23,7 @@
                            (re-find #"failed: .*" (s/explain-str :nuzzle/user-config config)))
                       {})))))
 
-(defn read-config-path
+(defn read-config-from-path
   "Read the config from EDN file"
   [config-path]
   {:pre [(string? config-path)]}
@@ -38,44 +39,78 @@
       (log/error "Could not read config file.")
       (throw e))))
 
-(defn transform-config
-  "Applies defaults and transformations to a valid :nuzzle/user-config"
-  [{:nuzzle/keys [render-page] :as config} & {:as config-overrides}]
-  {:pre [(map? config) (or (nil? config-overrides) (map? config-overrides))]
-   :post [(map? %)]}
-  (let [config-defaults {:nuzzle/publish-dir "out" :nuzzle/server-port 6899}
-        resolve-sym (fn resolve-sym [config-key sym]
-                      (try (var-get (requiring-resolve sym))
-                        (catch Exception e
-                          (log/error config-key "symbol" sym "cannot be resolved")
-                          (throw e))))
-        render-page-fn (resolve-sym :nuzzle/render-page render-page)
-        parse-time (fn [time-str ckey pkey]
-                     (or (util/time-str->?inst time-str)
-                         (throw (ex-info (str "Time string " (pr-str time-str)
-                                              " in page entry " (pr-str ckey) " is invalid")
-                                         {:config-key ckey :page-key pkey :time-str time-str}))))
-        config (-> (merge config-defaults config config-overrides)
-                   (assoc :nuzzle/render-page render-page-fn))]
-    (reduce-kv
-     (fn [acc ckey {:nuzzle/keys [updated] :as cval}]
-       (if-not (and (vector? ckey) (map? cval))
-         (assoc acc ckey cval)
-         (assoc acc ckey
-                (cond-> cval
-                  updated (assoc :nuzzle/updated (parse-time updated ckey :nuzzle/updated))))))
-     {} config)))
+(defn read-default-config []
+  (read-config-from-path "nuzzle.edn"))
 
-(defn load-specified-config
+(defn transform-config
+  "Creates fully transformed config with or without drafts."
+  [{:nuzzle/keys [build-drafts?] :as config}]
+  {:pre [(map? config)] :post [#(map? %)]}
+  ;; Allow users to define their own overrides via deep-merge
+  (letfn [(apply-defaults [config]
+            (let [config-defaults {:nuzzle/publish-dir "out"
+                                   :nuzzle/server-port 6899}]
+              (merge config-defaults config)))
+          (handle-drafts [config]
+            (if build-drafts?
+              (do (log/log-build-drafts) config)
+              (do (log/log-remove-drafts)
+                (reduce-kv
+                 (fn [acc k v]
+                   (if (and (vector? k) (:nuzzle/draft? v))
+                     acc
+                     (assoc acc k v)))
+                 {} config))))
+          (symbol->value [sym] (var-get (requiring-resolve sym)))
+          (resolve-symbols [config]
+            (update config :nuzzle/render-page symbol->value))
+          (convert-time-strs [config]
+            (reduce-kv
+             (fn [acc ckey {:nuzzle/keys [updated] :as cval}]
+               (if-not (and (vector? ckey) (map? cval))
+                 (assoc acc ckey cval)
+                 (assoc acc ckey
+                        (cond-> cval
+                          updated (update :nuzzle/updated util/time-str->?inst)))))
+             {} config))
+          (add-page-keys [config]
+            (reduce-kv
+             (fn [acc ckey {:nuzzle/keys [content] :as cval}]
+               (assoc acc ckey
+                      (cond-> cval
+                        (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey)
+                                              :nuzzle/page-key ckey)
+                        (or (vector? ckey) content) (assoc :nuzzle/render-content
+                                                           (content/create-render-content-fn ckey config)))))
+             {} config))
+          (add-get-config-to-pages [config]
+            (let [get-config (gen/gen-get-config config)]
+              (reduce-kv
+               (fn [acc ckey cval]
+                 (assoc acc ckey (cond-> cval
+                                   (vector? ckey) (assoc :nuzzle/get-config get-config))))
+               {} config)))]
+    (as-> config $
+      (apply-defaults $)
+      (handle-drafts $)
+      (resolve-symbols $)
+      (convert-time-strs $)
+      (util/deep-merge $ (gen/create-tag-index $))
+      (util/deep-merge $ (gen/create-group-index $))
+      (add-page-keys $)
+      ;; Adding get-config must come after all other transformations
+      (add-get-config-to-pages $))))
+
+(defn load-config-from-path
   "Read a config EDN file and validate it."
   [config-path & {:as config-overrides}]
   (-> config-path
-      read-config-path
+      read-config-from-path
+      (util/deep-merge config-overrides)
       validate-config
-      (transform-config config-overrides)
-      (gen/transform-config)))
+      transform-config))
 
 (defn load-default-config [& {:as config-overrides}]
-  (load-specified-config "nuzzle.edn" config-overrides))
+  (load-config-from-path "nuzzle.edn" config-overrides))
 
-(comment (load-specified-config "test-resources/edn/config-1.edn" {}))
+(comment (load-config-from-path "test-resources/edn/config-1.edn" {}))

@@ -76,11 +76,11 @@
         (update-vals remove-get-config))))
 
 (comment (-> (read-ash-config) transform-ash-config create-ash-config-file
-             (conf/load-specified-config) normalize-loaded-config))
+             (conf/load-config-from-path) normalize-loaded-config))
 
 (deftest transform-config
   (let [config (-> (read-ash-config) transform-ash-config create-ash-config-file
-                   (conf/load-specified-config))
+                   (conf/load-config-from-path))
         normalized-config (normalize-loaded-config config)]
     ;; Check that every page entry has a :nuzzle/get-config key
     (is (every? (fn [[ckey cval]] (or (not (vector? ckey)) (contains? cval :nuzzle/get-config)))
