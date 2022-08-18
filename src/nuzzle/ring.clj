@@ -2,7 +2,6 @@
   (:require
    [nuzzle.config :as conf]
    [nuzzle.log :as log]
-   [nuzzle.generator :as gen]
    [nuzzle.util :as util]
    [org.httpkit.server :as http]
    [ring.middleware.content-type :refer [wrap-content-type]]
@@ -31,7 +30,7 @@
   config to be passed down from wrap-overlay-dir, avoiding an unecessary config
   load"
   [{:keys [config] :as request}]
-  (let [get-pages #(gen/create-site-index config :lazy? true)
+  (let [get-pages #(conf/create-site-index config :lazy? true)
         app (stasis/serve-pages get-pages)]
     (app request)))
 

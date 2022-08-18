@@ -1,7 +1,7 @@
 (ns nuzzle.publish
   (:require
    [babashka.fs :as fs]
-   [nuzzle.generator :as gen]
+   [nuzzle.config :as conf]
    [nuzzle.log :as log]
    [nuzzle.feed :as feed]
    [nuzzle.sitemap :as sitemap]
@@ -28,7 +28,7 @@
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
   [{:nuzzle/keys [overlay-dir publish-dir atom-feed sitemap?] :as config} & {:as test-opts}]
-  (let [rendered-site-index (gen/create-site-index config)]
+  (let [rendered-site-index (conf/create-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
     (stasis/empty-directory! publish-dir)
