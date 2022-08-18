@@ -9,7 +9,7 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn config [] (conf/load-specified-config config-path {}))
+(defn config [] (conf/load-config-from-path config-path))
 
 (deftest create-sitemap
   (is (= (-> "test-resources/xml/empty-sitemap.xml" slurp str/trim)

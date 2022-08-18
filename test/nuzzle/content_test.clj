@@ -6,7 +6,7 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn config [] (conf/load-specified-config config-path {}))
+(defn config [] (conf/load-config-from-path config-path))
 
 (deftest generate-highlight-command
   (testing "generating chroma command"

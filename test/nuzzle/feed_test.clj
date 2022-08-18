@@ -6,7 +6,7 @@
    [nuzzle.feed :as feed]
    [nuzzle.generator :as gen]))
 
-(defn config [] (conf/load-specified-config "test-resources/edn/config-1.edn"))
+(defn config [] (conf/load-config-from-path "test-resources/edn/config-1.edn"))
 
 (deftest create-atom-feed
   (let [config (config)

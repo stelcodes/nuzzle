@@ -5,7 +5,7 @@
 
 (def config-path "test-resources/edn/config-1.edn")
 
-(defn config [] (conf/read-config-path config-path))
+(defn config [] (conf/read-config-from-path config-path))
 
 (deftest create-tag-index
   (is (= {[:tags :bar]
@@ -47,7 +47,7 @@
          (gen/create-group-index (config)))))
 
 (deftest gen-get-config
-  (let [config (conf/load-specified-config config-path)
+  (let [config (conf/load-config-from-path config-path)
         get-config (gen/gen-get-config config)]
     (is (= "https://foobar.com" (get-config :nuzzle/base-url)))
     (is (= "https://twitter/foobar" (get-config :meta :twitter)))
