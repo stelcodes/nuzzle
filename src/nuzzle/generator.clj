@@ -31,37 +31,22 @@
                                    {:invalid-key ckey}))))
                config ckeys)))))
 
-(defn generate-page-list
-  "Creates a seq of maps which each represent a page in the website."
-  [config]
-  {:pre [(map? config)] :post [(seq? %)]}
-       (reduce-kv (fn [acc ckey cval]
-                    (if (vector? ckey) (conj acc cval) acc))
-                  (list) config))
-
-(defn generate-debug-site-index
-  "Creates a map where the keys are URLs and the values are functions that log
-  the page map and return the page's Hiccup. This datastructure is
+(defn create-site-index
+  "Creates a map where the keys are relative URLs and the values are a string
+  of HTML or a function that produces a string of HTML. This datastructure is
   defined by stasis."
-  [{:nuzzle/keys [render-page] :as config}]
+  [{:nuzzle/keys [render-page] :as config} & {:keys [lazy?]}]
   {:pre [(fn? render-page)] :post [(map? %)]}
-  (->> config
-       generate-page-list
-       (map (fn [page] (when-let [render-result (render-page page)]
-                         [(:nuzzle/url page)
-                          (fn [_]
-                            (log/log-rendering-page page)
-                            (hiccup/html-document render-result))])))
-       (into {})))
-
-(defn generate-rendered-site-index
-  "Creates a map where the keys are relative URLs and the values are Hiccup.
-  This datastructure is defined by stasis."
-  [{:nuzzle/keys [render-page] :as config}]
-  {:pre [(fn? render-page)] :post [(map? %)]}
-  (->> config
-       generate-page-list
-       (map (fn [page] (when-let [render-result (render-page page)]
-                         [(:nuzzle/url page)
-                          (hiccup/html-document render-result)])))
-       (into {})))
+  (reduce-kv
+   (fn [acc ckey cval]
+     (if-let [render-result (and (vector? ckey) (render-page cval))]
+       (assoc acc (:nuzzle/url cval)
+              (if lazy?
+                ;; Turn the page's hiccup into HTML on the fly
+                (fn [_]
+                  (log/log-rendering-page cval)
+                  (hiccup/html-document render-result))
+                (hiccup/html-document render-result)))
+       ;; If not a page entry, skip it
+       acc))
+   {} config))

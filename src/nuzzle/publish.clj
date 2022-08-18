@@ -28,7 +28,7 @@
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
   [{:nuzzle/keys [overlay-dir publish-dir atom-feed sitemap?] :as config} & {:as test-opts}]
-  (let [rendered-site-index (gen/generate-rendered-site-index config)]
+  (let [rendered-site-index (gen/create-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
     (stasis/empty-directory! publish-dir)
