@@ -132,7 +132,6 @@ The following config options provide functionality above and beyond basic static
 - `:nuzzle/draft?`: A boolean indicating whether this page is a draft or not.
 - `:nuzzle/feed?`: A boolean indicating whether the page should be included in the optional Atom feed.
 - `:nuzzle/tags`: A set of keywords where each keyword represents a tag name.
-- `:nuzzle/subtitle`: A string subtitle for the web page.
 - `:nuzzle/updated`: A timestamp string representing when the page was last updated.
 - `:nuzzle/summary`: A string summary of the page content.
 - `:nuzzle/author`: A keyword representing the author of the page. The author must be registered in the `:nuzzle/author-registry` map.
