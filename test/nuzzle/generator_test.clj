@@ -7,21 +7,21 @@
 
 (defn config [] (conf/read-config-from-path config-path))
 
-(deftest create-tag-index
+(deftest create-tag-index-page-entries
   (is (= {[:tags :bar]
           {:nuzzle/index #{[:blog :foo]},
            :nuzzle/title "#bar"}
           [:tags :baz]
           {:nuzzle/index #{[:blog :foo]},
            :nuzzle/title "#baz"}}
-         (gen/create-tag-index {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}})))
+         (gen/create-tag-index-page-entries {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}})))
   (is (= {[:tags :nuzzle]
           {:nuzzle/index #{[:blog :nuzzle-rocks] [:blog :why-nuzzle]},
            :nuzzle/title "#nuzzle"}
           [:tags :colors]
           {:nuzzle/index #{[:blog :favorite-color]},
            :nuzzle/title "#colors"}}
-         (gen/create-tag-index (config)))))
+         (gen/create-tag-index-page-entries (config)))))
 
 (deftest create-hierarchical-index-page-entries
   (is (= {[:blog-posts]
