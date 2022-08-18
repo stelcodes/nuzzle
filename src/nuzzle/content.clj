@@ -119,10 +119,8 @@
           content-ext (fs/extension content-file)]
       (if (fs/exists? content-file)
         (cond
-         (contains? #{"md" "markdown"} content-ext)
-         (fn render-content [] (process-markdown-file content-file config))
-         (contains? #{"html" "htm"} content-ext)
-         (fn render-content [] (process-html-file content-file config))
+         (contains? #{"md" "markdown"} content-ext) (constantly (process-markdown-file content-file config))
+         (contains? #{"html" "htm"} content-ext) (constantly (process-html-file content-file config))
          :else (throw (ex-info (str "Content file " (fs/canonicalize content-file)
                                     " for page " page-key " has unrecognized extension "
                                     content-ext ". Must be one of: md, markdown, html, htm")
