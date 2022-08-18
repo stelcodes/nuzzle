@@ -18,7 +18,7 @@
         feed-path (fs/path temp-dir "feed.xml")
         reference-feed-path (fs/path "test-resources/sites/config-1-site/feed.xml")
         config (assoc (config) :nuzzle/publish-dir (str temp-dir))
-        rendered-site-index (gen/generate-rendered-site-index config)]
+        rendered-site-index (gen/create-site-index config)]
     (publish/publish-atom-feed config rendered-site-index {:deterministic? true})
     (is (fs/exists? feed-path))
     (is (fs/exists? reference-feed-path))
@@ -30,7 +30,7 @@
         sitemap-path (fs/path temp-dir "sitemap.xml")
         reference-sitemap-path (fs/path "test-resources/xml/config-1-sitemap.xml")
         config (assoc (config) :nuzzle/publish-dir (str temp-dir))
-        rendered-site-index (gen/generate-rendered-site-index config)]
+        rendered-site-index (gen/create-site-index config)]
     (publish/publish-sitemap config rendered-site-index)
     (is (fs/exists? sitemap-path))
     (is (fs/exists? reference-sitemap-path))

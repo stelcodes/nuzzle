@@ -10,6 +10,6 @@
 
 (deftest create-atom-feed
   (let [config (config)
-        rendered-site-index (gen/generate-rendered-site-index config)]
+        rendered-site-index (gen/create-site-index config)]
     (is (= (-> "test-resources/sites/config-1-site/feed.xml" slurp str/trim)
            (feed/create-atom-feed config rendered-site-index {:deterministic? true})))))
