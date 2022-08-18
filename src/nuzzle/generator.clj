@@ -21,31 +21,35 @@
                                   :nuzzle/title (str "#" (name tag))}))
         {})))
 
-(defn create-group-index
-  "Create a map of all pages that serve as a location-based index for other
-  pages"
+(defn create-hierarchical-index-page-entries
+  "Create config page entries for pages that are hierarchically located 'above'
+  the page entries present in the config according to their path such that all
+  pages have parent pages going up to the root page"
   [config]
   (->> config
-       ;; Create a map shaped like group -> [page-keys]
+       ;; Create a map shaped like {page-key #{child-page-keys}}
        (reduce-kv
-        (fn [acc pkey _]
-          (loop [trans-acc acc
-                 trans-pkey pkey]
-            (if-not (and (vector? trans-pkey) (> (count trans-pkey) 0))
-              trans-acc
-              (let [parent-pkey (vec (butlast trans-pkey))]
-                (recur (update trans-acc parent-pkey
-                               #(if % (conj % trans-pkey) #{trans-pkey}))
-                       parent-pkey)))))
+        ;; for every key value pair in config
+        (fn [acc ckey _]
+          ;; start loop because each config entry may add multiple entries to acc
+          (loop [acc acc
+                 ckey ckey]
+            (if (or (not (vector? ckey)) (empty? ckey))
+              ;; if config key is option or root page, don't change acc map
+              acc
+              ;; if config key is a non-root page, associate with parent page key in the acc map
+              (let [parent-ckey (vec (butlast ckey))]
+                ;; add the page key to acc map in a set under the parent key
+                (recur (update acc parent-ckey #(if % (conj % ckey) #{ckey}))
+                       ;; repeat the process with parent key
+                       parent-ckey)))))
         {})
-       ;; Then change the val into a page map with more info
+       ;; Then change the vals into proper page maps
        (reduce-kv
-        (fn [m parent-pkey children-pkeys]
-          (if-let [title (last parent-pkey)]
-            (assoc m parent-pkey {:nuzzle/index children-pkeys
-                                  :nuzzle/title (util/kebab-case->title-case title)})
-            (assoc m parent-pkey {:nuzzle/index children-pkeys
-                                  :nuzzle/title "Home"})))
+        (fn [acc ckey child-pages]
+          (let [title-kw (last ckey)
+                title (if title-kw (util/kebab-case->title-case title-kw) "Home")]
+            (assoc acc ckey {:nuzzle/index child-pages :nuzzle/title title})))
         {})))
 
 (defn gen-get-config

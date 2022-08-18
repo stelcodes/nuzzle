@@ -23,7 +23,7 @@
            :nuzzle/title "#colors"}}
          (gen/create-tag-index (config)))))
 
-(deftest create-group-index
+(deftest create-hierarchical-index-page-entries
   (is (= {[:blog-posts]
           {:nuzzle/index #{[:blog-posts :foo] [:blog-posts :archive]}, :nuzzle/title "Blog Posts"},
           [:blog-posts :archive]
@@ -34,7 +34,7 @@
           []
           {:nuzzle/index #{[:blog-posts] [:projects]}
            :nuzzle/title "Home"}}
-         (gen/create-group-index {[:blog-posts :foo] {:nuzzle/title "Foo"}
+         (gen/create-hierarchical-index-page-entries {[:blog-posts :foo] {:nuzzle/title "Foo"}
                                   [:blog-posts :archive :baz] {:nuzzle/title "Baz"}
                                   [:projects :bee] {:nuzzle/title "Bee"}})))
   (is (= {[:blog]
@@ -44,7 +44,7 @@
           []
           {:nuzzle/index #{[:about] [:blog]}
            :nuzzle/title "Home"}}
-         (gen/create-group-index (config)))))
+         (gen/create-hierarchical-index-page-entries (config)))))
 
 (deftest gen-get-config
   (let [config (conf/load-config-from-path config-path)
