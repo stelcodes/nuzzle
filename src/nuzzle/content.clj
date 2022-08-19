@@ -112,15 +112,19 @@
 (defn create-render-content-fn
   "Create a function that turns the :nuzzle/content file into the correct form for the
   hiccup compiler: vector, list, or raw string"
-  [page-key config]
+  [page-key config & {:keys [lazy-render?] :as _opts}]
   {:pre [(or (vector? page-key) (keyword? page-key))]}
   (if-let [content (get-in config [page-key :nuzzle/content])]
     (let [content-file (fs/file content)
           content-ext (fs/extension content-file)]
       (if (fs/exists? content-file)
         (cond
-         (contains? #{"md" "markdown"} content-ext) (constantly (process-markdown-file content-file config))
-         (contains? #{"html" "htm"} content-ext) (constantly (process-html-file content-file config))
+         (#{"md" "markdown"} content-ext) (if lazy-render?
+                                            #(process-markdown-file content-file config)
+                                            (constantly (process-markdown-file content-file config)))
+         (#{"html" "htm"} content-ext) (if lazy-render?
+                                         #(process-html-file content-file config)
+                                         (constantly (process-html-file content-file config)))
          :else (throw (ex-info (str "Content file " (fs/canonicalize content-file)
                                     " for page " page-key " has unrecognized extension "
                                     content-ext ". Must be one of: md, markdown, html, htm")
