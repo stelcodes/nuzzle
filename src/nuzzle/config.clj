@@ -127,7 +127,7 @@
 
 (defn transform-config
   "Creates fully transformed config with or without drafts."
-  [{:nuzzle/keys [build-drafts?] :as config}]
+  [{:nuzzle/keys [build-drafts?] :as config} & {:as opts}]
   {:pre [(map? config)] :post [#(map? %)]}
   ;; Allow users to define their own overrides via deep-merge
   (letfn [(apply-defaults [config]
@@ -164,7 +164,7 @@
                         (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey)
                                               :nuzzle/page-key ckey)
                         (or (vector? ckey) content) (assoc :nuzzle/render-content
-                                                           (content/create-render-content-fn ckey config)))))
+                                                           (content/create-render-content-fn ckey config opts)))))
              {} config))
           (add-get-config-to-pages [config]
             (let [get-config (create-get-config config)]
