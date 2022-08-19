@@ -1,8 +1,6 @@
-{:min-bb-version "0.4.0",
- :tasks {format (when (seq *command-line-args*)
-                  (shell (str "zprint '{:style [:community :respect-bl :hiccup] :width 100}' -w "
-                              (clojure.string/join " " *command-line-args*))))
-         lint (shell "bb clojure -M:clj-kondo --lint src test")
+{:min-bb-version "0.8.0",
+ :tasks {lint (clojure "-M:clj-kondo --lint src test")
          push {:depends [test lint] :task (do (shell "git push origin") (shell "git push origin --tags"))}
          repl (shell "rlwrap bb clojure -M:repl")
-         test (shell (clojure.string/join " " (into ["bb clojure -M:test -m kaocha.runner"] *command-line-args*)))}}
+         tag {:depends [test lint] :task (clojure "-T:build tag")}
+         test (apply clojure "-M:test -m kaocha.runner" *command-line-args*)}}
