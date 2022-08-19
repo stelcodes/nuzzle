@@ -1,4 +1,5 @@
 (ns nuzzle.content
+  ;; (:use clojure.stacktrace)
   (:require
    [babashka.fs :as fs]
    [clojure.string :as str]
@@ -96,6 +97,7 @@
     [:pre [:code.code-block code]]))
 
 (defn process-markdown-file [file config]
+  ;; (print-stack-trace (ex-info "PROCESSING MARKDOWN FILE" {:file file}) 12)
   (let [code-block-with-config #(code-block->hiccup % config)
         lower-fns {:markdown/fenced-code-block code-block-with-config
                    :markdown/indented-code-block code-block-with-config}

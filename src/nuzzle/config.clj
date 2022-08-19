@@ -1,4 +1,5 @@
 (ns nuzzle.config
+  ;; (:use clojure.stacktrace)
   (:require
    [clojure.edn :as edn]
    [clojure.spec.alpha :as s]
@@ -187,6 +188,7 @@
 (defn load-config-from-path
   "Read a config EDN file and validate it."
   [config-path & {:keys [config-overrides] :as opts}]
+  ;; (print-stack-trace (ex-info "LOADING CONFIG" {:path config-path}) 12)
   (-> config-path
       read-config-from-path
       (util/deep-merge config-overrides)
