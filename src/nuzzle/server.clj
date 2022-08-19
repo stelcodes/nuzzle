@@ -30,7 +30,7 @@
   config to be passed down from wrap-overlay-dir, avoiding an unecessary config
   load"
   [{:keys [config] :as request}]
-  (let [get-pages #(conf/create-site-index config :lazy? true)
+  (let [get-pages #(conf/create-site-index config :lazy-render? true)
         app (stasis/serve-pages get-pages)]
     (app request)))
 
