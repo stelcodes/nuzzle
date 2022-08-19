@@ -3,7 +3,7 @@
             [nuzzle.config :as conf]
             [nuzzle.publish :as publish]
             [nuzzle.log :as log]
-            [nuzzle.ring :as ring]))
+            [nuzzle.server :as server]))
 
 (defn transform
   "Allows the user to visualize the site data after Nuzzle's modifications."
@@ -36,4 +36,4 @@
   "Starts a server using http-kit for development."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (ring/start-server config-overrides))
+  (server/start-server config-overrides))
