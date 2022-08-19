@@ -1,4 +1,4 @@
-(ns nuzzle.ring
+(ns nuzzle.server
   (:require
    [nuzzle.config :as conf]
    [nuzzle.log :as log]
