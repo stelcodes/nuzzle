@@ -10,7 +10,7 @@
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (log/info "🔍🐈 Returning transformed config")
-  (conf/load-default-config config-overrides))
+  (conf/load-default-config :config-overrides config-overrides))
 
 (defn transform-diff
   "Pretty prints the diff between the config in nuzzle.edn and the config after
@@ -18,7 +18,7 @@
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
   (let [raw-config (conf/read-config-from-path "nuzzle.edn")
-        transformed-config (conf/load-default-config config-overrides)]
+        transformed-config (conf/load-default-config :config-overrides config-overrides)]
     (log/info "🔍🐈 Printing Nuzzle's config transformations diff")
     (ddiff/pretty-print (ddiff/diff raw-config transformed-config))))
 
@@ -28,12 +28,11 @@
   published."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (-> config-overrides
-      (conf/load-default-config)
+  (-> (conf/load-default-config :config-overrides config-overrides)
       (publish/publish-site)))
 
 (defn serve
   "Starts a server using http-kit for development."
   [& {:as config-overrides}]
   {:pre [(or (nil? config-overrides) (map? config-overrides))]}
-  (server/start-server config-overrides))
+  (server/start-server :config-overrides config-overrides))

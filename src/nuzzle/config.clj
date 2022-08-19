@@ -186,15 +186,15 @@
 
 (defn load-config-from-path
   "Read a config EDN file and validate it."
-  [config-path & {:as config-overrides}]
+  [config-path & {:keys [config-overrides] :as opts}]
   (-> config-path
       read-config-from-path
       (util/deep-merge config-overrides)
       validate-config
-      transform-config))
+      (transform-config opts)))
 
-(defn load-default-config [& {:as config-overrides}]
-  (load-config-from-path "nuzzle.edn" config-overrides))
+(defn load-default-config [& {:as opts}]
+  (load-config-from-path "nuzzle.edn" opts))
 
 (comment (load-config-from-path "test-resources/edn/config-1.edn" {}))
 
