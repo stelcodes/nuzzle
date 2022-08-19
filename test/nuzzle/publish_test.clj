@@ -27,6 +27,12 @@
 (comment (spit "test-resources/xml/empty-sitemap.xml" (publish/create-sitemap {} {})))
 (comment (spit "test-resources/xml/config-1-sitemap.xml" (publish/create-sitemap (config) (conf/create-site-index (config)))))
 
+(deftest create-atom-feed
+  (let [config (config)
+        rendered-site-index (conf/create-site-index config)]
+    (is (= (-> "test-resources/sites/config-1-site/feed.xml" slurp str/trim)
+           (publish/create-atom-feed config rendered-site-index {:deterministic? true})))))
+
 (deftest publish-feed
   (let [temp-dir (fs/create-temp-dir)
         feed-path (fs/path temp-dir "feed.xml")
