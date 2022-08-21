@@ -116,6 +116,7 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
+- `:nuzzle/ignored-pages` - A collection of page entry keys that should be removed as part of the config transformation step. Can be used to ignore pages that Nuzzle creates automatically.
 - `:nuzzle/author-registry` - A map of keyword keys to map values which contain information about a website author. Used in conjunction with the `:nuzzle/author` page entry key.
 - `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to `6899`.
 
@@ -267,7 +268,7 @@ Nuzzle adds both hierarchical and tag index pages automatically for all hierarch
   :nuzzle/index #{[:tags :comfort-food] [:tags :japanese]}}}
 ```
 
-> You may not want to publish all the index pages that Nuzzle adds to your config. That's ok! You can avoid publishing any page by returning `nil` from your page rendering function.
+> You may not want to publish all the index pages that Nuzzle adds to your config. That's ok! You can avoid publishing any page by adding it to the `:nuzzle/ignored-pages` collection.
 
 These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys.
 
@@ -293,16 +294,15 @@ Here's an example of a page rendering function called `simple-render-page`:
 
 (defn simple-render-page
   [{:nuzzle/keys [page-key render-content title] :as _page}]
-  (cond
-    ;; Decide what the page should look like based on the data in the page map
-    (= [] page-key) (layout title [:h1 "Home Page"] [:a {:href "/about"} "About"])
-    (= [:about] page-key) (layout title [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
-    :else nil))
+  (case page-key
+    ;; Decide what the page should look like based on the page-key
+    []       (layout title [:h1 title] [:a {:href "/about"} "About"])
+    [:about] (layout title [:h1 title] [:p "nuzzle nuzzle uwu :3"])
+    ;; Default:
+    (layout title [:h1 title] (render-content)))
 ```
 
 The `render-page` function uses the `:nuzzle/page-key` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
-
-Just because a page exists in your transformed config doesn't mean you have to include it in your static site. If you don't want a page to be published, just return `nil`.
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
@@ -363,12 +363,12 @@ There are many use cases for the `get-config` function. It's great for creating 
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
            [:a {:href (get-config [:tags :clojure] :nuzzle/url)} "here!"]]))
 
-(defn render-page [{:nuzzle/keys [page-key render-content title] :as page}]
+(defn render-page [{:nuzzle/keys [page-key render-content title index] :as page}]
   (cond
-   (= [] page-key) (render-homepage page)
+   (= [] page-key)       (render-homepage page)
    (= [:about] page-key) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
-   (= [:tags :clojure] page-key) (render-index-page page)
-   :else (layout page [:h1 title] (render-content))))
+   index                 (render-index-page page)
+   :default              (layout page [:h1 title] (render-content))))
 ```
 
 ## Syntax Highlighting

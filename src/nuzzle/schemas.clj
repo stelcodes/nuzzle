@@ -61,6 +61,7 @@
 (s/def :nuzzle/build-drafts? boolean?)
 (s/def :nuzzle/custom-elements (s/map-of keyword? symbol?))
 (s/def :nuzzle/author-registry (s/map-of keyword? :nuzzle.author-registry/entry))
+(s/def :nuzzle/ignore-pages (s/coll-of :nuzzle/page-key :kind set?))
 
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
@@ -75,7 +76,7 @@
    (spell/keys :req [:nuzzle/base-url :nuzzle/render-page]
                :opt [:nuzzle/syntax-highlighter :nuzzle/atom-feed :nuzzle/build-drafts?
                      :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir :nuzzle/overlay-dir
-                     :nuzzle/author-registry])
+                     :nuzzle/author-registry :nuzzle/ignore-pages])
    (s/every :nuzzle/config-entry)))
 
 (comment
