@@ -38,7 +38,7 @@
   "Loads config and adds it to the request map under they key :config"
   [app config-overrides]
   (fn [request]
-    (let [config (conf/load-default-config :config-overrides config-overrides)]
+    (let [config (conf/load-default-config :config-overrides config-overrides :lazy-render? true)]
       (-> request
           (assoc :config config)
           (app)))))
