@@ -107,8 +107,7 @@
                     rel-path (str (.subpath abs-path parent-path-name-count path-name-count))
                     md5-checksum (if (.isDirectory (.toFile abs-path))
                                    :dir
-                                   ;; Ignore trailing newline differences
-                                   (-> (.getCanonicalPath file) slurp string/trim digest/md5))]
+                                   (digest/md5 file))]
                 (assoc contents-map rel-path md5-checksum)))
             (sorted-map) (rest files))))
 

@@ -120,14 +120,14 @@
   [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:as test-opts}]
   (let [feed-file (fs/file publish-dir "feed.xml")
         _ (log/log-feed feed-file)
-        feed-str (create-atom-feed config rendered-site-index test-opts)]
+        feed-str (str (create-atom-feed config rendered-site-index test-opts) \newline)]
     (spit feed-file feed-str)))
 
 (defn publish-sitemap
   [{:nuzzle/keys [publish-dir] :as config} rendered-site-index]
   (let [sitemap-file (fs/file publish-dir "sitemap.xml")
         _ (log/log-sitemap sitemap-file)
-        sitemap-str (create-sitemap config rendered-site-index)]
+        sitemap-str (str (create-sitemap config rendered-site-index) \newline)]
     (spit sitemap-file sitemap-str)))
 
 (defn publish-site
