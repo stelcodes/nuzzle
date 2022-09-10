@@ -34,20 +34,19 @@
 
 (defn wrap-load-config
   "Loads config and adds it to the request map under they key :config"
-  [app config-overrides]
+  [app config]
   (fn [request]
-    (let [config (conf/load-default-config :config-overrides config-overrides :lazy-render? true)]
-      (-> request
-          (assoc :config config)
-          (app)))))
+    (-> request
+        (assoc :config (conf/load-config config))
+        app)))
 
-(defn start-server [& {:keys [config-overrides]}]
-  (let [{:nuzzle/keys [server-port]}
-        (conf/load-default-config :config-overrides config-overrides :lazy-render? true)]
+(defn start-server [config & {:keys [config-overrides]}]
+  (let [{:nuzzle/keys [server-port] :as config}
+        (conf/load-config config :config-overrides config-overrides :lazy-render? true)]
     (log/log-start-server server-port)
     (-> handle-page-request
         (wrap-overlay-dir)
-        (wrap-load-config config-overrides)
+        (wrap-load-config config)
         (wrap-content-type)
         (wrap-stacktrace)
         (http/run-server {:port server-port}))))

@@ -9,8 +9,6 @@
 
 (def http-url? #(re-find #"^https?://" %))
 
-(def resolvable-symbol? #(try (requiring-resolve %) (catch Throwable _ nil)))
-
 ;; Page map keys
 (s/def :nuzzle/title string?)
 (s/def :nuzzle/feed? boolean?)
@@ -46,7 +44,7 @@
   (s/def :nuzzle.atom-feed/author (s/and keyword? (-> config :nuzzle/author-registry keys set))))
 
 ;; Config keys
-(s/def :nuzzle/render-page (s/and symbol? resolvable-symbol?))
+(s/def :nuzzle/render-page fn?)
 (s/def :nuzzle/base-url http-url?)
 (s/def :nuzzle/syntax-highlighter
   (spell/keys :req-un [:nuzzle.syntax-highlighter/provider]

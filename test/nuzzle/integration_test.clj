@@ -1,6 +1,5 @@
 (ns nuzzle.integration-test
   (:require
-   [babashka.fs :as fs]
    [clojure.edn :as edn]
    [clojure.test :refer [deftest is]]
    [cybermonday.core :as cm]
@@ -40,22 +39,10 @@
             (update cval :nuzzle/content #(str "test-resources/" %))))]
     (-> config
       ;; (update :nuzzle/overlay-dir #(str "test-resources/" %))
-      (update :nuzzle/render-page (constantly 'nuzzle.integration-test/render-page))
+      (assoc :nuzzle/render-page nuzzle.integration-test/render-page)
       (update-vals update-content))))
 
 (comment (-> (read-ash-config) transform-ash-config))
-
-(defn create-ash-config-file
-  [config]
-  {:pre [(map? config)]}
-  (let [tmp-file (fs/create-temp-file)
-        tmp-file-path (-> tmp-file fs/canonicalize str)]
-    (->> config
-         pr-str
-         (spit tmp-file-path))
-    tmp-file-path))
-
-(comment (-> (read-ash-config) transform-ash-config create-ash-config-file))
 
 (defn normalize-loaded-config
   "Calls the :nuzzle/render-content function in each page entry value so it's
@@ -75,12 +62,11 @@
         (update-vals trigger-render-content)
         (update-vals remove-get-config))))
 
-(comment (-> (read-ash-config) transform-ash-config create-ash-config-file
-             (conf/load-config-from-path) normalize-loaded-config))
+;; (comment (-> (read-ash-config) transform-ash-config create-ash-config-file
+;;              (conf/load-config-from-path) normalize-loaded-config))
 
 (deftest transform-config
-  (let [config (-> (read-ash-config) transform-ash-config create-ash-config-file
-                   (conf/load-config-from-path))
+  (let [config (-> (read-ash-config) transform-ash-config conf/load-config)
         normalized-config (normalize-loaded-config config)]
     ;; Check that every page entry has a :nuzzle/get-config key
     (is (every? (fn [[ckey cval]] (or (not (vector? ckey)) (contains? cval :nuzzle/get-config)))
