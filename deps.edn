@@ -5,7 +5,8 @@
                   :extra-paths ["dev" "test" "test-resources"],
                   :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"
                               "--interactive"]},
-           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}}
+           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}
+                               org.clj-commons/digest {:mvn/version "1.4.100"}}
                   :extra-paths ["test" "test-resources"]}
            :build ;; added by neil
            {:deps {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}
@@ -18,7 +19,6 @@
         http-kit/http-kit {:mvn/version "2.5.3"},
         com.kiranshila/cybermonday {:mvn/version "0.4.184"}
         babashka/fs {:mvn/version "0.1.4"},
-        org.clj-commons/digest {:mvn/version "1.4.100"}
         org.clojure/clojure {:mvn/version "1.11.1"},
         org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}
         rum/rum {:mvn/version "0.12.9"}
