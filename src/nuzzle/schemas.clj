@@ -54,7 +54,6 @@
               :opt-un [:nuzzle.atom-feed/subtitle :nuzzle.atom-feed/author :nuzzle.atom-feed/logo :nuzzle.atom-feed/icon]))
 (s/def :nuzzle/sitemap? boolean?)
 (s/def :nuzzle/server-port (s/int-in 1024 65536))
-(s/def :nuzzle/overlay-dir string?)
 (s/def :nuzzle/publish-dir string?)
 (s/def :nuzzle/build-drafts? boolean?)
 (s/def :nuzzle/custom-elements (s/map-of keyword? symbol?))
@@ -73,7 +72,7 @@
   (s/and
    (spell/keys :req [:nuzzle/base-url :nuzzle/render-page]
                :opt [:nuzzle/syntax-highlighter :nuzzle/atom-feed :nuzzle/build-drafts?
-                     :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir :nuzzle/overlay-dir
+                     :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir
                      :nuzzle/author-registry :nuzzle/ignore-pages])
    (s/every :nuzzle/config-entry)))
 

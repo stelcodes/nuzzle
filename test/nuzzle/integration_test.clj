@@ -38,7 +38,6 @@
             cval
             (update cval :nuzzle/content #(str "test-resources/" %))))]
     (-> config
-      ;; (update :nuzzle/overlay-dir #(str "test-resources/" %))
       (assoc :nuzzle/render-page nuzzle.integration-test/render-page)
       (update-vals update-content))))
 

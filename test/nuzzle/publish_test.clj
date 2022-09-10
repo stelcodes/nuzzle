@@ -92,9 +92,8 @@
         reference-site-dir (str (fs/path "test-resources/sites/config-1-site"))
         config (-> test-util/config-1
                    (assoc :nuzzle/publish-dir (str temp-site-dir))
-                   (update :nuzzle/overlay-dir #(str "test-resources/" %))
                    conf/load-config)
-        _ (publish/publish-site config {:deterministic? true})
+        _ (publish/publish-site config :overlay-dir "test-resources/public" :deterministic? true)
         mismatches (diff-dirs temp-site-dir reference-site-dir)]
     (doseq [mismatch mismatches
             :let [rel->abs-path (fn [parent-dir path] (str parent-dir "/" path))

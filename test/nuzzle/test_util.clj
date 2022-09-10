@@ -16,7 +16,6 @@
    :nuzzle/atom-feed {:author :donna,
                       :subtitle "Rants about foo and thoughts about bar",
                       :title "Foo's blog"}
-   :nuzzle/overlay-dir "public",
    :meta {:twitter "https://twitter/foobar"},
    [] {:nuzzle/title "Home"},
    [:about] {:nuzzle/updated "2022-05-09T12:00Z",
@@ -46,7 +45,6 @@
   {:nuzzle/build-drafts? true
    :nuzzle/render-page render-page
    :nuzzle/sitemap? true
-   :nuzzle/overlay-dir "public"
    :nuzzle/publish-dir "/tmp/nuzzle-test-out"
 
    [] {:nuzzle/title "Home"}
