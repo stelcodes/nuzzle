@@ -3,13 +3,13 @@
    [clojure.test :refer [deftest is]]
    [nuzzle.util :as util]))
 
-(deftest url->page-key
+(deftest vectorize-url
   (is (= (list [:about] [] [:blog-posts :foo])
-         (map util/url->page-key ["/about/" "/" "/blog-posts/foo/"]))))
+         (map util/vectorize-url ["/about/" "/" "/blog-posts/foo/"]))))
 
-(deftest page-key->url
-  (is (= "/blog-posts/my-hobbies/" (util/page-key->url [:blog-posts :my-hobbies])))
-  (is (= "/about/" (util/page-key->url [:about]))))
+(deftest stringify-url
+  (is (= "/blog-posts/my-hobbies/" (util/stringify-url [:blog-posts :my-hobbies])))
+  (is (= "/about/" (util/stringify-url [:about]))))
 
 (deftest time-str->?inst
   (is (inst? (util/time-str->?inst "2022-05-04")))

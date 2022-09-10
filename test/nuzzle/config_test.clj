@@ -113,7 +113,7 @@
         get-config (conf/create-get-config config)]
     (is (= "https://foobar.com" (get-config :nuzzle/base-url)))
     (is (= "https://twitter/foobar" (get-config :meta :twitter)))
-    (is (= "/about/" (get-config [:about] :nuzzle/url)))
+    (is (= [:about] (get-config [:about] :nuzzle/url)))
     (is (= #{[:blog :favorite-color] [:blog :nuzzle-rocks] [:blog :why-nuzzle]}
            (get-config [:blog] :nuzzle/index)))
     (is (thrown-with-msg? clojure.lang.ExceptionInfo #"get-config error: config key sequence \[:bad-key\] cannot be resolved"
