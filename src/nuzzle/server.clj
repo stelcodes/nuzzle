@@ -40,9 +40,9 @@
         (assoc :config (conf/load-config config))
         app)))
 
-(defn start-server [config & {:keys [config-overrides]}]
+(defn start-server [config]
   (let [{:nuzzle/keys [server-port] :as config}
-        (conf/load-config config :config-overrides config-overrides :lazy-render? true)]
+        (conf/load-config config :lazy-render? true)]
     (log/log-start-server server-port)
     (-> handle-page-request
         (wrap-overlay-dir)

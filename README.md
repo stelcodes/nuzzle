@@ -48,9 +48,7 @@ Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
 - `transform`: Returns your config after Nuzzle's transformations.
 - `transform-diff`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
 
-All three functions have exactly the same interface:
-- They require no arguments.
-- They accept keyword arguments which you can use to override the values of your configuration file.
+All these functions accept a single argument: the config map.
 
 ```
 clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
@@ -59,22 +57,23 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```clojure
 (require '[nuzzle.api :as nuzz])
 
-;; You will need a config file at nuzzle.edn before running these functions successfully
+;; Create a config map
+(def config {...})
 
 ;; Start development server
-;; You can stop the development server by saving the returned function
-(def stop (nuzz/serve :nuzzle/build-drafts? true))
-;; Call (stop) later
+;; Pass the config as a var to get awesome hot-reloading capabilities!
+;; The returned value is a function that stops the server.
+(nuzz/serve #'config)
 
-;; Publish the static site
-(nuzz/publish)
+;; Publish the static site, returns nil
+(nuzz/publish config)
 
-;; Visualize Nuzzle's data pipeline
-(nuzz/transform-diff)
+;; Prints a diff of all changes Nuzzle made to the config before using it, returns nil
+(nuzz/transform-diff config)
 ```
 
-## Configuration File
-Nuzzle expects to find an EDN map in the file `nuzzle.edn` in your current working directory. This file is where you will store your Nuzzle config. The config is validated by `clojure.spec`. You can find the [config spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
+## Configuration Map
+Nuzzle builds your static site from a map of configuration values. The config is validated by `clojure.spec`. You can find the [config spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
 If you're from Pallet town, your `nuzzle.edn` config might look like this:
 ```clojure
