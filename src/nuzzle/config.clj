@@ -110,7 +110,6 @@
   "Creates fully transformed config with or without drafts."
   [{:nuzzle/keys [build-drafts?] :as config} & {:as opts}]
   {:pre [(map? config)] :post [#(map? %)]}
-  ;; Allow users to define their own overrides via deep-merge
   (letfn [(apply-defaults [config]
             (let [config-defaults {:nuzzle/publish-dir "out"
                                    :nuzzle/server-port 6899}]
@@ -171,11 +170,10 @@
       (add-get-config-to-pages $))))
 
 (defn load-config
-  "Read a config EDN file and validate it."
-  [config & {:keys [config-overrides] :as opts}]
+  "Load a config var or map and validate it."
+  [config & {:as opts}]
   ;; (print-stack-trace (ex-info "LOADING CONFIG" {:path config-path}) 12)
   (-> (if (var? config) (var-get config) config)
-      (util/deep-merge config-overrides)
       validate-config
       (transform-config opts)))
 
