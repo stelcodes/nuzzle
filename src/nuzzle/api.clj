@@ -23,11 +23,11 @@
   "Publishes the website to :nuzzle/publish-dir. The overlay directory is
   overlayed on top of the publish directory after the web pages have been
   published."
-  [config]
+  [config & opts]
   (-> (conf/load-config config)
-      (publish/publish-site)))
+      (publish/publish-site opts)))
 
 (defn serve
   "Starts a server using http-kit for development."
-  [config]
-  (server/start-server config))
+  [config & opts]
+  (server/start-server config opts))

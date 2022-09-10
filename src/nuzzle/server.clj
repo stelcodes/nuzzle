@@ -5,48 +5,43 @@
    [nuzzle.util :as util]
    [org.httpkit.server :as http]
    [ring.middleware.content-type :refer [wrap-content-type]]
-   [ring.middleware.file :refer [wrap-file]]
+   [ring.middleware.file :refer [file-request]]
    [ring.middleware.stacktrace :refer [wrap-stacktrace]]
    [stasis.core :as stasis]))
 
 (defn wrap-overlay-dir
-  [app]
-  (let [last-overlay-dir (atom nil)]
+  [app overlay-dir]
+  (if overlay-dir
     (fn [request]
-      (if-let [overlay-dir (get-in request [:config :nuzzle/overlay-dir])]
-        (let [app-with-files (wrap-file app overlay-dir)]
-          (when-not (= overlay-dir @last-overlay-dir)
-            (log/log-overlay-dir overlay-dir)
-            (reset! last-overlay-dir overlay-dir))
-          (util/ensure-overlay-dir overlay-dir)
-          (app-with-files request))
-        (app request)))))
+      (if-let [response (file-request request overlay-dir)]
+        response
+        (app request)))
+    (fn [request] (app request))))
 
 (defn handle-page-request
-  "Handler that wraps around stasis.core/serve-pages, allowing the get-pages
-  function (Stasis terminology) to access the request map. This allows the
-  config to be passed down from wrap-overlay-dir, avoiding an unecessary config
-  load"
-  [{:keys [config] :as request}]
-  (let [pages (conf/create-site-index config :lazy-render? true)
-        app (stasis/serve-pages pages)]
-    (app request)))
+  "Handler that wraps around stasis.core/serve-pages, if config is a var then
+  the config is resolved and validated upon each request. Otherwise the config
+  is validated once and the app is built just once."
+  [config]
+  (if (var? config)
+    (fn [request]
+      (let [loaded-config (conf/load-config config)
+            pages (conf/create-site-index loaded-config :lazy-render? true)
+            app (stasis/serve-pages pages)]
+        (app request)))
+    (let [loaded-config (conf/load-config config)
+          pages (conf/create-site-index loaded-config :lazy-render? true)
+          app (stasis/serve-pages pages)]
+      (fn [request]
+        (app request)))))
 
-(defn wrap-load-config
-  "Loads config and adds it to the request map under they key :config"
-  [app config]
-  (fn [request]
-    (-> request
-        (assoc :config (conf/load-config config))
-        app)))
-
-(defn start-server [config]
-  (let [{:nuzzle/keys [server-port] :as config}
-        (conf/load-config config :lazy-render? true)]
-    (log/log-start-server server-port)
-    (-> handle-page-request
-        (wrap-overlay-dir)
-        (wrap-load-config config)
-        (wrap-content-type)
-        (wrap-stacktrace)
-        (http/run-server {:port server-port}))))
+(defn start-server [config & {:keys [port overlay-dir]}]
+  (log/log-start-server port)
+  (when overlay-dir
+    (log/log-overlay-dir overlay-dir)
+    (util/ensure-overlay-dir overlay-dir))
+  (-> (handle-page-request config)
+      (wrap-overlay-dir overlay-dir)
+      (wrap-content-type)
+      (wrap-stacktrace)
+      (http/run-server {:port (or port 6899)})))

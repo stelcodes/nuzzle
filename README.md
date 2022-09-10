@@ -42,14 +42,6 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 - [Chroma](https://github.com/alecthomas/chroma) >= 2.0.0 (optional)
 
 ## Usage
-Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
-- `publish`: Exports the static site to disk.
-- `serve`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
-- `transform`: Returns your config after Nuzzle's transformations.
-- `transform-diff`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
-
-All these functions accept a single argument: the config map.
-
 ```
 clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```
@@ -72,10 +64,18 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 (nuzz/transform-diff config)
 ```
 
+Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
+- `(publish <config>)`: Exports the static site to disk.
+  - `:overlay-dir` - Optional keyword argument, a path to a directory that will be overlayed on top of the static web site, useful for including static assets. Defaults to `nil` (no overlay).
+- `(serve <config>)`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
+  - `:overlay-dir` - Same as above.
+- `(transform <config>)`: Returns your config after Nuzzle's transformations.
+- `(transform-diff <config>)`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
+
 ## Configuration Map
 Nuzzle builds your static site from a map of configuration values. The config is validated by `clojure.spec`. You can find the [config spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
-If you're from Pallet town, your `nuzzle.edn` config might look like this:
+If you're from Pallet town, your config might look like this:
 ```clojure
 {:nuzzle/base-url "https://ashketchum.com"
  :nuzzle/render-page views/render-page
@@ -114,7 +114,6 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 - `:nuzzle/render-page` - A fully qualified symbol that must resolve to your page rendering function. Required.
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
-- `:nuzzle/overlay-dir` - A path to a directory that will be overlayed on top of the `:nuzzle/publish-dir` directory as the final stage of publishing. Defaults to `nil` (no overlay).
 - `:nuzzle/ignored-pages` - A collection of page entry keys that should be removed as part of the config transformation step. Can be used to ignore pages that Nuzzle creates automatically.
 - `:nuzzle/author-registry` - A map of keyword keys to map values which contain information about a website author. Used in conjunction with the `:nuzzle/author` page entry key.
 - `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to `6899`.
