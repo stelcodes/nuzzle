@@ -1,7 +1,6 @@
 (ns nuzzle.config
   ;; (:use clojure.stacktrace)
   (:require
-   [clojure.edn :as edn]
    [clojure.spec.alpha :as s]
    [expound.alpha :as expound]
    [nuzzle.content :as content]
@@ -23,25 +22,6 @@
       (throw (ex-info (str "Invalid Nuzzle config! "
                            (re-find #"failed: .*" (s/explain-str :nuzzle/user-config config)))
                       {})))))
-
-(defn read-config-from-path
-  "Read the config from EDN file"
-  [config-path]
-  {:pre [(string? config-path)]}
-  (try
-    (edn/read-string (slurp config-path))
-    (catch java.io.FileNotFoundException e
-      (log/error "Config file is missing or has incorrect permissions.")
-      (throw e))
-    (catch java.lang.RuntimeException e
-      (log/error "Config file contains invalid EDN.")
-      (throw e))
-    (catch Exception e
-      (log/error "Could not read config file.")
-      (throw e))))
-
-(defn read-default-config []
-  (read-config-from-path "nuzzle.edn"))
 
 (defn create-tag-index-page-entries
   "Add config page entries for pages that index all the pages which are tagged
@@ -145,9 +125,6 @@
                      acc
                      (assoc acc k v)))
                  {} config))))
-          (symbol->value [sym] (var-get (requiring-resolve sym)))
-          (resolve-symbols [config]
-            (update config :nuzzle/render-page symbol->value))
           (convert-time-strs [config]
             (reduce-kv
              (fn [acc ckey {:nuzzle/keys [updated] :as cval}]
@@ -185,7 +162,6 @@
     (as-> config $
       (apply-defaults $)
       (handle-drafts $)
-      (resolve-symbols $)
       (convert-time-strs $)
       (util/deep-merge $ (create-tag-index-page-entries $))
       (util/deep-merge $ (create-hierarchical-index-page-entries $))
@@ -194,20 +170,14 @@
       ;; Adding get-config must come after all other transformations
       (add-get-config-to-pages $))))
 
-(defn load-config-from-path
+(defn load-config
   "Read a config EDN file and validate it."
-  [config-path & {:keys [config-overrides] :as opts}]
+  [config & {:keys [config-overrides] :as opts}]
   ;; (print-stack-trace (ex-info "LOADING CONFIG" {:path config-path}) 12)
-  (-> config-path
-      read-config-from-path
+  (-> (if (var? config) (var-get config) config)
       (util/deep-merge config-overrides)
       validate-config
       (transform-config opts)))
-
-(defn load-default-config [& {:as opts}]
-  (load-config-from-path "nuzzle.edn" opts))
-
-(comment (load-config-from-path "test-resources/edn/config-1.edn" {}))
 
 (defn create-site-index
   "Creates a map where the keys are relative URLs and the values are a string

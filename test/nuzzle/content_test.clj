@@ -1,12 +1,8 @@
 (ns nuzzle.content-test
   (:require
    [clojure.test :refer [deftest testing is run-tests]]
-   [nuzzle.config :as conf]
-   [nuzzle.content :as con]))
-
-(def config-path "test-resources/edn/config-1.edn")
-
-(defn config [] (conf/load-config-from-path config-path))
+   [nuzzle.content :as con]
+   [nuzzle.test-util :as test-util]))
 
 (deftest generate-highlight-command
   (testing "generating chroma command"
@@ -52,7 +48,7 @@
 ;;              (con/highlight-code code "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}}))))))
 
 (deftest create-render-content-fn
-  (let [render-content (con/create-render-content-fn [:about] (config))]
+  (let [render-content (con/create-render-content-fn [:about] test-util/config-1)]
     (is (fn? render-content))
     (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
            (render-content)))))
