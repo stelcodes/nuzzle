@@ -1,12 +1,12 @@
 (ns nuzzle.hiccup
-  (:require [hiccup2.core :as hiccup]))
+  (:require [rum.core :as rum]))
 
-(def raw hiccup/raw)
+(defn raw [raw-html-str] [:<> {:dangerouslySetInnerHTML {:__html raw-html-str}}])
 
-(defmacro html [& args] `(hiccup/html ~@args))
+(defn html [& hiccup] (rum/render-static-markup hiccup))
 
-(defmacro html-document [& args] `(str "<!DOCTYPE html>" (hiccup/html ~@args)))
+(defn html-document [& hiccup] (str "<!DOCTYPE html>" (apply html hiccup)))
 
-(comment (str "<!DOCTYPE html>" (html [:html [:head [:title "Some Title"]] [:h1 "test"]])))
+(comment (str "<!DOCTYPE html>" (html [:html [:head [:title "Some Title"]]])))
 
 (comment (html-document [:html [:head [:title "Some Title"]] [:h1 "test"]]))
