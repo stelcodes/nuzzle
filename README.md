@@ -208,11 +208,10 @@ A key part of this process is the first arrow: Nuzzle's transformations. Nuzzle 
 
 ### Adding Keys to Page Entries
 Nuzzle adds these keys to every page map:
-- `:nuzzle/url`: The path of the page from the website's root without the `index.html` part (ex `"/blog-posts/learning-clojure/"`).
+- `:nuzzle/url`: The key of the page (the vector of keywords representing the URL) is added to the page map.
 - `:nuzzle/index`: A set of page entry keys that should be indexed by the respective web page.
 - `:nuzzle/render-content`: A function that returns the page's associated content file converted to HTML (if `:nuzzle/content` key is present, otherwise returns `nil`).
 - `:nuzzle/get-config`: A function that allows you to freely access your Nuzzle config from inside your page rendering function.
-- `:nuzzle/page-key`: The key associated with the respective page entry is added to the page entry map for access in your page rendering function.
 
 ### Adding Keys to Option Entries
 - `:nuzzle/render-content`: Same as above but only added if the associated value is a map and `:nuzzle/content` is present. Can be used to create content snippets to use on several pages.
@@ -227,7 +226,7 @@ Often people want to create index pages in static sites which link to other page
 Nuzzle adds both hierarchical and tag index pages automatically for all hierarchies and tags present in your website. This example illustrates how Nuzzle adds both types of index page entries to a Nuzzle config:
 
 ```clojure
-;; Example config (option entries omitted for brevity)
+;; Example config (Some page keys omitted for brevity)
 
 {[:recipes :grilled-cheese]
  {:nuzzle/title "My World Famous Grilled Cheese"
@@ -241,30 +240,26 @@ Nuzzle adds both hierarchical and tag index pages automatically for all hierarch
 
 {[:recipes :grilled-cheese]
  {:nuzzle/title "My World Famous Grilled Cheese"
-  :nuzzle/url "/recipes/grilled-cheese/"}
+  :nuzzle/tags #{:comfort-food}}
 
  [:recipes :ramen-noodles]
  {:nuzzle/title "The Best Ramen Noodle Recipe"
-  :nuzzle/url "/recipes/ramen-noodles/"}
+  :nuzzle/tags #{:comfort-food :japanese}}}
 
  [:recipes]
  {:nuzzle/title "Recipes"
-  :nuzzle/url "/recipes/"
   :nuzzle/index #{[:recipes :grilled-cheese] [:recipes :ramen-noodles]}}
 
  [:tags :comfort-food]
  {:nuzzle/title "#comfort-food"
-  :nuzzle/url "/tags/comfort-food/"
   :nuzzle/index #{[:recipes :grilled-cheese] [:recipes :ramen-noodles]}}
 
  [:tags :japanese]
  {:nuzzle/title "#japanese"
-  :nuzzle/url "/tags/japanese/"
   :nuzzle/index #{[:recipes :ramen-noodles]}}
 
  [:tags]
  {:nuzzle/title "Tags"
-  :nuzzle/url "/tags/"
   :nuzzle/index #{[:tags :comfort-food] [:tags :japanese]}}}
 ```
 
@@ -293,16 +288,16 @@ Here's an example of a page rendering function called `simple-render-page`:
    (into [:body] body)])
 
 (defn simple-render-page
-  [{:nuzzle/keys [page-key render-content title] :as _page}]
-  (case page-key
-    ;; Decide what the page should look like based on the page-key
+  [{:nuzzle/keys [url render-content title] :as _page}]
+  (case url
+    ;; Decide what the page should look like based on the url
     []       (layout title [:h1 title] [:a {:href "/about"} "About"])
     [:about] (layout title [:h1 title] [:p "nuzzle nuzzle uwu :3"])
     ;; Default:
     (layout title [:h1 title] (render-content)))
 ```
 
-The `render-page` function uses the `:nuzzle/page-key` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
+The `render-page` function uses the `:nuzzle/url` value to determine what Hiccup to return. This is how a single function can produce Hiccup for every page.
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
@@ -332,41 +327,43 @@ Of course, any page entry map returned from `get-config` will also have a `:nuzz
 There are many use cases for the `get-config` function. It's great for creating index pages, accessing custom option entries, and countless other things:
 
 ```clojure
+(ns foobar.markup
+  (:require [nuzzle.util :refer [stringify-url]]))
+
+(def twitter-url "https://twitter.com/foobar")
+
 (defn unordered-list [& list-items]
   (->> list-items
        (map (fn [item] [:li item]))
        (into [:ul])))
 
-(defn layout [{:nuzzle/keys [title get-config] :as _page} & body]
-  (let [twitter-url (get-config :social :twitter)
-        about-url (get-config [:about] :nuzzle/url)]
-    [:html [:head [:title title]]
-     (into [:body
-            [:header
-             (unordered-list
-              [:a {:href about-url} "About"]
-              [:a {:href twitter-url} "My Tweets"])]]
-           body)]))
+(defn layout [{:nuzzle/keys [title] :as _page} & body]
+  [:html [:head [:title title]]
+   (into [:body
+          [:header
+           (unordered-list
+            [:a {:href (stringify-url [:about])} "About"]
+            [:a {:href twitter-url} "My Tweets"])]]
+         body)])
 
 (defn render-index-page [{:nuzzle/keys [title index get-config] :as page}]
   (layout page
           [:h1 (str "Index page for " title)]
           (->>
-           (for [page-key index]
-             [:a {:href (get-config page-key :nuzzle/url}
-                 (get-config page-key :nuzzle/title)])
+           (for [url index]
+             [:a {:href (stringify-url url)} (get-config url :nuzzle/title)])
            (apply unordered-list))))
 
-(defn render-homepage [{:nuzzle/keys [get-config] :as page}]
+(defn render-homepage [page]
   (layout page
           [:h1 "Home Page"]
           [:p (str "Hi there, welcome to my website. If you want to read my rants about Clojure, click ")
-           [:a {:href (get-config [:tags :clojure] :nuzzle/url)} "here!"]]))
+           [:a {:href (stringify-url [:tags :clojure])} "here!"]]))
 
-(defn render-page [{:nuzzle/keys [page-key render-content title index] :as page}]
+(defn render-page [{:nuzzle/keys [url render-content title index] :as page}]
   (cond
-   (= [] page-key)       (render-homepage page)
-   (= [:about] page-key) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
+   (= [] url)       (render-homepage page)
+   (= [:about] url) (layout page [:h1 "About Page"] [:p "nuzzle nuzzle uwu :3"])
    index                 (render-index-page page)
    :default              (layout page [:h1 title] (render-content))))
 ```

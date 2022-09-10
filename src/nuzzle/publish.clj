@@ -24,10 +24,10 @@
    (xml/emit-str
     {:tag ::sm/urlset
      :content
-     (for [[rel-url _hiccup] rendered-site-index
-           :let [page-key (util/url->page-key rel-url)
-                 {:nuzzle/keys [content updated]} (get config page-key)
-                 abs-url (str base-url rel-url)]]
+     (for [[url-str _hiccup] rendered-site-index
+           :let [url-vec (util/vectorize-url url-str)
+                 {:nuzzle/keys [content updated]} (get config url-vec)
+                 abs-url (str base-url url-str)]]
        {:tag ::sm/url
         :content
         [{:tag ::sm/loc
@@ -78,11 +78,11 @@
            (when-let [subtitle (:subtitle atom-feed)]
              {:tag ::atom/subtitle
               :content subtitle})]
-          (for [[rel-url _] rendered-site-index
-                :let [page-key (util/url->page-key rel-url)
-                      {:nuzzle/keys [updated summary author title content render-content feed?]} (get config page-key)
+          (for [[url-str _] rendered-site-index
+                :let [url-vec (util/vectorize-url url-str)
+                      {:nuzzle/keys [updated summary author title content render-content feed?]} (get config url-vec)
                       content-result (when (fn? render-content) (render-content))
-                      abs-url (str base-url rel-url)]
+                      abs-url (str base-url url-str)]
                 :when feed?]
             {:tag ::atom/entry
              :content [{:tag ::atom/title

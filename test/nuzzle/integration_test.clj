@@ -94,26 +94,22 @@
             {:nuzzle/title "Home"
              :nuzzle/content "test-resources/markdown/homepage-introduction.md",
              :nuzzle/index #{[:about] [:blog-posts]},
-             :nuzzle/url "/",
-             :nuzzle/page-key []
+             :nuzzle/url []
              :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
             [:blog-posts :catching-pikachu]
             {:nuzzle/title "How I Caught Pikachu",
              :nuzzle/content "test-resources/markdown/how-i-caught-pikachu.md",
-             :nuzzle/url "/blog-posts/catching-pikachu/",
-             :nuzzle/page-key [:blog-posts :catching-pikachu]
+             :nuzzle/url [:blog-posts :catching-pikachu]
              :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
             [:about]
             {:nuzzle/title "About Ash"
              :nuzzle/content "test-resources/markdown/about-ash.md",
-             :nuzzle/url "/about/",
-             :nuzzle/page-key [:about]
+             :nuzzle/url [:about]
              :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
             [:blog-posts]
             {:nuzzle/index
              #{[:blog-posts :catching-pikachu]},
              :nuzzle/title "Blog Posts",
-             :nuzzle/url "/blog-posts/",
-             :nuzzle/page-key [:blog-posts]
+             :nuzzle/url [:blog-posts]
              :nuzzle/content "test-resources/markdown/blog-header.md"
              :nuzzle/render-content '([:p {} "Hi I'm Ash and this is my blog!"])}}))))

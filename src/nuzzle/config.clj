@@ -49,7 +49,7 @@
   /tags/ subdirectory"
   [config]
   (->> config
-       ;; Create a map shaped like {tag-kw #{page-keys-with-tag}}
+       ;; Create a map shaped like {tag-kw #{url url ...}}
        (reduce-kv
         ;; For every key value pair in config
         (fn [acc ckey {:nuzzle/keys [tags]}]
@@ -73,7 +73,7 @@
   pages have parent pages going up to the root page"
   [config]
   (->> config
-       ;; Create a map shaped like {page-key #{child-page-keys}}
+       ;; Create a map shaped like {url #{child-url child-url ...}}
        (reduce-kv
         ;; For every key value pair in config
         (fn [acc ckey _]
@@ -171,8 +171,7 @@
              (fn [acc ckey {:nuzzle/keys [content] :as cval}]
                (assoc acc ckey
                       (cond-> cval
-                        (vector? ckey) (assoc :nuzzle/url (util/page-key->url ckey)
-                                              :nuzzle/page-key ckey)
+                        (vector? ckey) (assoc :nuzzle/url ckey)
                         (or (vector? ckey) content) (assoc :nuzzle/render-content
                                                            (content/create-render-content-fn ckey config opts)))))
              {} config))
@@ -217,9 +216,9 @@
   [{:nuzzle/keys [render-page] :as config} & {:keys [lazy-render?]}]
   {:pre [(fn? render-page)] :post [(map? %)]}
   (reduce-kv
-   (fn [acc ckey cval]
+   (fn [acc ckey {:nuzzle/keys [url] :as cval}]
      (if (vector? ckey)
-       (assoc acc (:nuzzle/url cval)
+       (assoc acc (util/stringify-url url)
               (if lazy-render?
                 ;; Turn the page's hiccup into HTML on the fly
                 (fn [_]
