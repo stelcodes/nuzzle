@@ -5,14 +5,13 @@
    [nuzzle.test-util :as test-util]))
 
 (deftest validate-config
-  (testing "bad config fails with expound output"
-    (let [error-str (with-out-str (try (-> test-util/config-2 conf/load-config)
-                                    (catch Throwable _ nil)))]
-      (is (re-find #"Spec failed" error-str))
-      (is (re-find #"should contain key:.{6}:nuzzle/base-url" error-str))))
+  ;; (testing "bad config fails with expound output"
+  ;;   (let [error-str (with-out-str (try (-> test-util/config-2 conf/load-config)
+  ;;                                   (catch Throwable _ nil)))]
+  ;;     (is (re-find #"Spec failed" error-str))
+  ;;     (is (re-find #"should contain key:.{6}:nuzzle/base-url" error-str))))
   (testing "author registry author validation works"
-    (let [config {:nuzzle/base-url "https://twin.peaks"
-                  :nuzzle/render-page nuzzle.test-util/render-page
+    (let [config {:nuzzle/render-page nuzzle.test-util/render-page
                   :nuzzle/author-registry {:laura {:name "Laura Palmer"}}
                   [:blog :douglas-firs] {:nuzzle/title "Douglas Firs Smell Really Freakin Good"
                                          :nuzzle/author :agent-cooper}}
@@ -61,7 +60,6 @@
 
 (deftest create-get-config
   (let [get-config (-> test-util/config-1 conf/load-config conf/create-get-config)]
-    (is (= "https://foobar.com" (get-config :nuzzle/base-url)))
     (is (= "https://twitter/foobar" (get-config :meta :twitter)))
     (is (= [:about] (get-config [:about] :nuzzle/url)))
     (is (= #{[:blog :favorite-color] [:blog :nuzzle-rocks] [:blog :why-nuzzle]}

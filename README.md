@@ -65,21 +65,21 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```
 
 Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
-- `(publish <config>)`: Exports the static site to disk.
-  - `:overlay-dir` - Optional keyword argument, a path to a directory that will be overlayed on top of the static web site, useful for including static assets. Defaults to `nil` (no overlay).
-- `(serve <config>)`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
-  - `:overlay-dir` - Same as above.
-  - `:port`: Port for server to listen on. Defaults to `6899`.
-- `(transform <config>)`: Returns your config after Nuzzle's transformations.
-- `(transform-diff <config>)`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
+- `(nuzzle.api.publish config {:keys [base-url overlay-dir]})`: Exports the static site to disk.
+  - `base-url` - Optional but required for sitemap and Atom feed generation. URL where site will be hosted. Must start with "http://" or "https://".
+  - `overlay-dir` - Optional path to a directory that will be overlayed on top of the static web site, useful for including static assets. Defaults to `nil` (no overlay).
+- `(nuzzle.api.serve config {:keys [overlay-dir port]})`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
+  - `overlay-dir` - Same as above.
+  - `port`: Optional port number for server to listen on. Defaults to `6899`.
+- `(nuzzle.api.transform config)`: Returns your config after Nuzzle's transformations.
+- `(nuzzle.api.transform-diff config)`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
 
 ## Configuration Map
 Nuzzle builds your static site from a map of configuration values. The config is validated by `clojure.spec`. You can find the [config spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
 If you're from Pallet town, your config might look like this:
 ```clojure
-{:nuzzle/base-url "https://ashketchum.com"
- :nuzzle/render-page views/render-page
+{:nuzzle/render-page views/render-page
 
  []
  {:nuzzle/title "Home"
@@ -111,7 +111,6 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 
 1. **Option Entries:** Option entries have a **keyword** key and are usually defined by Nuzzle, but you can also include your own custom option entries as well. The associated value can be of any type. Here is a brief summary of all the option entry keys specified by Nuzzle:
 
-- `:nuzzle/base-url` - URL where site will be hosted. Must start with "http://" or "https://". Required.
 - `:nuzzle/render-page` - A fully qualified symbol that must resolve to your page rendering function. Required.
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
@@ -142,7 +141,6 @@ Here's another example config with annotations:
 {;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;; Option Entries
 
- :nuzzle/base-url "https://example.com"
  :nuzzle/render-page views/render-page
 
  ;; Custom option entries can be anything you like
@@ -312,7 +310,6 @@ In a word, `get-config` allows us to see the whole world while creating our Hicc
 ```
 2. With one or more arguments, uses arguments one by one as keys to dive into the config map. This is similar to `clojure.core/get-in` but will throw an exception if a key does not exist. You can use this behavior of `get-config` to guarantee a value exists.
 ```clojure
-(get-config :nuzzle/base-url)
 (get-config [:blog-posts])
 (get-config [:blog-posts] :nuzzle/url)
 (get-config :my-custom-option)

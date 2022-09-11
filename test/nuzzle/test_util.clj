@@ -4,7 +4,6 @@
 
 (def config-1
   {:nuzzle/publish-dir "/tmp/nuzzle-test-out",
-   :nuzzle/base-url "https://foobar.com"
    :nuzzle/sitemap? true
    :nuzzle/build-drafts? true,
    :nuzzle/render-page render-page,

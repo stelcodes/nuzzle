@@ -20,7 +20,7 @@
   "Assumes config is transformed and drafts have already been removed from
   rendered-site-index."
   ;; http://www.sitemaps.org/protocol.html
-  [{:nuzzle/keys [base-url] :as config} rendered-site-index]
+  [config rendered-site-index & {:keys [base-url]}]
    (xml/emit-str
     {:tag ::sm/urlset
      :content
@@ -54,7 +54,7 @@
 (defn create-atom-feed
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [{:nuzzle/keys [base-url atom-feed] :as config} rendered-site-index & {:keys [deterministic?]}]
+  [{:nuzzle/keys [atom-feed] :as config} rendered-site-index & {:keys [base-url deterministic?]}]
   (xml/emit-str
    {:tag ::atom/feed
     :content
@@ -102,38 +102,26 @@
                        (when author (create-author-element config author))]}))}
    {:encoding "UTF-8"}))
 
-(comment (println (create-atom-feed {:nuzzle/base-url "https://foo.com"
-                                     :nuzzle/author-registry {:stel {:name "Stelly" :email "stel@email.com"}}
-                                     :nuzzle/atom-feed {:title "Foobar Blog" :author :stel}
-                                     [:hi-there] {:nuzzle/title "Hi"
-                                                  :nuzzle/author :stel
-                                                  :nuzzle/updated (util/now-trunc-sec)
-                                                  :nuzzle/render-content #(str "<p>hi there</p>")
-                                                  :nuzzle/feed? true}}
-                           {"/" []
-                            "/hi-there/" []
-                            "/blog-posts/foobar/" []})))
-
 (defn publish-atom-feed
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:keys [deterministic?]}]
+  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:as opts}]
   (let [feed-file (fs/file publish-dir "feed.xml")
         _ (log/log-feed feed-file)
-        feed-str (str (create-atom-feed config rendered-site-index :deterministic? deterministic?) \newline)]
+        feed-str (str (create-atom-feed config rendered-site-index opts) \newline)]
     (spit feed-file feed-str)))
 
 (defn publish-sitemap
-  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index]
+  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:as opts}]
   (let [sitemap-file (fs/file publish-dir "sitemap.xml")
         _ (log/log-sitemap sitemap-file)
-        sitemap-str (str (create-sitemap config rendered-site-index) \newline)]
+        sitemap-str (str (create-sitemap config rendered-site-index opts) \newline)]
     (spit sitemap-file sitemap-str)))
 
 (defn publish-site
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [{:nuzzle/keys [publish-dir atom-feed sitemap?] :as config} & {:keys [overlay-dir deterministic?]}]
+  [{:nuzzle/keys [publish-dir atom-feed sitemap?] :as config} & {:keys [base-url overlay-dir deterministic?]}]
   (let [rendered-site-index (conf/create-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
@@ -144,7 +132,7 @@
       (util/ensure-overlay-dir overlay-dir)
       (fs/copy-tree overlay-dir publish-dir))
     (when atom-feed
-      (publish-atom-feed config rendered-site-index :deterministic? deterministic?))
+      (publish-atom-feed config rendered-site-index :deterministic? deterministic? :base-url base-url))
     (when sitemap?
-      (publish-sitemap config rendered-site-index))
+      (publish-sitemap config rendered-site-index :base-url base-url))
     (log/log-publish-end)))
