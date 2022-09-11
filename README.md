@@ -115,7 +115,6 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 - `:nuzzle/render-page` - A fully qualified symbol that must resolve to your page rendering function. Required.
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
 - `:nuzzle/ignored-pages` - A collection of page entry keys that should be removed as part of the config transformation step. Can be used to ignore pages that Nuzzle creates automatically.
-- `:nuzzle/author-registry` - A map of keyword keys to map values which contain information about a website author. Used in conjunction with the `:nuzzle/author` page entry key.
 
 The following config options provide functionality above and beyond basic static site generation. They are totally optional.
 
@@ -132,7 +131,7 @@ The following config options provide functionality above and beyond basic static
 - `:nuzzle/tags`: A set of keywords where each keyword represents a tag name.
 - `:nuzzle/updated`: A timestamp string representing when the page was last updated.
 - `:nuzzle/summary`: A string summary of the page content.
-- `:nuzzle/author`: A keyword representing the author of the page. The author must be registered in the `:nuzzle/author-registry` map.
+- `:nuzzle/author`: A map representing the author of the page. Must have a `:name`, optionally `:email` and `:url`.
 
 ## Understanding the Nuzzle Config
 

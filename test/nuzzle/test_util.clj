@@ -2,16 +2,17 @@
 
 (def render-page (constantly [:h1 "test"]))
 
+(def authors {:donna {:email "donnah@mail.com",
+                      :name "Donna Hayward",
+                      :url "https://donnahayward.com"},
+              :josie {:name "Josie Packard"},
+              :shelly {:email "shellyj@mail.com", :name "Shelly Johnson"}})
+
 (def config-1
   {:nuzzle/sitemap? true
    :nuzzle/build-drafts? true,
    :nuzzle/render-page render-page,
-   :nuzzle/author-registry {:donna {:email "donnah@mail.com",
-                                    :name "Donna Hayward",
-                                    :url "https://donnahayward.com"},
-                            :josie {:name "Josie Packard"},
-                            :shelly {:email "shellyj@mail.com", :name "Shelly Johnson"}}
-   :nuzzle/atom-feed {:author :donna,
+   :nuzzle/atom-feed {:author (authors :donna) ,
                       :subtitle "Rants about foo and thoughts about bar",
                       :title "Foo's blog"}
    :meta {:twitter "https://twitter/foobar"},
@@ -22,22 +23,21 @@
    [:blog :favorite-color] {:nuzzle/content "test-resources/markdown/favorite-color.md",
                             :nuzzle/updated "2022-05-09T12:00Z"
                             :nuzzle/feed? true,
-                            :nuzzle/author :josie
+                            :nuzzle/author (authors :josie)
                             :nuzzle/tags #{:colors},
                             :nuzzle/title "What's My Favorite Color? It May Suprise You."},
    [:blog :nuzzle-rocks] {:nuzzle/content "test-resources/markdown/nuzzle-rocks.md",
                           :nuzzle/updated "2022-05-09T12:00Z",
-                          :nuzzle/author :shelly
+                          :nuzzle/author (authors :shelly)
                           :nuzzle/feed? true,
                           :nuzzle/tags #{:nuzzle},
                           :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
    [:blog :why-nuzzle] {:nuzzle/content "test-resources/markdown/why-nuzzle.md",
                         :nuzzle/updated "2022-05-09T12:00Z"
                         :nuzzle/feed? true,
-                        :nuzzle/author :donna
+                        :nuzzle/author (authors :donna)
                         :nuzzle/tags #{:nuzzle},
                         :nuzzle/title "Why I Made Nuzzle"}})
-
 
 (def config-2
   {:nuzzle/build-drafts? true
