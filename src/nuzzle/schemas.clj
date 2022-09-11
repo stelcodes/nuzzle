@@ -45,7 +45,7 @@
 
 ;; Config keys
 (s/def :nuzzle/render-page fn?)
-(s/def :nuzzle/base-url http-url?)
+;; (s/def :nuzzle/base-url http-url?)
 (s/def :nuzzle/syntax-highlighter
   (spell/keys :req-un [:nuzzle.syntax-highlighter/provider]
               :opt-un [:nuzzle.syntax-highlighter/style :nuzzle.syntax-highlighter/line-numbers?]))
@@ -69,7 +69,7 @@
 ;; Whole config
 (s/def :nuzzle/user-config
   (s/and
-   (spell/keys :req [:nuzzle/base-url :nuzzle/render-page]
+   (spell/keys :req [:nuzzle/render-page]
                :opt [:nuzzle/syntax-highlighter :nuzzle/atom-feed :nuzzle/build-drafts?
                      :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir
                      :nuzzle/author-registry :nuzzle/ignore-pages])
@@ -81,8 +81,7 @@
 (comment
  (s/explain
   :nuzzle/user-config
-  {:nuzzle/base-url "https://test.com"
-   :nuzzle/render-page 'views.render-page
+  {:nuzzle/render-page 'views.render-page
    ;; :nuzzle/build-drafts? nil
    ;; :nuzzle/server-port 5
    [:blog-posts :test-post] {:nuzzle/title "hi" :nuzzle/feed? true :nuzzle/updated "2022-07-19" :nuzzle/tags #{:hi}}}))
