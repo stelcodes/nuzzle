@@ -38,18 +38,17 @@
     {:encoding "UTF-8"}))
 
 (defn create-author-element
-  [{:nuzzle/keys [author-registry] :as _config} author-kw]
-  (let [{:keys [name email url]} (get author-registry author-kw)]
-    (when-not name (throw (ex-info (str "Invalid author keyword: " author-kw) {})))
-    {:tag ::atom/author
-     :content [{:tag ::atom/name
-                :content name}
-               (when email
-                 {:tag ::atom/email
-                  :content email})
-               (when url
-                 {:tag ::atom/uri
-                  :content url})]}))
+  [{:keys [name email url] :as author}]
+  (when-not name (throw (ex-info (str "Invalid author keyword: " (pr-str author)) {:author author})))
+  {:tag ::atom/author
+   :content [{:tag ::atom/name
+              :content name}
+             (when email
+               {:tag ::atom/email
+                :content email})
+             (when url
+               {:tag ::atom/uri
+                :content url})]})
 
 (defn create-atom-feed
   "The optional test-ops map can make build deterministic by setting
@@ -68,7 +67,7 @@
              {:tag ::atom/updated
               :content (str (util/now-trunc-sec))})
            (when-let [feed-author (:author atom-feed)]
-             (create-author-element config feed-author))
+             (create-author-element feed-author))
            (when-let [icon (:icon atom-feed)]
              {:tag ::atom/icon
               :content icon})
@@ -99,7 +98,7 @@
                        (when summary
                          {:tag ::atom/summary
                           :content summary})
-                       (when author (create-author-element config author))]}))}
+                       (when author (create-author-element author))]}))}
    {:encoding "UTF-8"}))
 
 (defn publish-site
