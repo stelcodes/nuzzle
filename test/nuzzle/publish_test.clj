@@ -63,37 +63,12 @@
     (is (= (-> "test-resources/sites/config-1-site/feed.xml" slurp str/trim)
            (publish/create-atom-feed config rendered-site-index :base-url "https://foobar.com" :deterministic? true)))))
 
-(deftest publish-feed
-  (let [temp-dir (fs/create-temp-dir)
-        feed-path (fs/path temp-dir "feed.xml")
-        reference-feed-path (fs/path "test-resources/sites/config-1-site/feed.xml")
-        config (-> test-util/config-1 (assoc :nuzzle/publish-dir (str temp-dir)) conf/load-config)
-        rendered-site-index (conf/create-site-index config)]
-    (publish/publish-atom-feed config rendered-site-index :deterministic? true :base-url "https://foobar.com")
-    (is (fs/exists? feed-path))
-    (is (fs/exists? reference-feed-path))
-    (is (= (-> feed-path str slurp str/trim)
-           (-> reference-feed-path str slurp str/trim)))))
-
-(deftest publish-sitemap
-  (let [temp-dir (fs/create-temp-dir)
-        sitemap-path (fs/path temp-dir "sitemap.xml")
-        reference-sitemap-path (fs/path "test-resources/xml/config-1-sitemap.xml")
-        config (-> test-util/config-1 (assoc :nuzzle/publish-dir (str temp-dir)) conf/load-config)
-        rendered-site-index (conf/create-site-index config)]
-    (publish/publish-sitemap config rendered-site-index :base-url "https://foobar.com")
-    (is (fs/exists? sitemap-path))
-    (is (fs/exists? reference-sitemap-path))
-    (is (= (-> sitemap-path str slurp str/trim)
-           (-> reference-sitemap-path str slurp str/trim)))))
-
 (deftest publish-site
   (let [temp-site-dir (str (fs/create-temp-dir))
         reference-site-dir (str (fs/path "test-resources/sites/config-1-site"))
-        config (-> test-util/config-1
-                   (assoc :nuzzle/publish-dir (str temp-site-dir))
-                   conf/load-config)
-        _ (publish/publish-site config :overlay-dir "test-resources/public" :deterministic? true :base-url "https://foobar.com")
+        config (-> test-util/config-1 conf/load-config)
+        _ (publish/publish-site config :overlay-dir "test-resources/public" :deterministic? true
+                                :base-url "https://foobar.com" :publish-dir (str temp-site-dir))
         mismatches (diff-dirs temp-site-dir reference-site-dir)]
     (doseq [mismatch mismatches
             :let [rel->abs-path (fn [parent-dir path] (str parent-dir "/" path))

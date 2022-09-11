@@ -110,10 +110,7 @@
   "Creates fully transformed config with or without drafts."
   [{:nuzzle/keys [build-drafts?] :as config} & {:as opts}]
   {:pre [(map? config)] :post [#(map? %)]}
-  (letfn [(apply-defaults [config]
-            (let [config-defaults {:nuzzle/publish-dir "out"}]
-              (merge config-defaults config)))
-          (handle-drafts [config]
+  (letfn [(handle-drafts [config]
             (if build-drafts?
               (do (log/log-build-drafts) config)
               (do (log/log-remove-drafts)
@@ -158,7 +155,6 @@
                                    (vector? ckey) (assoc :nuzzle/get-config get-config))))
                {} config)))]
     (as-> config $
-      (apply-defaults $)
       (handle-drafts $)
       (convert-time-strs $)
       (util/deep-merge $ (create-tag-index-page-entries $))
