@@ -114,7 +114,6 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 
 - `:nuzzle/render-page` - A fully qualified symbol that must resolve to your page rendering function. Required.
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
-- `:nuzzle/ignored-pages` - A collection of page entry keys that should be removed as part of the config transformation step. Can be used to ignore pages that Nuzzle creates automatically.
 
 The following config options provide functionality above and beyond basic static site generation. They are totally optional.
 
@@ -257,8 +256,6 @@ Nuzzle adds both hierarchical and tag index pages automatically for all hierarch
  {:nuzzle/title "Tags"
   :nuzzle/index #{[:tags :comfort-food] [:tags :japanese]}}}
 ```
-
-> You may not want to publish all the index pages that Nuzzle adds to your config. That's ok! You can avoid publishing any page by adding it to the `:nuzzle/ignored-pages` collection.
 
 These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys.
 

@@ -125,15 +125,6 @@
                         (cond-> cval
                           updated (update :nuzzle/updated util/time-str->?inst)))))
              {} config))
-          (remove-ignored-pages [{:nuzzle/keys [ignore-pages] :as config}]
-            (reduce-kv
-             (fn [acc ckey {:nuzzle/keys [index] :as cval}]
-               (if (contains? ignore-pages ckey)
-                 acc
-                 (if index
-                   (assoc acc ckey (update cval :nuzzle/index #(apply disj % ignore-pages)))
-                   (assoc acc ckey cval))))
-             {} config))
           (add-page-keys [config]
             (reduce-kv
              (fn [acc ckey {:nuzzle/keys [content] :as cval}]
@@ -155,7 +146,6 @@
       (convert-time-strs $)
       (util/deep-merge $ (create-tag-index-page-entries $))
       (util/deep-merge $ (create-hierarchical-index-page-entries $))
-      (remove-ignored-pages $)
       (add-page-keys $)
       ;; Adding get-config must come after all other transformations
       (add-get-config-to-pages $))))
