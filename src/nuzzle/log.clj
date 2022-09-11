@@ -43,8 +43,8 @@
 (defn log-publish-end []
   (info "✅🐈 Publishing successful"))
 
-(defn log-start-server [server-port]
-  (info "✨🐈 Starting development server on port" server-port))
+(defn log-start-server [port]
+  (info "✨🐈 Starting development server on port" port))
 
 (defn log-rendering-page [page]
   (info "⚡🐈 Rendering page:")

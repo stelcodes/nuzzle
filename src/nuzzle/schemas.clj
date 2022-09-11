@@ -53,7 +53,6 @@
   (spell/keys :req-un [:nuzzle.atom-feed/title]
               :opt-un [:nuzzle.atom-feed/subtitle :nuzzle.atom-feed/author :nuzzle.atom-feed/logo :nuzzle.atom-feed/icon]))
 (s/def :nuzzle/sitemap? boolean?)
-(s/def :nuzzle/server-port (s/int-in 1024 65536))
 (s/def :nuzzle/publish-dir string?)
 (s/def :nuzzle/build-drafts? boolean?)
 (s/def :nuzzle/custom-elements (s/map-of keyword? symbol?))
@@ -75,6 +74,9 @@
                      :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir
                      :nuzzle/author-registry :nuzzle/ignore-pages])
    (s/every :nuzzle/config-entry)))
+
+;; Might use this later for function instrumentation
+;; (s/def :nuzzle/server-port (s/int-in 1024 65536))
 
 (comment
  (s/explain

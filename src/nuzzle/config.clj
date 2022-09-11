@@ -111,8 +111,7 @@
   [{:nuzzle/keys [build-drafts?] :as config} & {:as opts}]
   {:pre [(map? config)] :post [#(map? %)]}
   (letfn [(apply-defaults [config]
-            (let [config-defaults {:nuzzle/publish-dir "out"
-                                   :nuzzle/server-port 6899}]
+            (let [config-defaults {:nuzzle/publish-dir "out"}]
               (merge config-defaults config)))
           (handle-drafts [config]
             (if build-drafts?

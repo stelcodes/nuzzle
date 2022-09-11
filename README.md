@@ -69,6 +69,7 @@ Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
   - `:overlay-dir` - Optional keyword argument, a path to a directory that will be overlayed on top of the static web site, useful for including static assets. Defaults to `nil` (no overlay).
 - `(serve <config>)`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
   - `:overlay-dir` - Same as above.
+  - `:port`: Port for server to listen on. Defaults to `6899`.
 - `(transform <config>)`: Returns your config after Nuzzle's transformations.
 - `(transform-diff <config>)`: Pretty prints a colorized diff of your config before and after Nuzzle's transformations.
 
@@ -116,7 +117,6 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 - `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/ignored-pages` - A collection of page entry keys that should be removed as part of the config transformation step. Can be used to ignore pages that Nuzzle creates automatically.
 - `:nuzzle/author-registry` - A map of keyword keys to map values which contain information about a website author. Used in conjunction with the `:nuzzle/author` page entry key.
-- `:nuzzle/server-port` - A port number for the development server to listen on. Defaults to `6899`.
 
 The following config options provide functionality above and beyond basic static site generation. They are totally optional.
 
