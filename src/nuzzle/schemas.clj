@@ -48,7 +48,6 @@
 ;; (s/def :nuzzle/publish-dir string?)
 (s/def :nuzzle/build-drafts? boolean?)
 (s/def :nuzzle/custom-elements (s/map-of keyword? symbol?))
-(s/def :nuzzle/ignore-pages (s/coll-of :nuzzle/page-key :kind set?))
 
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
@@ -62,7 +61,7 @@
   (s/and
    (spell/keys :req [:nuzzle/render-page]
                :opt [:nuzzle/syntax-highlighter :nuzzle/atom-feed :nuzzle/build-drafts?
-                     :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/ignore-pages])
+                     :nuzzle/sitemap? :nuzzle/custom-elements])
    (s/every :nuzzle/config-entry)))
 
 ;; Might use this later for function instrumentation
