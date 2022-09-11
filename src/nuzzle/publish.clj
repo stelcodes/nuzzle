@@ -102,26 +102,10 @@
                        (when author (create-author-element config author))]}))}
    {:encoding "UTF-8"}))
 
-(defn publish-atom-feed
-  "The optional test-ops map can make build deterministic by setting
-  :deterministic? true"
-  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:as opts}]
-  (let [feed-file (fs/file publish-dir "feed.xml")
-        _ (log/log-feed feed-file)
-        feed-str (str (create-atom-feed config rendered-site-index opts) \newline)]
-    (spit feed-file feed-str)))
-
-(defn publish-sitemap
-  [{:nuzzle/keys [publish-dir] :as config} rendered-site-index & {:as opts}]
-  (let [sitemap-file (fs/file publish-dir "sitemap.xml")
-        _ (log/log-sitemap sitemap-file)
-        sitemap-str (str (create-sitemap config rendered-site-index opts) \newline)]
-    (spit sitemap-file sitemap-str)))
-
 (defn publish-site
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [{:nuzzle/keys [publish-dir atom-feed sitemap?] :as config} & {:keys [base-url overlay-dir deterministic?]}]
+  [{:nuzzle/keys [atom-feed sitemap?] :as config} & {:keys [publish-dir overlay-dir] :or {publish-dir "dist"} :as opts}]
   (let [rendered-site-index (conf/create-site-index config)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
@@ -132,7 +116,11 @@
       (util/ensure-overlay-dir overlay-dir)
       (fs/copy-tree overlay-dir publish-dir))
     (when atom-feed
-      (publish-atom-feed config rendered-site-index :deterministic? deterministic? :base-url base-url))
+      (let [feed-file (fs/file publish-dir "feed.xml")]
+        (log/log-feed feed-file)
+        (spit feed-file (str (create-atom-feed config rendered-site-index opts) \newline))))
     (when sitemap?
-      (publish-sitemap config rendered-site-index :base-url base-url))
+      (let [sitemap-file (fs/file publish-dir "sitemap.xml")]
+        (log/log-sitemap sitemap-file)
+        (spit sitemap-file (str (create-sitemap config rendered-site-index opts) \newline))))
     (log/log-publish-end)))

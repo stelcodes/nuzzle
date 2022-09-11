@@ -65,9 +65,10 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```
 
 Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
-- `(nuzzle.api.publish config {:keys [base-url overlay-dir]})`: Exports the static site to disk.
+- `(nuzzle.api.publish config {:keys [base-url overlay-dir publish-dir]})`: Exports the static site to disk.
   - `base-url` - Optional but required for sitemap and Atom feed generation. URL where site will be hosted. Must start with "http://" or "https://".
   - `overlay-dir` - Optional path to a directory that will be overlayed on top of the static web site, useful for including static assets. Defaults to `nil` (no overlay).
+  - `publish-dir` - Optional path to a directory to publish the site into. Be careful, all prior contents of this directory will be lost! Defaults to `"dist"`.
 - `(nuzzle.api.serve config {:keys [overlay-dir port]})`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
   - `overlay-dir` - Same as above.
   - `port`: Optional port number for server to listen on. Defaults to `6899`.
@@ -113,7 +114,6 @@ The Nuzzle config must be a map where each key is either a keyword or a vector o
 
 - `:nuzzle/render-page` - A fully qualified symbol that must resolve to your page rendering function. Required.
 - `:nuzzle/build-drafts?` - A boolean that indicates whether pages marked as a draft should be included. Defaults to `false` (no drafts included).
-- `:nuzzle/publish-dir` - A path to a directory to publish the site into. Defaults to `"out"`.
 - `:nuzzle/ignored-pages` - A collection of page entry keys that should be removed as part of the config transformation step. Can be used to ignore pages that Nuzzle creates automatically.
 - `:nuzzle/author-registry` - A map of keyword keys to map values which contain information about a website author. Used in conjunction with the `:nuzzle/author` page entry key.
 

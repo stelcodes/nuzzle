@@ -3,8 +3,7 @@
 (def render-page (constantly [:h1 "test"]))
 
 (def config-1
-  {:nuzzle/publish-dir "/tmp/nuzzle-test-out",
-   :nuzzle/sitemap? true
+  {:nuzzle/sitemap? true
    :nuzzle/build-drafts? true,
    :nuzzle/render-page render-page,
    :nuzzle/author-registry {:donna {:email "donnah@mail.com",
@@ -44,7 +43,6 @@
   {:nuzzle/build-drafts? true
    :nuzzle/render-page render-page
    :nuzzle/sitemap? true
-   :nuzzle/publish-dir "/tmp/nuzzle-test-out"
 
    [] {:nuzzle/title "Home"}
 

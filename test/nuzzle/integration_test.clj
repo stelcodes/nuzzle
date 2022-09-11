@@ -71,8 +71,7 @@
     (is (every? (fn [[ckey cval]] (or (not (vector? ckey)) (contains? cval :nuzzle/get-config)))
                 config))
     (is (= normalized-config
-           {:nuzzle/publish-dir "out",
-            :nuzzle/render-page render-page
+           {:nuzzle/render-page render-page
             []
             {:nuzzle/title "Home"
              :nuzzle/content "test-resources/markdown/homepage-introduction.md",

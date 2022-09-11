@@ -53,7 +53,7 @@
   (spell/keys :req-un [:nuzzle.atom-feed/title]
               :opt-un [:nuzzle.atom-feed/subtitle :nuzzle.atom-feed/author :nuzzle.atom-feed/logo :nuzzle.atom-feed/icon]))
 (s/def :nuzzle/sitemap? boolean?)
-(s/def :nuzzle/publish-dir string?)
+;; (s/def :nuzzle/publish-dir string?)
 (s/def :nuzzle/build-drafts? boolean?)
 (s/def :nuzzle/custom-elements (s/map-of keyword? symbol?))
 (s/def :nuzzle/author-registry (s/map-of keyword? :nuzzle.author-registry/entry))
@@ -71,7 +71,7 @@
   (s/and
    (spell/keys :req [:nuzzle/render-page]
                :opt [:nuzzle/syntax-highlighter :nuzzle/atom-feed :nuzzle/build-drafts?
-                     :nuzzle/sitemap? :nuzzle/custom-elements :nuzzle/publish-dir
+                     :nuzzle/sitemap? :nuzzle/custom-elements
                      :nuzzle/author-registry :nuzzle/ignore-pages])
    (s/every :nuzzle/config-entry)))
 
