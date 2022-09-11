@@ -72,7 +72,6 @@
                 config))
     (is (= normalized-config
            {:nuzzle/publish-dir "out",
-            :nuzzle/server-port 6899,
             :nuzzle/base-url "https://ashketchum.com",
             :nuzzle/render-page render-page
             []
