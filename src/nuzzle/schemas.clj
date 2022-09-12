@@ -11,10 +11,15 @@
 
 ;; Page map keys
 (s/def :nuzzle/title string?)
+(s/def :nuzzle/render-content fn?)
 (s/def :nuzzle/feed? boolean?)
 (s/def :nuzzle/updated (s/or :date date-str? :datetime datetime-str? :zoned-datetime zoned-datetime-str?))
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
 (s/def :nuzzle/draft? boolean?)
+(s/def :nuzzle/page-map
+  (spell/keys :req [:nuzzle/title]
+              :opt [:nuzzle/tags :nuzzle/render-content :nuzzle/updated :nuzzle/feed?
+                    :nuzzle/draft? :nuzzle/summary :nuzzle/subtitle]))
 
 (s/def :nuzzle.author/name string?)
 (s/def :nuzzle.author/email string?)
@@ -51,8 +56,6 @@
 
 ;; Config Rules
 (s/def :nuzzle/page-key (s/coll-of keyword? :kind vector?))
-(s/def :nuzzle/page-map (spell/keys :req [:nuzzle/title]
-                                    :opt [:nuzzle/tags :nuzzle/updated :nuzzle/feed? :nuzzle/draft? :nuzzle/summary :nuzzle/subtitle]))
 (s/def :nuzzle/config-entry (s/or :page (s/tuple :nuzzle/page-key :nuzzle/page-map)
                                   :option (s/tuple keyword? any?)))
 

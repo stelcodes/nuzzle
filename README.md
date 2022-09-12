@@ -80,28 +80,30 @@ Nuzzle builds your static site from a map of configuration values. The config is
 
 If you're from Pallet town, your config might look like this:
 ```clojure
-{:nuzzle/render-page views/render-page
+(ns user
+  (:require [nuzzle.content :refer [md->hiccup]]))
 
- []
- {:nuzzle/title "Home"
-  :nuzzle/content "markdown/homepage-introduction.md"}
+(defn config []
+  {[]
+   {:nuzzle/title "Home"
+    :nuzzle/render-content #(-> "markdown/homepage-introduction.md" slurp md->hiccup)}
 
- [:blog-posts]
- {:nuzzle/title "Blog Posts"
-  :nuzzle/content "markdown/blog-header.md"}
+   [:blog-posts]
+   {:nuzzle/title "Blog Posts"
+    :nuzzle/render-content #(-> "markdown/blog-header.md" slurp md->hiccup)}
 
- [:blog-posts :catching-pikachu]
- {:nuzzle/title "How I Caught Pikachu"
-  :nuzzle/content "markdown/how-i-caught-pikachu.md"}
+   [:blog-posts :catching-pikachu]
+   {:nuzzle/title "How I Caught Pikachu"
+    :nuzzle/render-content #(-> "markdown/how-i-caught-pikachu.md" slurp md->hiccup)}
 
- [:blog-posts :defeating-misty]
- {:nuzzle/title "How I Defeated Misty with Pikachu"
-  :nuzzle/content "markdown/how-i-defeated-misty.md"
-  :nuzzle/draft? true}
+   [:blog-posts :defeating-misty]
+   {:nuzzle/title "How I Defeated Misty with Pikachu"
+    :nuzzle/render-content #(-> "markdown/how-i-defeated-misty.md" slurp md->hiccup)
+    :nuzzle/draft? true}
 
- [:about]
- {:nuzzle/title "About Ash"
-  :nuzzle/content "markdown/about-ash.md"}}
+   [:about]
+   {:nuzzle/title "About Ash"
+    :nuzzle/render-content #(-> "markdown/about-ash.md" slurp md->hiccup)}})
 ```
 
 ## Option and Page Entries

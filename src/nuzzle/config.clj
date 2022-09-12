@@ -3,7 +3,6 @@
   (:require
    [clojure.spec.alpha :as s]
    [expound.alpha :as expound]
-   [nuzzle.content :as content]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.util :as util]
@@ -104,7 +103,7 @@
 
 (defn transform-config
   "Creates fully transformed config with or without drafts."
-  [{:nuzzle/keys [build-drafts?] :as config} & {:as opts}]
+  [{:nuzzle/keys [build-drafts?] :as config}]
   {:pre [(map? config)] :post [#(map? %)]}
   (letfn [(handle-drafts [config]
             (if build-drafts?
@@ -127,12 +126,13 @@
              {} config))
           (add-page-keys [config]
             (reduce-kv
-             (fn [acc ckey {:nuzzle/keys [content] :as cval}]
+             (fn [acc ckey cval]
                (assoc acc ckey
-                      (cond-> cval
-                        (vector? ckey) (assoc :nuzzle/url ckey)
-                        (or (vector? ckey) content) (assoc :nuzzle/render-content
-                                                           (content/create-render-content-fn ckey config opts)))))
+                      (if (vector? ckey)
+                        (-> cval
+                            (assoc :nuzzle/url ckey)
+                            (update :nuzzle/render-content #(or % (constantly nil))))
+                        cval)))
              {} config))
           (add-get-config-to-pages [config]
             (let [get-config (create-get-config config)]
@@ -152,11 +152,11 @@
 
 (defn load-config
   "Load a config var or map and validate it."
-  [config & {:as opts}]
+  [config]
   ;; (print-stack-trace (ex-info "LOADING CONFIG" {:path config-path}) 12)
   (-> (if (var? config) (var-get config) config)
       validate-config
-      (transform-config opts)))
+      (transform-config)))
 
 (defn create-site-index
   "Creates a map where the keys are relative URLs and the values are a string

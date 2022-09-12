@@ -26,15 +26,15 @@
      :content
      (for [[url-str _hiccup] rendered-site-index
            :let [url-vec (util/vectorize-url url-str)
-                 {:nuzzle/keys [content updated]} (get config url-vec)
+                 {:nuzzle/keys [updated]} (get config url-vec)
                  abs-url (str base-url url-str)]]
        {:tag ::sm/url
         :content
         [{:tag ::sm/loc
           :content [abs-url]}
-         (when (or updated content)
+         (when updated
            {:tag ::sm/lastmod
-            :content (str (or updated (util/path->last-mod-inst content)))})]})}
+            :content (str updated)})]})}
     {:encoding "UTF-8"}))
 
 (defn create-author-element
@@ -79,8 +79,8 @@
               :content subtitle})]
           (for [[url-str _] rendered-site-index
                 :let [url-vec (util/vectorize-url url-str)
-                      {:nuzzle/keys [updated summary author title content render-content feed?]} (get config url-vec)
-                      content-result (when (fn? render-content) (render-content))
+                      {:nuzzle/keys [updated summary author title render-content feed?]} (get config url-vec)
+                      content (render-content)
                       abs-url (str base-url url-str)]
                 :when feed?]
             {:tag ::atom/entry
@@ -88,13 +88,13 @@
                         :content title}
                        {:tag ::atom/id
                         :content abs-url}
-                       (when content-result
+                       (when content
                          {:tag ::atom/content
                           :attrs {:type "html"}
-                          :content (str (hiccup/html content-result))})
-                       (when (or updated content)
+                          :content (hiccup/html content)})
+                       (when updated
                          {:tag ::atom/updated
-                          :content (str (or updated (util/path->last-mod-inst content)))})
+                          :content (str updated)})
                        (when summary
                          {:tag ::atom/summary
                           :content summary})
