@@ -1,28 +1,27 @@
 (ns nuzzle.content-test
   (:require
-   [clojure.test :refer [deftest testing is run-tests]]
-   [nuzzle.content :as con]
-   [nuzzle.test-util :as test-util]))
+   [clojure.test :refer [deftest testing is]]
+   [nuzzle.content :as con]))
 
 (deftest generate-highlight-command
   (testing "generating chroma command"
     (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :chroma}})))
+           (con/generate-chroma-command "/tmp/foo.clj" "clojure")))
     (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-lines" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :chroma :line-numbers? true}})))
+           (con/generate-chroma-command "/tmp/foo.clj" "clojure" {:line-numbers? true})))
     (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-inline-styles" "--style=algol_nu" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :chroma :style "algol_nu"}})))
+           (con/generate-chroma-command "/tmp/foo.clj" "clojure" {:style "algol_nu"})))
     (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-inline-styles" "--style=algol_nu" "--html-lines" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :chroma :style "algol_nu" :line-numbers? true}}))))
+           (con/generate-chroma-command "/tmp/foo.clj" "clojure" {:style "algol_nu" :line-numbers? true}))))
   (testing "generating pygments command"
     (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "nowrap" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments}})))
+           (con/generate-pygments-command "/tmp/foo.clj" "clojure")))
     (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "linenos=inline"  "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}})))
+           (con/generate-pygments-command "/tmp/foo.clj" "clojure" {:line-numbers? true})))
     (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "nowrap,noclasses,style=algol_nu" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :style "algol_nu"}})))
+           (con/generate-pygments-command "/tmp/foo.clj" "clojure" {:style "algol_nu"})))
     (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "noclasses,style=algol_nu,linenos=inline" "/tmp/foo.clj")
-           (con/generate-highlight-command "/tmp/foo.clj" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :style "algol_nu" :line-numbers? true}})))))
+           (con/generate-pygments-command "/tmp/foo.clj" "clojure" {:style "algol_nu" :line-numbers? true})))))
 
 ;; (deftest highlight-code
 ;;   (let [code "(def foo (let [x (+ 5 7)] (println x)))"]
@@ -47,13 +46,7 @@
 ;;       (is (= (con/highlight-code "(def foo (let [x (+ 5 7)] (println x)))" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}})
 ;;              (con/highlight-code code "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}}))))))
 
-(deftest create-render-content-fn
-  (let [render-content (con/create-render-content-fn [:about] test-util/config-1)]
-    (is (fn? render-content))
-    (is (= (list [:h1 {:id "about"} "About"] [:p {} "This is a site for testing the Clojure static site generator called Nuzzle."])
-           (render-content)))))
-
-(deftest walk-hiccup-for-custom-elements
+(deftest transform-hiccup
   (let [hiccup-with-custom-element [:div {:class "hi"} [:youtube {:title "some title" :id "12345"}]]
         expected-result
         [:div {:class "hi"}
@@ -66,12 +59,9 @@
             "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;",
             :title "some title",
             :allowfullscreen true}]]]]
-    (is (= (con/walk-hiccup-for-custom-elements (list [:div] hiccup-with-custom-element))
+    (is (= (con/transform-hiccup (list [:div] hiccup-with-custom-element) {:youtube con/youtube})
            (list
             [:div]
             expected-result)))
-    (is (= (con/walk-hiccup-for-custom-elements hiccup-with-custom-element)
+    (is (= (con/transform-hiccup hiccup-with-custom-element {:youtube con/youtube})
            expected-result))))
-
-(comment (con/highlight-code "(defn hi [] \"hi\")" "clojure" {:nuzzle/syntax-highlighter {:provider :pygments :line-numbers? true}})
-         (run-tests))
