@@ -3,7 +3,7 @@
    [babashka.fs :as fs]
    [clojure.java.shell :as sh]
    [clojure.pprint :as pprint]
-   [clojure.string :as string]))
+   [clojure.string :as str]))
 
 (defn spy [x] (pprint/pprint x) x)
 
@@ -17,31 +17,31 @@
   [url]
   {:pre [(vector? url)]}
   (if (= [] url) "/"
-    (str "/" (string/join "/" (map name url)) "/")))
+    (str "/" (str/join "/" (map name url)) "/")))
 
 (defn vectorize-url
   [url]
   {:pre [(string? url)]}
-  (->> (string/split url #"/")
-       (remove string/blank?)
+  (->> (str/split url #"/")
+       (remove str/blank?)
        (map keyword)
        vec))
 
 (defn kebab-case->title-case
   [s]
-  (->> (string/split (name s) #"-")
-       (map string/capitalize)
-       (string/join " ")))
+  (->> (str/split (name s) #"-")
+       (map str/capitalize)
+       (str/join " ")))
 
 (comment
- (string/split (name :educational-media) #"-")
+ (str/split (name :educational-media) #"-")
  (kebab-case->title-case :educational-media))
 
 (defn kebab-case->lower-case
   [s]
-  (->> (string/split (name s) #"-")
-       (map string/lower-case)
-       (string/join " ")))
+  (->> (str/split (name s) #"-")
+       (map str/lower-case)
+       (str/join " ")))
 
 (defn prune-map
   "Removes kv-pairs of a map where the value is nil."
@@ -99,3 +99,21 @@
       (.truncatedTo java.time.temporal.ChronoUnit/SECONDS)))
 
 (comment (path->last-mod-inst "deps.edn"))
+
+(defn generate-chroma-command
+  [file-path language & {:keys [style line-numbers?]}]
+  (remove nil?
+          ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
+           "--html-prevent-surrounding-pre" (when style "--html-inline-styles")
+           (when style (str "--style=" style)) (when line-numbers? "--html-lines")  file-path]))
+
+(defn generate-pygments-command
+  [file-path language & {:keys [style line-numbers?]}]
+  (let [;; TODO: turn nowrap on for everything if they release my PR
+        ;; https://github.com/pygments/pygments/issues/2127
+        options (remove nil?
+                        [(when-not line-numbers? "nowrap") (when style "noclasses")
+                         (when style (str "style=" style))
+                         (when line-numbers? "linenos=inline")])]
+    ["pygmentize" "-f" "html" "-l" language "-O" (str/join "," options) file-path]))
+

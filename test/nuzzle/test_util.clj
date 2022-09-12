@@ -1,6 +1,6 @@
 (ns nuzzle.test-util
   (:require
-   [nuzzle.content :refer [md->hiccup]]))
+   [nuzzle.hiccup :refer [md->hiccup]]))
 
 (def render-page (constantly [:h1 "test"]))
 

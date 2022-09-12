@@ -1,27 +1,7 @@
-(ns nuzzle.content-test
+(ns nuzzle.hiccup-test
   (:require
-   [clojure.test :refer [deftest testing is]]
-   [nuzzle.content :as con]))
-
-(deftest generate-highlight-command
-  (testing "generating chroma command"
-    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "/tmp/foo.clj")
-           (con/generate-chroma-command "/tmp/foo.clj" "clojure")))
-    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-lines" "/tmp/foo.clj")
-           (con/generate-chroma-command "/tmp/foo.clj" "clojure" {:line-numbers? true})))
-    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-inline-styles" "--style=algol_nu" "/tmp/foo.clj")
-           (con/generate-chroma-command "/tmp/foo.clj" "clojure" {:style "algol_nu"})))
-    (is (= (list "chroma" "--lexer=clojure" "--formatter=html" "--html-only" "--html-prevent-surrounding-pre" "--html-inline-styles" "--style=algol_nu" "--html-lines" "/tmp/foo.clj")
-           (con/generate-chroma-command "/tmp/foo.clj" "clojure" {:style "algol_nu" :line-numbers? true}))))
-  (testing "generating pygments command"
-    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "nowrap" "/tmp/foo.clj")
-           (con/generate-pygments-command "/tmp/foo.clj" "clojure")))
-    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "linenos=inline"  "/tmp/foo.clj")
-           (con/generate-pygments-command "/tmp/foo.clj" "clojure" {:line-numbers? true})))
-    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "nowrap,noclasses,style=algol_nu" "/tmp/foo.clj")
-           (con/generate-pygments-command "/tmp/foo.clj" "clojure" {:style "algol_nu"})))
-    (is (= (list "pygmentize" "-f" "html" "-l" "clojure" "-O" "noclasses,style=algol_nu,linenos=inline" "/tmp/foo.clj")
-           (con/generate-pygments-command "/tmp/foo.clj" "clojure" {:style "algol_nu" :line-numbers? true})))))
+   [clojure.test :refer [deftest is]]
+   [nuzzle.hiccup :as hiccup]))
 
 ;; (deftest highlight-code
 ;;   (let [code "(def foo (let [x (+ 5 7)] (println x)))"]
@@ -59,9 +39,9 @@
             "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;",
             :title "some title",
             :allowfullscreen true}]]]]
-    (is (= (con/transform-hiccup (list [:div] hiccup-with-custom-element) {:youtube con/youtube})
+    (is (= (hiccup/transform-hiccup (list [:div] hiccup-with-custom-element) {:youtube hiccup/youtube})
            (list
             [:div]
             expected-result)))
-    (is (= (con/transform-hiccup hiccup-with-custom-element {:youtube con/youtube})
+    (is (= (hiccup/transform-hiccup hiccup-with-custom-element {:youtube hiccup/youtube})
            expected-result))))

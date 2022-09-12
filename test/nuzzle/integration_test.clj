@@ -4,7 +4,7 @@
    [clojure.test :refer [deftest is]]
    [cybermonday.core :as cm]
    [nuzzle.config :as conf]
-   [nuzzle.content :as content]
+   [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
 
@@ -22,10 +22,10 @@
                        cm/parse-body
                        (util/find-hiccup-str ash-regex)
                        (str/replace "markdown/" "test-resources/markdown/")
-                       (str/replace "md->hiccup" "nuzzle.content/md->hiccup"))
+                       (str/replace "md->hiccup" "nuzzle.hiccup/md->hiccup"))
           config-start (.indexOf ash-code "(defn config")
           config-str (subs ash-code config-start)
-          config-fn (binding [md->hiccup content/md->hiccup]
+          config-fn (binding [md->hiccup hiccup/md->hiccup]
                       (-> config-str read-string eval))]
       (-> (config-fn)
           (assoc :nuzzle/render-page render-page)))
