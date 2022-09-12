@@ -23,4 +23,4 @@
 
 (deftest find-hiccup-str
   (is (= "foobar"
-         (util/find-hiccup-str #"foo" [:div "bar" [:div {:class "foobaz"} [:p "foobar"]]]))))
+         (util/find-hiccup-str [:div "bar" [:div {:class "foobaz"} [:p "foobar"]]] #"foo"))))
