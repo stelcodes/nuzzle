@@ -1,9 +1,10 @@
 (ns nuzzle.integration-test
   (:require
-   [clojure.edn :as edn]
+   [clojure.string :as str]
    [clojure.test :refer [deftest is]]
    [cybermonday.core :as cm]
    [nuzzle.config :as conf]
+   [nuzzle.content :as content]
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
 
@@ -11,37 +12,28 @@
   [{:nuzzle/keys [render-content]}]
   [:html [:body (render-content)]])
 
+(declare ^:dynamic md->hiccup)
+
 (defn read-ash-config []
-  (let [config-regex #"How I Caught Pikachu"
-        config (->> "README.md"
-                    slurp
-                    cm/parse-body
-                    (util/find-hiccup-str config-regex))]
-    (when-not config
-      (log/error "Could not read example config in README.md")
-      (throw (ex-info (str "Could not locate example config with the regex"
-                           (pr-str config-regex))
-                      {})))
-    (try (edn/read-string config)
-      (catch Exception e
-        (log/error "Could not read example config in README.md")
-        (throw e)))))
+  (try
+    (let [ash-regex #"How I Caught Pikachu"
+          ash-code (-> "README.md"
+                       slurp
+                       cm/parse-body
+                       (util/find-hiccup-str ash-regex)
+                       (str/replace "markdown/" "test-resources/markdown/")
+                       (str/replace "md->hiccup" "nuzzle.content/md->hiccup"))
+          config-start (.indexOf ash-code "(defn config")
+          config-str (subs ash-code config-start)
+          config-fn (binding [md->hiccup content/md->hiccup]
+                      (-> config-str read-string eval))]
+      (-> (config-fn)
+          (assoc :nuzzle/render-page render-page)))
+    (catch Throwable e
+      (log/error "Could not read example config function in README.md")
+      (throw e))))
 
 (comment (read-ash-config))
-
-(defn transform-ash-config
-  [config]
-  {:pre [(map? config)]}
-  (let [update-content
-        (fn [cval]
-          (if-not (:nuzzle/content cval)
-            cval
-            (update cval :nuzzle/content #(str "test-resources/" %))))]
-    (-> config
-      (assoc :nuzzle/render-page nuzzle.integration-test/render-page)
-      (update-vals update-content))))
-
-(comment (-> (read-ash-config) transform-ash-config))
 
 (defn normalize-loaded-config
   "Calls the :nuzzle/render-content function in each page entry value so it's
@@ -61,11 +53,10 @@
         (update-vals trigger-render-content)
         (update-vals remove-get-config))))
 
-;; (comment (-> (read-ash-config) transform-ash-config create-ash-config-file
-;;              (conf/load-config-from-path) normalize-loaded-config))
+(comment (-> (read-ash-config) normalize-loaded-config))
 
 (deftest transform-config
-  (let [config (-> (read-ash-config) transform-ash-config conf/load-config)
+  (let [config (-> (read-ash-config) conf/load-config)
         normalized-config (normalize-loaded-config config)]
     ;; Check that every page entry has a :nuzzle/get-config key
     (is (every? (fn [[ckey cval]] (or (not (vector? ckey)) (contains? cval :nuzzle/get-config)))
@@ -74,18 +65,15 @@
            {:nuzzle/render-page render-page
             []
             {:nuzzle/title "Home"
-             :nuzzle/content "test-resources/markdown/homepage-introduction.md",
              :nuzzle/index #{[:about] [:blog-posts]},
              :nuzzle/url []
              :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
             [:blog-posts :catching-pikachu]
             {:nuzzle/title "How I Caught Pikachu",
-             :nuzzle/content "test-resources/markdown/how-i-caught-pikachu.md",
              :nuzzle/url [:blog-posts :catching-pikachu]
              :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
             [:about]
             {:nuzzle/title "About Ash"
-             :nuzzle/content "test-resources/markdown/about-ash.md",
              :nuzzle/url [:about]
              :nuzzle/render-content '([:h1 {:id "placeholder"} "Placeholder"])},
             [:blog-posts]
@@ -93,5 +81,4 @@
              #{[:blog-posts :catching-pikachu]},
              :nuzzle/title "Blog Posts",
              :nuzzle/url [:blog-posts]
-             :nuzzle/content "test-resources/markdown/blog-header.md"
              :nuzzle/render-content '([:p {} "Hi I'm Ash and this is my blog!"])}}))))

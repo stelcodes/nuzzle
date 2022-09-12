@@ -82,10 +82,10 @@
 
 (defn find-hiccup-str
   "Find first string matching regular expression in deeply nested Hiccup tree"
-  [regex hiccup]
+  [hiccup regex]
   (reduce
    (fn [_ item]
-     (let [desc-result (and (vector? item) (find-hiccup-str regex item))]
+     (let [desc-result (and (vector? item) (find-hiccup-str item regex))]
        (or (and (string? item) (re-find regex item) (reduced item))
            (and desc-result (reduced desc-result)))))
    hiccup))
