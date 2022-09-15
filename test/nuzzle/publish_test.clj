@@ -5,7 +5,7 @@
    [clojure.data :as data]
    [clojure.string :as str]
    [clojure.test :refer [deftest is]]
-   [nuzzle.config :as conf]
+   [nuzzle.pages :as pages]
    [nuzzle.log :as log]
    [nuzzle.publish :as publish]
    [nuzzle.test-util :as test-util]
@@ -43,32 +43,18 @@
 
 (deftest create-sitemap
   (is (= (-> "test-resources/xml/empty-sitemap.xml" slurp str/trim)
-         (publish/create-sitemap {} {})))
-  (let [loaded-config-1 (conf/load-config test-util/config-1)]
-    (is (= (-> "test-resources/xml/config-1-sitemap.xml" slurp str/trim)
-         (publish/create-sitemap loaded-config-1 (conf/create-site-index loaded-config-1) :base-url "https://foobar.com"))))
-  (is (= "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a:urlset xmlns:a=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><a:url><a:loc>https://foo.com/</a:loc></a:url><a:url><a:loc>https://foo.com/about/</a:loc><a:lastmod>2022-05-09T12:00:00Z</a:lastmod></a:url><a:url><a:loc>https://foo.com/blog-posts/foobar/</a:loc></a:url></a:urlset>"
-         (publish/create-sitemap {[:about] {:nuzzle/updated (util/time-str->?inst "2022-05-09T12:00Z")}}
-                                 {"/" []
-                                  "/about/" []
-                                  "/blog-posts/foobar/" []}
-                                 :base-url "https://foo.com"))))
-
-(comment (spit "test-resources/xml/empty-sitemap.xml" (publish/create-sitemap {} {})))
-(comment (spit "test-resources/xml/config-1-sitemap.xml" (publish/create-sitemap test-util/config-1 (conf/create-site-index test-util/config-1))))
-
-(deftest create-atom-feed
-  (let [config (conf/load-config test-util/config-1)
-        rendered-site-index (conf/create-site-index config)]
-    (is (= (-> "test-resources/sites/config-1-site/feed.xml" slurp str/trim)
-           (publish/create-atom-feed config rendered-site-index :base-url "https://foobar.com" :deterministic? true)))))
+         (publish/create-sitemap {} {}))))
 
 (deftest publish-site
   (let [temp-site-dir (str (fs/create-temp-dir))
-        reference-site-dir (str (fs/path "test-resources/sites/config-1-site"))
-        config (-> test-util/config-1 conf/load-config)
-        _ (publish/publish-site config :overlay-dir "test-resources/public" :deterministic? true
-                                :base-url "https://foobar.com" :publish-dir (str temp-site-dir))
+        reference-site-dir (str (fs/path "test-resources/sites/twin-peaks"))
+        pages (-> test-util/twin-peaks-pages pages/load-pages)
+        atom-feed {:title "Foo's blog"
+                   :author (test-util/authors :donna)
+                   :subtitle "Rants about foo and thoughts about bar"}
+        _ (publish/publish-site pages :overlay-dir "test-resources/public" :deterministic? true
+                                :base-url "https://foobar.com" :publish-dir (str temp-site-dir)
+                                :atom-feed atom-feed)
         mismatches (diff-dirs temp-site-dir reference-site-dir)]
     (doseq [mismatch mismatches
             :let [rel->abs-path (fn [parent-dir path] (str parent-dir "/" path))

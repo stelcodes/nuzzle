@@ -25,11 +25,11 @@
   [config]
   (if (var? config)
     (fn [request]
-      (let [loaded-config (conf/load-config config)
+      (let [loaded-config (conf/load-pages config)
             pages (conf/create-site-index loaded-config :lazy-render? true)
             app (stasis/serve-pages pages)]
         (app request)))
-    (let [loaded-config (conf/load-config config)
+    (let [loaded-config (conf/load-pages config)
           pages (conf/create-site-index loaded-config :lazy-render? true)
           app (stasis/serve-pages pages)]
       (fn [request]

@@ -2,7 +2,7 @@
   (:require
    [babashka.fs :as fs]
    [clojure.data.xml :as xml]
-   [nuzzle.config :as conf]
+   [nuzzle.pages :as pages]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.util :as util]
@@ -20,13 +20,13 @@
   "Assumes config is transformed and drafts have already been removed from
   rendered-site-index."
   ;; http://www.sitemaps.org/protocol.html
-  [config rendered-site-index & {:keys [base-url]}]
+  [pages rendered-site-index & {:keys [base-url]}]
    (xml/emit-str
     {:tag ::sm/urlset
      :content
      (for [[url-str _hiccup] rendered-site-index
            :let [url-vec (util/vectorize-url url-str)
-                 {:nuzzle/keys [updated]} (get config url-vec)
+                 {:nuzzle/keys [updated]} (get pages url-vec)
                  abs-url (str base-url url-str)]]
        {:tag ::sm/url
         :content
@@ -53,12 +53,12 @@
 (defn create-atom-feed
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [{:nuzzle/keys [atom-feed] :as config} rendered-site-index & {:keys [base-url deterministic?]}]
+  [pages rendered-site-index & {:keys [title author base-url logo icon subtitle deterministic?]}]
   (xml/emit-str
    {:tag ::atom/feed
     :content
     (into [{:tag ::atom/title
-            :content (:title atom-feed)}
+            :content title}
            {:tag ::atom/id
             :content (if (-> base-url last (= \/)) base-url (str base-url "/"))}
            {:tag ::atom/link
@@ -66,20 +66,20 @@
            (when-not deterministic?
              {:tag ::atom/updated
               :content (str (util/now-trunc-sec))})
-           (when-let [feed-author (:author atom-feed)]
+           (when-let [feed-author author]
              (create-author-element feed-author))
-           (when-let [icon (:icon atom-feed)]
+           (when icon
              {:tag ::atom/icon
               :content icon})
-           (when-let [logo (:logo atom-feed)]
+           (when logo
              {:tag ::atom/logo
               :content logo})
-           (when-let [subtitle (:subtitle atom-feed)]
+           (when subtitle
              {:tag ::atom/subtitle
               :content subtitle})]
           (for [[url-str _] rendered-site-index
                 :let [url-vec (util/vectorize-url url-str)
-                      {:nuzzle/keys [updated summary author title render-content feed?]} (get config url-vec)
+                      {:nuzzle/keys [updated summary author title render-content feed?]} (get pages url-vec)
                       content (render-content)
                       abs-url (str base-url url-str)]
                 :when feed?]
@@ -104,8 +104,8 @@
 (defn publish-site
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [{:nuzzle/keys [atom-feed sitemap?] :as config} & {:keys [publish-dir overlay-dir] :or {publish-dir "dist"} :as opts}]
-  (let [rendered-site-index (conf/create-site-index config)]
+  [pages & {:keys [publish-dir overlay-dir atom-feed sitemap? deterministic?] :or {publish-dir "dist" sitemap? true} :as opts}]
+  (let [rendered-site-index (pages/create-site-index pages)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
     (stasis/empty-directory! publish-dir)
@@ -117,9 +117,9 @@
     (when atom-feed
       (let [feed-file (fs/file publish-dir "feed.xml")]
         (log/log-feed feed-file)
-        (spit feed-file (str (create-atom-feed config rendered-site-index opts) \newline))))
+        (spit feed-file (str (create-atom-feed pages rendered-site-index (assoc atom-feed :deterministic? deterministic?)) \newline))))
     (when sitemap?
       (let [sitemap-file (fs/file publish-dir "sitemap.xml")]
         (log/log-sitemap sitemap-file)
-        (spit sitemap-file (str (create-sitemap config rendered-site-index opts) \newline))))
+        (spit sitemap-file (str (create-sitemap pages rendered-site-index opts) \newline))))
     (log/log-publish-end)))
