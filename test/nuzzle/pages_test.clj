@@ -44,8 +44,8 @@
            :nuzzle/title "#colors"}})
          (pages/add-tag-pages test-util/twin-peaks-pages test-util/render-page))))
 
-(deftest create-get-pages
-  (let [get-pages (-> test-util/twin-peaks-pages pages/load-pages pages/create-get-pages)]
-    (is (= [:about] (get-pages [:about] :nuzzle/url)))
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"get-pages error: key sequence \[:bad-key\] cannot be resolved"
-                          (get-pages :bad-key)))))
+(deftest create-get-page
+  (let [get-page (-> test-util/twin-peaks-pages pages/load-pages pages/create-get-page)]
+    (is (= "About" (:nuzzle/title (get-page [:about]))))
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"get-page error"
+                          (get-page :bad-key)))))

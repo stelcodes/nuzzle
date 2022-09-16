@@ -50,27 +50,22 @@
                            (re-find #"failed: .*" (s/explain-str :nuzzle/user-pages pages)))
                       {})))))
 
-(defn create-get-pages
-  "Create the helper function get-pages from the transformed pages. This
+(defn create-get-page
+  "Create the helper function get-page from the transformed pages. This
   function takes a pages key and returns the corresponding value with added
-  key :nuzzle/get-pages with value get-pages function attached."
+  key :nuzzle/get-page with value get-page function attached."
   [pages]
   {:pre [(map? pages)] :post [(fn? %)]}
-  (fn get-pages
-    ([& args]
-     (if (empty? args)
-       ;; If no args, return the whole pages
-       (update-vals pages #(assoc % :nuzzle/get-pages get-pages))
-       (reduce (fn [last-match arg]
-                 (if (try (contains? last-match arg) (catch Throwable _ false))
-                   (let [next-match (get last-match arg)]
-                     (cond-> next-match
-                       ;; Only add get-pages to returned value if it's a page entry map
-                       (:nuzzle/url next-match) (assoc :nuzzle/get-pages get-pages)))
-                   (throw (ex-info (str "get-pages error: key sequence "
-                                        (-> args vec pr-str) " cannot be resolved")
-                                   {:invalid-key arg}))))
-               pages args)))))
+  (fn get-page
+    ([url]
+     (if (= url :all)
+       ;; Return the whole pages map
+       (update-vals pages #(assoc % :nuzzle/get-page get-page))
+       ;; Return a single page map
+       (if-let [page (pages url)]
+         (assoc page :nuzzle/get-page get-page)
+         (throw (ex-info (str "get-page error: Nonexistent URL " (pr-str url))
+                         {:url url :pages pages})))))))
 
 (defn transform-pages
   "Creates fully transformed pages with or without drafts."
@@ -84,13 +79,13 @@
                           (assoc :nuzzle/url ckey)
                           (update :nuzzle/render-content #(or % (constantly nil))))))
              {} pages))
-          (add-get-pages [pages]
-            (let [get-pages (create-get-pages pages)]
-              (update-vals pages #(assoc % :nuzzle/get-pages get-pages))))]
+          (add-get-page [pages]
+            (let [get-page (create-get-page pages)]
+              (update-vals pages #(assoc % :nuzzle/get-page get-page))))]
     (-> pages
         add-page-keys
-        ;; Adding get-pages must come after all other transformations
-        add-get-pages)))
+        ;; Adding get-page must come after all other transformations
+        add-get-page)))
 
 (defn load-pages
   "Load a pages var or map and validate it."
@@ -99,7 +94,7 @@
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
     (-> pages
         validate-pages
-        (transform-pages))))
+        transform-pages)))
 
 (defn create-site-index
   "Creates a map where the keys are relative URLs and the values are a string
