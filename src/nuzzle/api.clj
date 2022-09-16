@@ -1,6 +1,6 @@
 (ns nuzzle.api
   (:require [lambdaisland.deep-diff2 :as ddiff]
-            [nuzzle.config :as conf]
+            [nuzzle.pages :as pages]
             [nuzzle.publish :as publish]
             [nuzzle.log :as log]
             [nuzzle.server :as server]))
@@ -9,13 +9,13 @@
   "Allows the user to visualize the site data after Nuzzle's modifications."
   [pages]
   (log/info "🔍🐈 Returning transformed config")
-  (conf/load-pages pages))
+  (pages/load-pages pages))
 
 (defn transform-diff
   "Pretty prints the diff between the config in nuzzle.edn and the config after
   Nuzzle's transformations."
   [pages]
-  (let [transformed-pages (conf/load-pages pages)]
+  (let [transformed-pages (pages/load-pages pages)]
     (log/info "🔍🐈 Printing Nuzzle's config transformations diff")
     (ddiff/pretty-print (ddiff/diff pages transformed-pages))))
 
@@ -24,7 +24,7 @@
   overlayed on top of the publish directory after the web pages have been
   published."
   [pages & opts]
-  (-> (conf/load-pages pages)
+  (-> (pages/load-pages pages)
       (publish/publish-site opts)))
 
 (defn serve
