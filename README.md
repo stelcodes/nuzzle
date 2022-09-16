@@ -47,21 +47,32 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```
 
 ```clojure
-(require '[nuzzle.api :as nuzz])
+(require '[nuzzle.core :refer [serve publish])
+(require '[nuzzle.markdown :refer [md->hiccup]])
 
 ;; Create a pages map
-(def pages {...})
+(defn pages {[]
+             {:nuzzle/title "Homepage"
+              :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
+                                    [:html
+                                     [:h1 (page :nuzzle/title)]
+                                     [:a {:href [:about]}] "About")}
+             [:about]
+             {:nuzzle/title "About"
+              :nuzzle/render-content (fn [_page]
+                                       (-> "md/about.md" slurp md->hiccup)
+              :nuzzle/render-page (fn [{:nuzzle/keys [render-content title] :as _page}]
+                                    [:html
+                                     [:h1 title]
+                                     (render-content)])}})
 
 ;; Start development server
 ;; Pass the pages as a var to get awesome hot-reloading capabilities!
 ;; The returned value is a function that stops the server.
-(nuzz/serve #'pages)
+(serve #'pages)
 
 ;; Publish the static site, returns nil
-(nuzz/publish pages)
-
-;; Prints a diff of all changes Nuzzle made to the pages before using it, returns nil
-(nuzz/transform-diff pages)
+(publish pages :sitemap? true)
 ```
 
 Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
@@ -82,31 +93,73 @@ If you're from Pallet town, your pages might look like this:
 ```clojure
 (ns user
   (:require
-   [nuzzle.hiccup :refer [md->hiccup]]
-   [nuzzle.pages :refer [add-tag-pages]))
+   [nuzzle.hiccup :as hiccup]
+   [nuzzle.pages :as pages))
 
-(defn pages []
-  (add-tag-pages
+(defn render-page [{:keys [title index render-content get-page] :as _page}]
+ [:html
+  [:head [:title title]
+         ;; Add link to CSS file /css/main.css (must be in overlay directory)
+         (hiccup/link-css [:css :main.css])]
+  [:body
+   [:h1 title]
+   (when index
+     [:ul (for [url index
+                :let [{:keys [title url]} (get-page url)]]
+            ;; The url will be a vector, but Nuzzle will convert them
+            ;; into strings
+            [:li title [:a {:href url}]])])
+   (render-content)]])
+
+(defn md-content [md-path]
+  (fn [_page] (-> md-path slurp hiccup/md->hiccup))
+
+;; Here we define an author for our Atom feed
+(def ash {:name "Ash Ketchum"
+          :email "ashketchum@fastmail.com"})
+
+(defn get-pages []
+  (pages/add-tag-pages render-page
     {[]
      {:nuzzle/title "Home"
-      :nuzzle/render-content #(-> "markdown/homepage-introduction.md" slurp md->hiccup)}
+      :nuzzle/render-content (md-content "content/homepage-introduction.md")
+      :nuzzle/render-page render-page}
 
      [:blog-posts]
      {:nuzzle/title "Blog Posts"
-      :nuzzle/render-content #(-> "markdown/blog-header.md" slurp md->hiccup)}
+      :nuzzle/render-content (md-content "content/blog-header.md")
+      :nuzzle/render-page render-page}
 
      [:blog-posts :catching-pikachu]
      {:nuzzle/title "How I Caught Pikachu"
-      :nuzzle/render-content #(-> "markdown/how-i-caught-pikachu.md" slurp md->hiccup)}
+      :nuzzle/render-content (md-content "content/how-i-caught-pikachu.md")
+      :nuzzle/render-page render-page
+      :nuzzle/author ash
+      :nuzzle/feed? true}
 
      [:blog-posts :defeating-misty]
-     {:nuzzle/title "How I Defeated Misty with Pikachu"
-      :nuzzle/render-content #(-> "markdown/how-i-defeated-misty.md" slurp md->hiccup)
-      :nuzzle/draft? true}
+     {:nuzzle/draft? true
+      :nuzzle/title "How I Defeated Misty with Pikachu"
+      :nuzzle/render-content (md-content "content/how-i-defeated-misty.md")
+      :nuzzle/render-page render-page
+      :nuzzle/author ash
+      :nuzzle/feed? true}
 
      [:about]
      {:nuzzle/title "About Ash"
-      :nuzzle/render-content #(-> "markdown/about-ash.md" slurp md->hiccup)}})
+      :nuzzle/render-content (md-content "markdown/about-ash.md")
+      :nuzzle/render-page render-page}})
+
+(serve #'pages :port 8080 :build-drafts? true)
+
+;; Build this site with a sitemap and Atom feed
+;; Overlay the directory containing the css/main.css file.
+
+(publish pages :base-url "https://ashketchum.com"
+               :atom-feed {:title "Ash Ketchum's Blog"
+                           :subtitle "In a world we must defend"}
+               :sitemap? true
+               :overlay-dir "public")
 ```
 
 ## Page Entries
@@ -126,9 +179,9 @@ Page entries have a key that is a **vector of keywords**, and their associated v
 ### Automatically Added Keys to Page Entries
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: The key of the page (the vector of keywords representing the URL) is added to the page map.
-- `:nuzzle/index`: A set of page entry keys that should be indexed by the respective web page.
-- `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which always returns `nil`.
-- `:nuzzle/get-config`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
+- `:nuzzle/index`: If a page does
+- `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which just returns nil `(fn [_] nil)`. This means it's always safe to call in a `render-page` function.
+- `:nuzzle/get-page`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
 ### Adding Tag Index Pages
 Often people want to create index pages in static sites which link to other pages that share a common trait. Nuzzle calls these **index pages**. If you want to add index pages for all your tags defined in `:nuzzle/tags`, you can use the function `nuzzle.pages/add-tag-pages` on your pages map.
