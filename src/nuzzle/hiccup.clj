@@ -4,19 +4,15 @@
    [clojure.string :as str]
    [clojure.walk :as w]
    [cybermonday.core :as cm]
+   [nuzzle.hiccup-compiler :as hiccup-compiler]
    [nuzzle.log :as log]
-   [nuzzle.util :as util]
-   [rum.core :as rum]))
+   [nuzzle.util :as util]))
 
-(defn raw [raw-html-str] [:<> {:dangerouslySetInnerHTML {:__html raw-html-str}}])
+(defn raw-html [raw-html-str] [:<> {:dangerouslySetInnerHTML {:__html raw-html-str}}])
 
-(defn html [& hiccup] (rum/render-static-markup hiccup))
+(defn hiccup->html [& hiccup] (hiccup-compiler/render-html hiccup))
 
-(defn html-document [& hiccup] (str "<!DOCTYPE html>" (apply html hiccup)))
-
-(comment (str "<!DOCTYPE html>" (html [:html [:head [:title "Some Title"]]])))
-
-(comment (html-document [:html [:head [:title "Some Title"]] [:h1 "test"]]))
+(defn hiccup->html-document [& hiccup] (str "<!DOCTYPE html>" (apply hiccup->html hiccup)))
 
 (defn quickfigure
   [[_tag {:keys [src alt] :as _attr}]]

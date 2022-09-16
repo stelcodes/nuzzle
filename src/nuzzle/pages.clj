@@ -109,6 +109,6 @@
               ;; Turn the page's hiccup into HTML on the fly
               (fn [_]
                 (log/log-rendering-page page)
-                (-> page render-page hiccup/html-document))
-              (-> page render-page hiccup/html-document))))
+                (-> page render-page hiccup/hiccup->html-document))
+              (-> page render-page hiccup/hiccup->html-document))))
    {} pages))

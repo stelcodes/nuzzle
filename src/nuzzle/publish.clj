@@ -91,7 +91,7 @@
                        (when content
                          {:tag ::atom/content
                           :attrs {:type "html"}
-                          :content (hiccup/html content)})
+                          :content (hiccup/hiccup->html content)})
                        (when updated
                          {:tag ::atom/updated
                           :content (str updated)})
