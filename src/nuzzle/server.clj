@@ -1,6 +1,6 @@
 (ns nuzzle.server
   (:require
-   [nuzzle.config :as conf]
+   [nuzzle.pages :as pages]
    [nuzzle.log :as log]
    [nuzzle.util :as util]
    [org.httpkit.server :as http]
@@ -22,25 +22,25 @@
   "Handler that wraps around stasis.core/serve-pages, if config is a var then
   the config is resolved and validated upon each request. Otherwise the config
   is validated once and the app is built just once."
-  [config]
-  (if (var? config)
+  [pages]
+  (if (var? pages)
     (fn [request]
-      (let [loaded-config (conf/load-pages config)
-            pages (conf/create-site-index loaded-config :lazy-render? true)
-            app (stasis/serve-pages pages)]
+      (let [loaded-pages (pages/load-pages pages)
+            stasis-pages (pages/create-site-index loaded-pages :lazy-render? true)
+            app (stasis/serve-pages stasis-pages)]
         (app request)))
-    (let [loaded-config (conf/load-pages config)
-          pages (conf/create-site-index loaded-config :lazy-render? true)
-          app (stasis/serve-pages pages)]
+    (let [loaded-pages (pages/load-pages pages)
+          stasis-pages (pages/create-site-index loaded-pages :lazy-render? true)
+          app (stasis/serve-pages stasis-pages)]
       (fn [request]
         (app request)))))
 
-(defn start-server [config & {:keys [port overlay-dir]}]
+(defn start-server [pages & {:keys [port overlay-dir]}]
   (log/log-start-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir))
-  (-> (handle-page-request config)
+  (-> (handle-page-request pages)
       (wrap-overlay-dir overlay-dir)
       (wrap-content-type)
       (wrap-stacktrace)
