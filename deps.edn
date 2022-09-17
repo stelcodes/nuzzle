@@ -23,6 +23,5 @@
         babashka/fs {:mvn/version "0.1.4"},
         org.clojure/clojure {:mvn/version "1.11.1"},
         org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}
-        lambdaisland/deep-diff2 {:mvn/version "2.3.127"}
         stasis/stasis {:mvn/version "2.5.1"}},
  :paths ["src"]}
