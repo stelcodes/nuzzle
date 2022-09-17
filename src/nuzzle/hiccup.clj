@@ -8,11 +8,18 @@
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
 
-(defn raw-html [raw-html-str] [:<> {:dangerouslySetInnerHTML {:__html raw-html-str}}])
+(defn raw-html [raw-html-str]
+  [:<> {:dangerouslySetInnerHTML {:__html raw-html-str}}])
 
-(defn hiccup->html [& hiccup] (hiccup-compiler/render-html hiccup))
+(defn hiccup->html [& hiccup]
+  (when (seq hiccup)
+    (hiccup-compiler/render-html hiccup)))
 
-(defn hiccup->html-document [& hiccup] (str "<!DOCTYPE html>" (apply hiccup->html hiccup)))
+(comment (hiccup->html (raw-html "<h1>hi<h1>")))
+
+(defn hiccup->html-document [& hiccup]
+  (when (seq hiccup)
+    (str "<!DOCTYPE html>" (apply hiccup->html hiccup))))
 
 (defn quickfigure
   [[_tag {:keys [src alt] :as _attr}]]
