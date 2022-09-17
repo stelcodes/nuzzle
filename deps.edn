@@ -14,6 +14,7 @@
             :ns-default build}}
  :deps {expound/expound {:mvn/version "0.9.0"}
         com.bhauman/spell-spec {:mvn/version "0.1.1"}
+        io.aviso/pretty {:mvn/version "1.1.1"}
         ring/ring-core {:mvn/version "1.9.5"} ,
         ring/ring-devel {:mvn/version "1.9.5"} ,
         http-kit/http-kit {:mvn/version "2.5.3"},
