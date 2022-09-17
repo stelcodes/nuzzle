@@ -21,10 +21,12 @@
 (defn validate-pages [pages]
   (if (s/valid? :nuzzle/user-pages pages)
     pages
-    (do (expound/expound :nuzzle/user-pages pages {:theme :figwheel-theme})
-      (log/error "Encountered error in Nuzzle pages:")
+    (do (expound/expound :nuzzle/user-pages pages {:theme :figwheel-theme
+                                                   :print-specs? false})
       (throw (ex-info (str "Invalid pages:"
-                           (->> pages (s/explain-str :nuzzle/user-pages) (re-find #"failed:(.*)") second))
+                           (->> pages
+                                (s/explain-str :nuzzle/user-pages)
+                                (re-find #"failed:(.*)") second))
                       {})))))
 
 (defn create-get-pages
