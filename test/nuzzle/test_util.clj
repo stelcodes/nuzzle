@@ -16,7 +16,7 @@
         :nuzzle/render-page render-page}
 
        [:about]
-       {:nuzzle/updated "2022-05-09T12:00Z",
+       {:nuzzle/updated #inst "2022-05-09T12:00Z",
         :nuzzle/render-content #(-> "test-resources/markdown/about.md" slurp parse-md),
         :nuzzle/render-page render-page
         :nuzzle/title "About"},
@@ -24,7 +24,7 @@
        [:blog :favorite-color]
        {:nuzzle/render-content #(-> "test-resources/markdown/favorite-color.md" slurp parse-md),
         :nuzzle/render-page render-page
-        :nuzzle/updated "2022-05-09T12:00Z"
+        :nuzzle/updated #inst "2022-05-09T12:00Z"
         :nuzzle/feed? true,
         :nuzzle/author (authors :josie)
         :nuzzle/tags #{:colors},
@@ -33,7 +33,7 @@
        [:blog :nuzzle-rocks]
        {:nuzzle/render-content #(-> "test-resources/markdown/nuzzle-rocks.md" slurp parse-md),
         :nuzzle/render-page render-page
-        :nuzzle/updated "2022-05-09T12:00Z",
+        :nuzzle/updated #inst "2022-05-09T12:00Z",
         :nuzzle/author (authors :shelly)
         :nuzzle/feed? true,
         :nuzzle/tags #{:nuzzle},
@@ -42,7 +42,7 @@
        [:blog :why-nuzzle]
        {:nuzzle/render-content #(-> "test-resources/markdown/why-nuzzle.md" slurp parse-md),
         :nuzzle/render-page render-page
-        :nuzzle/updated "2022-05-09T12:00Z"
+        :nuzzle/updated #inst "2022-05-09T12:00Z"
         :nuzzle/feed? true,
         :nuzzle/author (authors :donna)
         :nuzzle/tags #{:nuzzle},

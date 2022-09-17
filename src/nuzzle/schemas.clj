@@ -3,17 +3,13 @@
    [clojure.spec.alpha :as s]
    [spell-spec.alpha :as spell]))
 
-(def date-str? #(try (java.time.LocalDate/parse %) (catch Throwable _ nil)))
-(def datetime-str? #(try (java.time.LocalDateTime/parse %) (catch Throwable _ nil)))
-(def zoned-datetime-str? #(try (java.time.ZonedDateTime/parse %) (catch Throwable _ nil)))
-
 (def http-url? #(re-find #"^https?://" %))
 
 ;; Page map keys
 (s/def :nuzzle/title string?)
 (s/def :nuzzle/render-content fn?)
 (s/def :nuzzle/feed? boolean?)
-(s/def :nuzzle/updated (s/or :date date-str? :datetime datetime-str? :zoned-datetime zoned-datetime-str?))
+(s/def :nuzzle/updated inst?)
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
 (s/def :nuzzle/draft? boolean?)
 (s/def :nuzzle/render-page fn?)

@@ -63,11 +63,12 @@
               (constantly nil)))
           (add-page-keys [pages]
             (reduce-kv
-             (fn [acc ckey cval]
-               (assoc acc ckey
-                      (-> cval
-                          (assoc :nuzzle/url ckey)
-                          (update :nuzzle/render-content update-render-content))))
+             (fn [acc url {:nuzzle/keys [updated] :as page}]
+               (assoc acc url
+                      (cond-> page
+                        true (assoc :nuzzle/url url)
+                        true (update :nuzzle/render-content update-render-content)
+                        updated (update :nuzzle/updated #(if (= java.util.Date (class %)) (.toInstant %) %)))))
              {} pages))
           (add-get-pages [pages]
             (let [get-pages (create-get-pages pages)]
