@@ -82,7 +82,7 @@ If you're from Pallet town, your pages might look like this:
   (:require
    [nuzzle.core :as nuzz]))
 
-(defn render-page [{:keys [title index render-content get-pages] :as _page}]
+(defn render-page [{:nuzzle/keys [title index render-content get-pages] :as _page}]
  [:html
   [:head [:title title]
          ;; Add link to CSS file /css/main.css (must be in overlay directory)
@@ -91,7 +91,7 @@ If you're from Pallet town, your pages might look like this:
    [:h1 title]
    (when index
      [:ul (for [url index
-                :let [{:keys [title url]} (get-pages url)]]
+                :let [{:nuzzle/keys [title url]} (get-pages url)]]
             ;; The url is a vector, but Nuzzle will convert them
             ;; into strings when used for an :href value
             [:li title [:a {:href url}]])])
@@ -162,11 +162,11 @@ Each page entry in the pages map represents a single page of the static site. Ea
 
  ;; A function that takes the page map and returns Hiccup containing the whole HTML document
  ;; Required, no default
- :nuzzle/render-page (fn [{:nuzzle/keys [title render-content] [:html [:head [:title title]] [:h1 title] (render-content)])
+ :nuzzle/render-page (fn [{:nuzzle/keys [title render-content]} [:html [:head [:title title]] [:h1 title] (render-content)])
 
  ;; A function that takes the page map and returns Hiccup containing the page's main content
  ;; Optional, defaults to (constantly nil)
- :nuzzle/render-content (fn [_page] [:p "The first step to learning Clojure is pressing the ( key."])
+ :nuzzle/render-content (fn [] [:p "The first step to learning Clojure is pressing the ( key."])
 
  ;; A boolean indicating whether this page is a draft or not
  ;; Optional, defaults to nil
