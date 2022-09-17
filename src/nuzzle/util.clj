@@ -105,7 +105,7 @@
   (remove nil?
           ["chroma" (str "--lexer=" language) "--formatter=html" "--html-only"
            "--html-prevent-surrounding-pre" (when style "--html-inline-styles")
-           (when style (str "--style=" style)) (when line-numbers? "--html-lines")  file-path]))
+           (when style (str "--style=" (name style))) (when line-numbers? "--html-lines") file-path]))
 
 (defn generate-pygments-command
   [file-path language & {:keys [style line-numbers?]}]
@@ -113,7 +113,7 @@
         ;; https://github.com/pygments/pygments/issues/2127
         options (remove nil?
                         [(when-not line-numbers? "nowrap") (when style "noclasses")
-                         (when style (str "style=" style))
+                         (when style (str "style=" (name style)))
                          (when line-numbers? "linenos=inline")])]
     ["pygmentize" "-f" "html" "-l" language "-O" (str/join "," options) file-path]))
 
