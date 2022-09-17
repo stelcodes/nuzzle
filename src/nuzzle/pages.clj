@@ -58,10 +58,10 @@
   {:pre [(map? pages)] :post [#(map? %)]}
   (letfn [(update-render-content [render-content]
             (if render-content
-              (fn wrap-render-content [& args]
-                (try (apply render-content args)
+              (fn wrap-render-content [& {:as page}]
+                (try (render-content page)
                   (catch clojure.lang.ArityException _
-                    (render-content nil))))
+                    (render-content))))
               (constantly nil)))
           (add-page-keys [pages]
             (reduce-kv
