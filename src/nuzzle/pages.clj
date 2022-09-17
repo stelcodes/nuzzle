@@ -88,19 +88,17 @@
         handle-drafts
         transform-pages)))
 
-(defn create-site-index
+(defn create-stasis-pages
   "Creates a map where the keys are relative URLs and the values are a string
   of HTML or a function that produces a string of HTML. This datastructure is
   defined by stasis."
-  [pages & {:keys [lazy-render?]}]
+  [pages]
   {:post [(map? %)]}
   (reduce-kv
    (fn [acc url {:nuzzle/keys [render-page] :as page}]
      (assoc acc (util/stringify-url url)
-            (if lazy-render?
-              ;; Turn the page's hiccup into HTML on the fly
-              (fn [_]
-                (log/log-rendering-page page)
-                (-> page render-page hiccup/hiccup->html-document))
+            ;; Turn the page's hiccup into HTML on the fly
+            (fn [_]
+              (log/log-rendering-page page)
               (-> page render-page hiccup/hiccup->html-document))))
    {} pages))
