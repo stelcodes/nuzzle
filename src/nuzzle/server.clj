@@ -13,9 +13,7 @@
   [app overlay-dir]
   (if overlay-dir
     (fn [request]
-      (if-let [response (file-request request overlay-dir)]
-        response
-        (app request)))
+      (or (file-request request overlay-dir) (app request)))
     (fn [request] (app request))))
 
 (defn handle-page-request
