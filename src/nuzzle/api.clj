@@ -2,6 +2,8 @@
   (:require
    [cybermonday.core :as cm]
    [lambdaisland.deep-diff2 :as ddiff]
+   [nrepl.cmdline :as nrepl-cmdline]
+   [nrepl.server :as nrepl]
    [nuzzle.pages :as pages]
    [nuzzle.publish :as publish]
    [nuzzle.log :as log]
@@ -33,6 +35,16 @@
   "Starts a server using http-kit for development."
   [pages & {:as opts}]
   (server/start-server pages opts))
+
+(defn develop
+  "Starts the site server and an nREPL server as well for an easy hot-reloading
+  setup"
+  [pages & {:as opts}]
+  (let [nrepl-server (nrepl/start-server)
+        stop-site-server (serve pages opts)]
+    (nrepl-cmdline/save-port-file nrepl-server {})
+    (log/log-nrepl-server (:port nrepl-server))
+    (fn [& _] (stop-site-server) (nrepl/stop-server nrepl-server))))
 
 (defn parse-md [md-str]
   (let [lower-code-block

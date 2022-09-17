@@ -37,7 +37,7 @@
       (app request))))
 
 (defn start-server [pages & {:keys [port overlay-dir remove-drafts?] :or {port 6899}}]
-  (log/log-start-server port)
+  (log/log-site-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir))

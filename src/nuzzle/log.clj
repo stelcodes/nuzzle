@@ -33,8 +33,11 @@
 (defn log-publish-end []
   (info "Publishing successful"))
 
-(defn log-start-server [port]
-  (info "Starting development server on port" port))
+(defn log-site-server [port]
+  (info "Starting static site server on port" port))
+
+(defn log-nrepl-server [port]
+  (info "Starting nREPL server on port" port))
 
 (defn log-rendering-page [url]
   (info "Rendering page:" (pr-str url)))
