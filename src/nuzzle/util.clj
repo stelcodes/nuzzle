@@ -130,12 +130,14 @@
   (let [added (set/difference (set (keys new-snapshot)) (set (keys old-snapshot)))
         removed (set/difference (set (keys old-snapshot)) (set (keys new-snapshot)))
         remaining (set/difference (set (keys old-snapshot)) added removed)
-        is-changed? #(not= (get old-snapshot %) (get new-snapshot %))]
-    {:added added
-     :removed removed
-     :changed (set (filter is-changed? remaining))}))
+        changed (->> remaining
+                     (filter #(not= (get old-snapshot %) (get new-snapshot %)))
+                     set)]
+      {:added added
+       :removed removed
+       :changed changed}))
 
-(defn take-dir-snapshot
+(defn create-dir-snapshot
   [dir]
   (let [dir (fs/file dir)
         path-len (count (-> dir fs/path str))

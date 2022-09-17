@@ -2,6 +2,7 @@
   (:require
    [babashka.fs :as fs]
    [clojure.data.xml :as xml]
+   [clojure.set :as set]
    [clojure.string :as str]
    [nuzzle.pages :as pages]
    [nuzzle.hiccup :as hiccup]
@@ -107,7 +108,8 @@
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)
           "Must provide a :base-url optional arg in order to create sitemap or atom feed")
   (let [publish-dir (str/replace publish-dir #"/$" "")
-        pages (pages/load-pages pages :remove-drafts? remove-drafts?)]
+        pages (pages/load-pages pages :remove-drafts? remove-drafts?)
+        last-snapshot (util/create-dir-snapshot publish-dir)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
     (fs/delete-tree publish-dir)
@@ -124,4 +126,8 @@
       (let [sitemap-file (fs/file publish-dir "sitemap.xml")]
         (log/log-sitemap sitemap-file)
         (spit sitemap-file (str (create-sitemap pages :base-url base-url) \newline))))
+    (->> publish-dir
+         util/create-dir-snapshot
+         (util/create-dir-diff last-snapshot)
+         log/report-dir-diff)
     (log/log-publish-end)))
