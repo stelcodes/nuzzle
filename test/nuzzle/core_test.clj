@@ -1,7 +1,7 @@
-(ns nuzzle.api-test
+(ns nuzzle.core-test
   (:require
    [clojure.test :as t]
-   [nuzzle.api :as api]
+   [nuzzle.core :as nuzz]
    [nuzzle.test-util :as test-util]))
 
 (t/deftest add-tag-index-pages
@@ -16,7 +16,7 @@
           {:nuzzle/index #{[:blog :foo]},
            :nuzzle/render-page test-util/render-page
            :nuzzle/title "Tag baz"}}
-         (api/add-tag-pages {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}} test-util/render-page)))
+         (nuzz/add-tag-pages {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}} test-util/render-page)))
   (t/is (= (merge
           test-util/twin-peaks-pages
           {[:tags :nuzzle]
@@ -27,4 +27,4 @@
           {:nuzzle/index #{[:blog :favorite-color]},
            :nuzzle/render-page test-util/render-page
            :nuzzle/title "Tag colors"}})
-         (api/add-tag-pages test-util/twin-peaks-pages test-util/render-page))))
+         (nuzz/add-tag-pages test-util/twin-peaks-pages test-util/render-page))))

@@ -1,6 +1,6 @@
 (ns nuzzle.test-util
   (:require
-   [nuzzle.api :refer [add-tag-pages parse-md]]))
+   [nuzzle.core :refer [add-tag-pages parse-md]]))
 
 (def render-page (constantly [:h1 "test"]))
 

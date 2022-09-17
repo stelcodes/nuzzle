@@ -1,4 +1,4 @@
-(ns nuzzle.api
+(ns nuzzle.core
   (:require
    [cybermonday.core :as cm]
    [nrepl.cmdline :as nrepl-cmdline]

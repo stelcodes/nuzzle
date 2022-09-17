@@ -47,7 +47,7 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```
 
 ```clojure
-(require '[nuzzle.api :as nuzz)
+(require '[nuzzle.core :as nuzz)
 
 ;; Create a pages map
 (defn pages {[]
@@ -80,7 +80,7 @@ If you're from Pallet town, your pages might look like this:
 ```clojure
 (ns user
   (:require
-   [nuzzle.api :as nuzz]))
+   [nuzzle.core :as nuzz]))
 
 (defn render-page [{:keys [title index render-content get-pages] :as _page}]
  [:html
@@ -206,7 +206,7 @@ Nuzzle adds these keys to every page map:
 - `:nuzzle/get-pages`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
 ## Adding Tag Pages
-The `:nuzzle/tag` page keys are used to generate tag pages by using the `nuzzle.api/add-tag-pages` function. This function requires a `:nuzzle/render-page` function for the tag pages.
+The `:nuzzle/tag` page keys are used to generate tag pages by using the `nuzzle.core/add-tag-pages` function. This function requires a `:nuzzle/render-page` function for the tag pages.
 
 ```clojure
 (-> {[:blog :foo]
