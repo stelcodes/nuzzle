@@ -1,7 +1,6 @@
 (ns nuzzle.test-util
   (:require
-   [nuzzle.pages :refer [add-tag-pages]]
-   [nuzzle.hiccup :refer [md->hiccup]]))
+   [nuzzle.api :refer [add-tag-pages parse-md]]))
 
 (def render-page (constantly [:h1 "test"]))
 
@@ -18,12 +17,12 @@
 
        [:about]
        {:nuzzle/updated "2022-05-09T12:00Z",
-        :nuzzle/render-content #(-> "test-resources/markdown/about.md" slurp md->hiccup),
+        :nuzzle/render-content #(-> "test-resources/markdown/about.md" slurp parse-md),
         :nuzzle/render-page render-page
         :nuzzle/title "About"},
 
        [:blog :favorite-color]
-       {:nuzzle/render-content #(-> "test-resources/markdown/favorite-color.md" slurp md->hiccup),
+       {:nuzzle/render-content #(-> "test-resources/markdown/favorite-color.md" slurp parse-md),
         :nuzzle/render-page render-page
         :nuzzle/updated "2022-05-09T12:00Z"
         :nuzzle/feed? true,
@@ -32,7 +31,7 @@
         :nuzzle/title "What's My Favorite Color? It May Suprise You."},
 
        [:blog :nuzzle-rocks]
-       {:nuzzle/render-content #(-> "test-resources/markdown/nuzzle-rocks.md" slurp md->hiccup),
+       {:nuzzle/render-content #(-> "test-resources/markdown/nuzzle-rocks.md" slurp parse-md),
         :nuzzle/render-page render-page
         :nuzzle/updated "2022-05-09T12:00Z",
         :nuzzle/author (authors :shelly)
@@ -41,7 +40,7 @@
         :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
 
        [:blog :why-nuzzle]
-       {:nuzzle/render-content #(-> "test-resources/markdown/why-nuzzle.md" slurp md->hiccup),
+       {:nuzzle/render-content #(-> "test-resources/markdown/why-nuzzle.md" slurp parse-md),
         :nuzzle/render-page render-page
         :nuzzle/updated "2022-05-09T12:00Z"
         :nuzzle/feed? true,

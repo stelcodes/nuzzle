@@ -5,6 +5,7 @@
    [expound.alpha :as expound]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
+   [nuzzle.schemas]
    [nuzzle.util :as util]
    ;; Register spell-spec expound helpers after requiring expound.alpha
    [spell-spec.expound]))
