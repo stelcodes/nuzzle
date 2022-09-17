@@ -8,7 +8,6 @@
    ;; Register spell-spec expound helpers after requiring expound.alpha
    [spell-spec.expound]))
 
-#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn remove-draft-pages [pages]
   (reduce-kv (fn [acc url {:nuzzle/keys [draft?] :as page}]
                (cond-> acc
