@@ -17,17 +17,13 @@
 ;; XML characters ;-;
 
 (defn create-sitemap
-  "Assumes config is transformed and drafts have already been removed from
-  rendered-site-index."
   ;; http://www.sitemaps.org/protocol.html
-  [pages rendered-site-index & {:keys [base-url]}]
+  [pages & {:keys [base-url]}]
    (xml/emit-str
     {:tag ::sm/urlset
      :content
-     (for [[url-str _hiccup] rendered-site-index
-           :let [url-vec (util/vectorize-url url-str)
-                 {:nuzzle/keys [updated]} (get pages url-vec)
-                 abs-url (str base-url url-str)]]
+     (for [{:nuzzle/keys [url updated]} (vals pages)
+           :let [abs-url (str base-url (util/stringify-url url))]]
        {:tag ::sm/url
         :content
         [{:tag ::sm/loc
@@ -51,7 +47,7 @@
                 :content url})]})
 
 (defn create-atom-feed
-  [pages rendered-site-index & {:keys [title author base-url logo icon subtitle]}]
+  [pages & {:keys [title author base-url logo icon subtitle]}]
   (xml/emit-str
    {:tag ::atom/feed
     :content
@@ -74,11 +70,9 @@
            (when subtitle
              {:tag ::atom/subtitle
               :content subtitle})]
-          (for [[url-str _] rendered-site-index
-                :let [url-vec (util/vectorize-url url-str)
-                      {:nuzzle/keys [updated summary author title render-content feed?]} (get pages url-vec)
-                      content (render-content)
-                      abs-url (str base-url url-str)]
+          (for [{:nuzzle/keys [url updated summary author title render-content feed?] :as page} (vals pages)
+                :let [content (when render-content (render-content page))
+                      abs-url (str base-url (util/stringify-url url))]
                 :when feed?]
             {:tag ::atom/entry
              :content [{:tag ::atom/title
@@ -100,7 +94,7 @@
 
 (defn publish-site
   [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts?]
-            :or {publish-dir "dist" sitemap? true remove-drafts? true} :as opts}]
+            :or {publish-dir "dist" sitemap? true remove-drafts? true}}]
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)
           "Must provide a :base-url optional arg in order to create sitemap or atom feed")
   (let [pages (pages/load-pages pages :remove-drafts? remove-drafts?)
@@ -116,9 +110,9 @@
     (when atom-feed
       (let [feed-file (fs/file publish-dir "feed.xml")]
         (log/log-feed feed-file)
-        (spit feed-file (str (create-atom-feed pages rendered-site-index atom-feed) \newline))))
+        (spit feed-file (str (create-atom-feed pages atom-feed) \newline))))
     (when sitemap?
       (let [sitemap-file (fs/file publish-dir "sitemap.xml")]
         (log/log-sitemap sitemap-file)
-        (spit sitemap-file (str (create-sitemap pages rendered-site-index opts) \newline))))
+        (spit sitemap-file (str (create-sitemap pages :base-url base-url) \newline))))
     (log/log-publish-end)))
