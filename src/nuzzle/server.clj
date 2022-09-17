@@ -1,13 +1,22 @@
 (ns nuzzle.server
   (:require
+   [io.aviso.exception :as except]
    [nuzzle.pages :as pages]
    [nuzzle.log :as log]
    [nuzzle.util :as util]
    [org.httpkit.server :as http]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.file :refer [file-request]]
-   [ring.middleware.stacktrace :refer [wrap-stacktrace]]
+   [ring.middleware.stacktrace :refer [wrap-stacktrace-web]]
    [stasis.core :as stasis]))
+
+(defn wrap-stacktrace-log [app]
+  (fn [request]
+    (try (app request)
+      (catch Throwable e
+        (log/error "Exception:" (.getMessage e))
+        (except/write-exception e)
+        (throw e)))))
 
 (defn wrap-overlay-dir
   [app overlay-dir]
@@ -35,5 +44,6 @@
   (-> (handle-page-request pages :remove-drafts? remove-drafts?)
       (wrap-overlay-dir overlay-dir)
       (wrap-content-type)
-      (wrap-stacktrace)
+      (wrap-stacktrace-log)
+      (wrap-stacktrace-web)
       (http/run-server {:port port})))
