@@ -2,11 +2,11 @@
   (:require
    [babashka.fs :as fs]
    [clojure.data.xml :as xml]
+   [clojure.string :as str]
    [nuzzle.pages :as pages]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.util :as util]
-   [stasis.core :as stasis]
    ;; clojure.data.xml uses namespaced keywords for XML namespaces, explicitly
    ;; defining them is the easiest way to avoid clj-kondo warnings
    [xmlns.http%3A%2F%2Fwww.sitemaps.org%2Fschemas%2Fsitemap%2F0.9 :as-alias sm]
@@ -92,17 +92,26 @@
                        (when author (create-author-element author))]}))}
    {:encoding "UTF-8"}))
 
+(defn export-pages [pages publish-dir]
+  (doseq [{:nuzzle/keys [url render-page] :as page} (vals pages)
+          :let [str-url (util/stringify-url url)
+                file-dir (str publish-dir str-url)
+                file-path (str file-dir "index.html")]]
+    (log/log-rendering-page url)
+    (fs/create-dirs file-dir)
+    (spit file-path (-> page render-page hiccup/hiccup->html-document))))
+
 (defn publish-site
   [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts?]
             :or {publish-dir "dist" sitemap? true remove-drafts? true}}]
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)
           "Must provide a :base-url optional arg in order to create sitemap or atom feed")
-  (let [pages (pages/load-pages pages :remove-drafts? remove-drafts?)
-        rendered-site-index (pages/create-stasis-pages pages)]
+  (let [publish-dir (str/replace publish-dir #"/$" "")
+        pages (pages/load-pages pages :remove-drafts? remove-drafts?)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
-    (stasis/empty-directory! publish-dir)
-    (stasis/export-pages rendered-site-index publish-dir)
+    (fs/delete-tree publish-dir)
+    (export-pages pages publish-dir)
     (when overlay-dir
       (log/log-overlay-dir overlay-dir)
       (util/ensure-overlay-dir overlay-dir)

@@ -22,6 +22,5 @@
         com.kiranshila/cybermonday {:mvn/version "0.4.184"}
         babashka/fs {:mvn/version "0.1.4"},
         org.clojure/clojure {:mvn/version "1.11.1"},
-        org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}
-        stasis/stasis {:mvn/version "2.5.1"}},
+        org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}}
  :paths ["src"]}
