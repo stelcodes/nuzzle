@@ -104,8 +104,10 @@
 (defn publish-site
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [pages & {:keys [publish-dir overlay-dir atom-feed sitemap? deterministic?] :or {publish-dir "dist" sitemap? true} :as opts}]
-  (let [rendered-site-index (pages/create-site-index pages)]
+  [pages & {:keys [publish-dir overlay-dir atom-feed sitemap? deterministic? remove-drafts?]
+            :or {publish-dir "dist" sitemap? true remove-drafts? true} :as opts}]
+  (let [pages (pages/load-pages pages :remove-drafts? remove-drafts?)
+        rendered-site-index (pages/create-stasis-pages pages)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)
     (stasis/empty-directory! publish-dir)
