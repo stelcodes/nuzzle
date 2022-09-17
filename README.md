@@ -43,7 +43,7 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 
 ## Usage
 ```
-clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
+clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.6.392"}}}'
 ```
 
 ```clojure
