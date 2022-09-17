@@ -387,7 +387,8 @@
       (if (or (= "*" tag)
               (= "<>" tag))
         ;; React Fragment
-        (-render-html children sb)
+        (or (render-inner-html! attrs children sb)
+            (-render-html children sb))
         (do
           (append! sb "<" tag)
 
