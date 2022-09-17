@@ -99,6 +99,6 @@
      (assoc acc (util/stringify-url url)
             ;; Turn the page's hiccup into HTML on the fly
             (fn [_]
-              (log/log-rendering-page page)
+              (log/log-rendering-page url)
               (-> page render-page hiccup/hiccup->html-document))))
    {} pages))
