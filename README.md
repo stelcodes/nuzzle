@@ -108,8 +108,9 @@ If you're from Pallet town, your pages might look like this:
             [:li title [:a {:href url}]])])
    (render-content)]])
 
+;; Here we make a function to create a render-content function for markdown files
 (defn md-content [md-path]
-  (fn [_page] (-> md-path slurp nuzz/parse-md))
+  #(-> md-path slurp nuzz/parse-md))
 
 ;; Here we define an author for our Atom feed
 (def ash {:name "Ash Ketchum"
@@ -155,7 +156,6 @@ If you're from Pallet town, your pages might look like this:
 (publish pages :base-url "https://ashketchum.com"
                :atom-feed {:title "Ash Ketchum's Blog"
                            :subtitle "In a world we must defend"}
-               :sitemap? true
                :overlay-dir "public")
 ```
 
@@ -209,65 +209,41 @@ Each page entry in the pages map represents a single page of the static site. Ea
                  :url "https://lucylambda.com"}}
 ```
 
-### Automatically Added Keys to Page Entries
+## Automatically Added Keys to Page Entries
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: The key of the page (the vector of keywords representing the URL) is added to the page map.
 - `:nuzzle/index`: If a page does
 - `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which just returns nil `(fn [_] nil)`. This means it's always safe to call in a `render-page` function.
 - `:nuzzle/get-pages`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
-### Adding Tag Index Pages
-Often people want to create index pages in static sites which link to other pages that share a common trait. Nuzzle calls these **index pages**. If you want to add index pages for all your tags defined in `:nuzzle/tags`, you can use the function `nuzzle.pages/add-tag-pages` on your pages map.
-
-This example illustrates how Nuzzle adds both types of index page entries to a Nuzzle pages:
+## Adding Tag Pages
+The `:nuzzle/tag` page keys are used to generate tag pages by using the `nuzzle.api/add-tag-pages` function. This function requires a `:nuzzle/render-page` function for the tag pages.
 
 ```clojure
-;; Example pages (Some page keys omitted for brevity)
-
-{[:recipes :grilled-cheese]
- {:nuzzle/title "My World Famous Grilled Cheese"
-  :nuzzle/tags #{:comfort-food}}
-
- [:recipes :ramen-noodles]
- {:nuzzle/title "The Best Ramen Noodle Recipe"
-  :nuzzle/tags #{:comfort-food :japanese}}}
-
-;; After enriching:
-
-{[:recipes :grilled-cheese]
- {:nuzzle/title "My World Famous Grilled Cheese"
-  :nuzzle/tags #{:comfort-food}}
-
- [:recipes :ramen-noodles]
- {:nuzzle/title "The Best Ramen Noodle Recipe"
-  :nuzzle/tags #{:comfort-food :japanese}}}
-
- [:recipes]
- {:nuzzle/title "Recipes"
-  :nuzzle/index #{[:recipes :grilled-cheese] [:recipes :ramen-noodles]}}
-
- [:tags :comfort-food]
- {:nuzzle/title "#comfort-food"
-  :nuzzle/index #{[:recipes :grilled-cheese] [:recipes :ramen-noodles]}}
-
- [:tags :japanese]
- {:nuzzle/title "#japanese"
-  :nuzzle/index #{[:recipes :ramen-noodles]}}
-
- [:tags]
- {:nuzzle/title "Tags"
-  :nuzzle/index #{[:tags :comfort-food] [:tags :japanese]}}}
-```
-
-These added index page entries have an `:nuzzle/index` key with a value that is a set of page entry keys.
-
-It's worth noting that you can include index page entries in your Nuzzle pages yourself, just like any other page. In this case Nuzzle will just add the `:nuzzle/index` entry to the page value you've already defined. This is useful for specifying a non-standard title or adding content to your index pages:
-
-```clojure
-;; Nuzzle will append an :nuzzle/index key later if there are any pages under the recipes subdirectory
-[:recipes]
-{:nuzzle/content "markdown/recipes-introduction.md"
- :nuzzle/title "All My Yummy Recipes!"}
+(-> {[:blog :foo]
+     {:nuzzle/title "Foo"
+      :nuzzle/render-page render-generic-page
+      :nuzzle/tags #{:bar :baz}}
+     [:about]
+     {:nuzzle/title "About"
+      :nuzzle/render-page render-about-page}}
+    (nuzz/add-tag-pages my-tag-page-render-fn)
+==>
+{[:blog :foo]
+ {:nuzzle/title "Foo"
+  :nuzzle/render-page render-generic-page
+  :nuzzle/tags #{:bar :baz}}
+ [:about]
+ {:nuzzle/title "About"
+  :nuzzle/render-page render-about-page}
+ [:tags :bar]
+ {:nuzzle/title "Tag bar"
+  :nuzzle/render-page render-tag-page
+  :nuzzle/index #{[:blog :foo]}
+ [:tags :baz]
+ {:nuzzle/title "Tag baz"
+  :nuzzle/render-page render-tag-page
+  :nuzzle/index #{[:blog :foo]}}}
 ```
 
 ## Creating a Page Rendering Function
