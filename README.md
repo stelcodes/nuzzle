@@ -73,17 +73,6 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 (nuzz/publish pages)
 ```
 
-Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
-- `(nuzzle.api.publish pages {:keys [base-url overlay-dir publish-dir]})`: Exports the static site to disk.
-  - `base-url` - Optional but required for sitemap and Atom feed generation. URL where site will be hosted. Must start with "http://" or "https://".
-  - `overlay-dir` - Optional path to a directory that will be overlayed on top of the static web site, useful for including static assets. Defaults to `nil` (no overlay).
-  - `publish-dir` - Optional path to a directory to publish the site into. Be careful, all prior contents of this directory will be lost! Defaults to `"dist"`.
-- `(nuzzle.api.serve pages {:keys [overlay-dir port]})`: Starts a web server (http-kit) for a live preview of the website, building each page from scratch upon each request.
-  - `overlay-dir` - Same as above.
-  - `port`: Optional port number for server to listen on. Defaults to `6899`.
-- `(nuzzle.api.enrich pages)`: Nuzzle adds some data to each page map before calling the `render-content` and `render-page` functions Nuzzle's transformations.
-- `(nuzzle.api.enrich-diff pages)`: Pretty prints a colorized diff of your pages before and after Nuzzle's transformations.
-
 ## Pages Map
 Nuzzle uses a map to model a static site where every key is a URL and every value is a map of details about the page. The pages map is validated by `clojure.spec`. You can find the [pages spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
@@ -176,7 +165,7 @@ Each page entry in the pages map represents a single page of the static site. Ea
  :nuzzle/render-page (fn [{:nuzzle/keys [title render-content] [:html [:head [:title title]] [:h1 title] (render-content)])
 
  ;; A function that takes the page map and returns Hiccup containing the page's main content
- ;; Optional, defaults to (fn [_] nil)
+ ;; Optional, defaults to (constantly nil)
  :nuzzle/render-content (fn [_page] [:p "The first step to learning Clojure is pressing the ( key."])
 
  ;; A boolean indicating whether this page is a draft or not
@@ -213,7 +202,7 @@ Each page entry in the pages map represents a single page of the static site. Ea
 Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: The key of the page (the vector of keywords representing the URL) is added to the page map.
 - `:nuzzle/index`: If a page does
-- `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which just returns nil `(fn [_] nil)`. This means it's always safe to call in a `render-page` function.
+- `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which is `(constantly nil)`. This means it's always safe to call in a `render-page` function.
 - `:nuzzle/get-pages`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
 ## Adding Tag Pages
