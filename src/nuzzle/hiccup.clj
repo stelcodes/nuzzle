@@ -49,20 +49,22 @@
        item))
    hiccup))
 
-(defn highlight-code [hiccup provider & opts]
-  (let [[tag {classes :class :as attrs} code] hiccup
-        language-matcher #(->> % (re-find #"language-(\S+)") second)
-        language (if (coll? classes)
-                   (some language-matcher classes)
-                   (language-matcher classes))]
+(defn highlight-code [hiccup provider & {:as opts}]
+  (let [[tag {:keys [class lang] :as attrs} code] hiccup
+        class-lang-matcher #(when (string? %)
+                              (->> % (re-find #"language-(\S+)") second))
+        language (or lang
+                     (cond
+                      (string? class) (class-lang-matcher class)
+                      (coll? class) (some class-lang-matcher class)))]
     (if-not language
       hiccup
       (let [tmp-file (fs/create-temp-file)
             tmp-file-path (-> tmp-file fs/canonicalize str)
             _ (spit tmp-file-path code)
             highlight-command (case provider
-                                :chroma (util/generate-chroma-command tmp-file opts)
-                                :pygments (util/generate-pygments-command tmp-file language opts))
+                                :chroma (util/generate-chroma-command tmp-file-path language opts)
+                                :pygments (util/generate-pygments-command tmp-file-path language opts))
             {:keys [exit out err]} (apply util/safe-sh highlight-command)]
         (if (not= 0 exit)
           (do
@@ -71,7 +73,7 @@
             hiccup)
           (do
             (fs/delete-if-exists tmp-file)
-            [tag attrs out]))))))
+            [tag attrs (raw-html out)]))))))
 
 (defn md->hiccup [md-str]
   (let [lower-code-block
