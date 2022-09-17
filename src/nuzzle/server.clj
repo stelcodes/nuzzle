@@ -31,11 +31,12 @@
   [pages & {:keys [remove-drafts?]}]
   (fn [{:keys [uri] :as _request}]
     (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts?)
-          {:nuzzle/keys [render-page] :as page} (loaded-pages (util/vectorize-url uri))]
+          {:nuzzle/keys [render-page url] :as page} (loaded-pages (util/vectorize-url uri))]
       (if page
-        {:status 200
-         :body (-> page render-page hiccup/hiccup->html-document)
-         :headers {"Content-Type" "text/html"}}
+        (do (log/log-rendering-page url)
+          {:status 200
+           :body (-> page render-page hiccup/hiccup->html-document)
+           :headers {"Content-Type" "text/html"}})
         {:status 404
          :body "<h1>Page Not Found</h1>"
          :headers {"Content-Type" "text/html"}}))))
