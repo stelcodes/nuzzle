@@ -51,18 +51,20 @@
         pages (-> test-util/twin-peaks-pages pages/load-pages)
         atom-feed {:title "Foo's blog"
                    :author (test-util/authors :donna)
-                   :subtitle "Rants about foo and thoughts about bar"}
-        _ (publish/publish-site pages :overlay-dir "test-resources/public" :deterministic? true
-                                :base-url "https://foobar.com" :publish-dir (str temp-site-dir)
-                                :atom-feed atom-feed)
-        mismatches (diff-dirs temp-site-dir reference-site-dir)]
-    (doseq [mismatch mismatches
-            :let [rel->abs-path (fn [parent-dir path] (str parent-dir "/" path))
-                  diff-cmd ["diff" (rel->abs-path temp-site-dir mismatch)
-                            (rel->abs-path reference-site-dir mismatch)]
-                  {:keys [out err]} (apply util/safe-sh diff-cmd)]]
-      (log/warn "Found mismatch:" mismatch)
-      (apply println "+" diff-cmd)
-      (println out)
-      (println err))
-    (is (nil? mismatches))))
+                   :subtitle "Rants about foo and thoughts about bar"}]
+    (with-redefs [nuzzle.util/now-trunc-sec (constantly "2022-09-15T12:00Z")]
+      (publish/publish-site pages :overlay-dir "test-resources/public"
+                            :base-url "https://foobar.com"
+                            :publish-dir temp-site-dir
+                            :atom-feed atom-feed))
+    (let [mismatches (diff-dirs temp-site-dir reference-site-dir)]
+      (doseq [mismatch mismatches
+              :let [rel->abs-path (fn [parent-dir path] (str parent-dir "/" path))
+                    diff-cmd ["diff" (rel->abs-path temp-site-dir mismatch)
+                              (rel->abs-path reference-site-dir mismatch)]
+                    {:keys [out err]} (apply util/safe-sh diff-cmd)]]
+        (log/warn "Found mismatch:" mismatch)
+        (apply println "+" diff-cmd)
+        (println out)
+        (println err))
+      (is (nil? mismatches)))))

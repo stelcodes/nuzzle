@@ -51,9 +51,7 @@
                 :content url})]})
 
 (defn create-atom-feed
-  "The optional test-ops map can make build deterministic by setting
-  :deterministic? true"
-  [pages rendered-site-index & {:keys [title author base-url logo icon subtitle deterministic?]}]
+  [pages rendered-site-index & {:keys [title author base-url logo icon subtitle]}]
   (xml/emit-str
    {:tag ::atom/feed
     :content
@@ -63,9 +61,8 @@
             :content (if (-> base-url last (= \/)) base-url (str base-url "/"))}
            {:tag ::atom/link
             :attrs {:rel "self" :href (str base-url "/feed.xml")}}
-           (when-not deterministic?
-             {:tag ::atom/updated
-              :content (str (util/now-trunc-sec))})
+           {:tag ::atom/updated
+            :content (str (util/now-trunc-sec))}
            (when-let [feed-author author]
              (create-author-element feed-author))
            (when icon
@@ -102,9 +99,7 @@
    {:encoding "UTF-8"}))
 
 (defn publish-site
-  "The optional test-ops map can make build deterministic by setting
-  :deterministic? true"
-  [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? deterministic? remove-drafts?]
+  [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts?]
             :or {publish-dir "dist" sitemap? true remove-drafts? true} :as opts}]
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)
           "Must provide a :base-url optional arg in order to create sitemap or atom feed")
@@ -121,7 +116,7 @@
     (when atom-feed
       (let [feed-file (fs/file publish-dir "feed.xml")]
         (log/log-feed feed-file)
-        (spit feed-file (str (create-atom-feed pages rendered-site-index (assoc atom-feed :deterministic? deterministic?)) \newline))))
+        (spit feed-file (str (create-atom-feed pages rendered-site-index atom-feed) \newline))))
     (when sitemap?
       (let [sitemap-file (fs/file publish-dir "sitemap.xml")]
         (log/log-sitemap sitemap-file)
