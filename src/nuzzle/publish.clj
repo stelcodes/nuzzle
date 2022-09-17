@@ -104,8 +104,10 @@
 (defn publish-site
   "The optional test-ops map can make build deterministic by setting
   :deterministic? true"
-  [pages & {:keys [publish-dir overlay-dir atom-feed sitemap? deterministic? remove-drafts?]
+  [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? deterministic? remove-drafts?]
             :or {publish-dir "dist" sitemap? true remove-drafts? true} :as opts}]
+  (assert (or (and (not sitemap?) (not atom-feed)) base-url)
+          "Must provide a :base-url optional arg in order to create sitemap or atom feed")
   (let [pages (pages/load-pages pages :remove-drafts? remove-drafts?)
         rendered-site-index (pages/create-stasis-pages pages)]
     (log/log-publish-start publish-dir)
