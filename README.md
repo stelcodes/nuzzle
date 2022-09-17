@@ -235,26 +235,28 @@ The `:nuzzle/tag` page keys are used to generate tag pages by using the `nuzzle.
   :nuzzle/index #{[:blog :foo]}}}
 ```
 
-## Creating a Page Rendering Function
-Pages are turned into and HTML string or Hiccup with the function kept under the `:nuzzle/render-page` key in each page map. The function must take one parameter (a page entry map). It can return a vector of Hiccup (more flexible) or a string of HTML (less flexible but works just fine).
+## Creating a `render-page` Function
+Each function under the `:nuzzle/render-page` key must turn that page map into Hiccup. The function must take one parameter (a page entry map). It can return a vector of Hiccup (more flexible) or a string of HTML (wrapped with `nuzzle.hiccup/raw-html`)).
+
+> In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw-html` wrapper function like so: `(raw-html "<h1>Title</h1>")`.
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
-> In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
+## Using the `get-pages` Function
+With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is just playing with data and functions, this problem becomes much easier to solve.
 
-### Accessing the pages with `get-pages`
-With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is heavily data-oriented, this problem becomes much easier to solve.
-
-Instead of requiring your page rendering function to accept multiple arguments, Nuzzle adds a function to each page entry map passed to your page rendering function under the key `:nuzzle/get-pages`. This function can access the whole pages map, making referencing other pages a breeze.
+Instead of complicating your page rendering functions with multiple required arguments, Nuzzle adds a function to each page entry map under the key `:nuzzle/get-pages`. This function can access the whole pages map, making referencing other pages a breeze.
 
 ```clojure
+;; Get a list of every page
+(get-pages)
 ;; Get a single page
 (get-pages [:blog-posts])
-;; Get the whole pages map
-(get-pages :all)
+;; Get a list of all the direct children of a page
+(get-pages [:blog-posts] :children? true)
 ```
 
-The `get-pages` function will always return enriched pages which also have the `:nuzzle/get-pages` key attached. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your whole site if need be.
+The `get-pages` function will always return pages which also have the `:nuzzle/get-pages` key attached. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your whole site if need be.
 
 ## Syntax Highlighting
 Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.shell` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
