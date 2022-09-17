@@ -22,18 +22,12 @@
   "Handler that wraps around stasis.core/serve-pages, if config is a var then
   the config is resolved and validated upon each request. Otherwise the config
   is validated once and the app is built just once."
-  [pages]
-  (if (var? pages)
-    (fn [request]
-      (let [loaded-pages (pages/load-pages pages)
-            stasis-pages (pages/create-site-index loaded-pages :lazy-render? true)
-            app (stasis/serve-pages stasis-pages)]
-        (app request)))
-    (let [loaded-pages (pages/load-pages pages)
-          stasis-pages (pages/create-site-index loaded-pages :lazy-render? true)
+  [pages & {:keys [remove-drafts?]}]
+  (fn [request]
+    (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts?)
+          stasis-pages (pages/create-stasis-pages loaded-pages)
           app (stasis/serve-pages stasis-pages)]
-      (fn [request]
-        (app request)))))
+      (app request))))
 
 (defn start-server [pages & {:keys [port overlay-dir]}]
   (log/log-start-server port)
