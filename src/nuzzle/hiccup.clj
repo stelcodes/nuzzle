@@ -3,7 +3,6 @@
    [babashka.fs :as fs]
    [clojure.string :as str]
    [clojure.walk :as w]
-   [cybermonday.core :as cm]
    [nuzzle.hiccup-compiler :as hiccup-compiler]
    [nuzzle.log :as log]
    [nuzzle.util :as util]))
@@ -75,15 +74,3 @@
             (fs/delete-if-exists tmp-file)
             [tag attrs (raw-html out)]))))))
 
-(defn md->hiccup [md-str]
-  (let [lower-code-block
-        (fn lower-code-block [[_tag-name {:keys [language]} code]]
-          [:pre
-           [:code
-            {:class ["code-block" (when language (str "language-" language))]}
-            code]])
-        lower-fns {:markdown/fenced-code-block lower-code-block
-                   :markdown/indented-code-block lower-code-block}
-        ;; Avoid the top level div [:div {} content...]
-        [_ _ & hiccup] (cm/parse-body md-str {:lower-fns lower-fns})]
-    hiccup))

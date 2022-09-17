@@ -9,32 +9,6 @@
    ;; Register spell-spec expound helpers after requiring expound.alpha
    [spell-spec.expound]))
 
-(defn add-tag-pages
-  "Add pages page entries for pages that index all the pages which are tagged
-  with a particular tag. Each one of these tag index pages goes under the
-  /tags/ subdirectory"
-  [pages render-page]
-  (->> pages
-       ;; Create a map shaped like {tag-kw #{url url ...}}
-       (reduce-kv
-        ;; For every key value pair in pages
-        (fn [acc url {:nuzzle/keys [tags] :as _page}]
-          (if tags
-            ;; If entry is a page with tags, create a map with an entry for
-            ;; every tag the page is tagged with and merge it into acc
-            (merge-with into acc (zipmap tags (repeat #{url})))
-            ;; if entry is an option or tagless page, don't change acc
-            acc))
-        {})
-       ;; Then change each entry into a proper page entry
-       (reduce-kv
-        (fn [acc tag urlset]
-          (assoc acc [:tags tag] {:nuzzle/index urlset
-                                  :nuzzle/render-page render-page
-                                  :nuzzle/title (str "#" (name tag))}))
-        {})
-       (util/deep-merge pages)))
-
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn remove-draft-pages [pages]
   (->> pages
