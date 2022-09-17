@@ -1,14 +1,14 @@
 (ns nuzzle.server
   (:require
    [io.aviso.exception :as except]
-   [nuzzle.pages :as pages]
+   [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
+   [nuzzle.pages :as pages]
    [nuzzle.util :as util]
    [org.httpkit.server :as http]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.file :refer [file-request]]
-   [ring.middleware.stacktrace :refer [wrap-stacktrace-web]]
-   [stasis.core :as stasis]))
+   [ring.middleware.stacktrace :refer [wrap-stacktrace-web]]))
 
 (defn wrap-stacktrace-log [app]
   (fn [request]
@@ -26,15 +26,19 @@
     (fn [request] (app request))))
 
 (defn handle-page-request
-  "Handler that wraps around stasis.core/serve-pages, if config is a var then
-  the config is resolved and validated upon each request. Otherwise the config
-  is validated once and the app is built just once."
+  "This handler is responsible for creating an HTML document for a page when
+  it's located in the page map. Otherwise return a 404 Not Found"
   [pages & {:keys [remove-drafts?]}]
-  (fn [request]
+  (fn [{:keys [uri] :as _request}]
     (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts?)
-          stasis-pages (pages/create-stasis-pages loaded-pages)
-          app (stasis/serve-pages stasis-pages)]
-      (app request))))
+          {:nuzzle/keys [render-page] :as page} (loaded-pages (util/vectorize-url uri))]
+      (if page
+        {:status 200
+         :body (-> page render-page hiccup/hiccup->html-document)
+         :headers {"Content-Type" "text/html"}}
+        {:status 404
+         :body "<h1>Page Not Found</h1>"
+         :headers {"Content-Type" "text/html"}}))))
 
 (defn start-server [pages & {:keys [port overlay-dir remove-drafts?] :or {port 6899}}]
   (log/log-site-server port)
