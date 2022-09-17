@@ -32,7 +32,7 @@
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir))
-  (-> (handle-page-request pages)
+  (-> (handle-page-request pages :remove-drafts? remove-drafts?)
       (wrap-overlay-dir overlay-dir)
       (wrap-content-type)
       (wrap-stacktrace)
