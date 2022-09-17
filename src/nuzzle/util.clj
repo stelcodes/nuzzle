@@ -117,3 +117,9 @@
                          (when line-numbers? "linenos=inline")])]
     ["pygmentize" "-f" "html" "-l" language "-O" (str/join "," options) file-path]))
 
+(defn child-url? [parent-url child-url]
+  (let [parent-count (count parent-url)
+        child-count (count child-url)]
+    (when (= 1 (- child-count parent-count))
+      (every? #(= (nth child-url %) (nth parent-url %))
+              (range parent-count)))))
