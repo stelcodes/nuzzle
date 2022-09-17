@@ -47,20 +47,18 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ```
 
 ```clojure
-(require '[nuzzle.core :refer [serve publish])
-(require '[nuzzle.markdown :refer [md->hiccup]])
+(require '[nuzzle.api :as nuzz)
 
 ;; Create a pages map
 (defn pages {[]
              {:nuzzle/title "Homepage"
               :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
                                     [:html
-                                     [:h1 (page :nuzzle/title)]
+                                     [:h1 title]
                                      [:a {:href [:about]}] "About")}
              [:about]
              {:nuzzle/title "About"
-              :nuzzle/render-content (fn [_page]
-                                       (-> "md/about.md" slurp md->hiccup)
+              :nuzzle/render-content #(-> "md/about.md" slurp nuzz/parse-md)
               :nuzzle/render-page (fn [{:nuzzle/keys [render-content title] :as _page}]
                                     [:html
                                      [:h1 title]
@@ -69,10 +67,10 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
 ;; Start development server
 ;; Pass the pages as a var to get awesome hot-reloading capabilities!
 ;; The returned value is a function that stops the server.
-(serve #'pages)
+(nuzz/serve #'pages)
 
 ;; Publish the static site, returns nil
-(publish pages :sitemap? true)
+(nuzz/publish pages)
 ```
 
 Nuzzle's whole interface is just four functions in the `nuzzle.api` namespace:
@@ -93,26 +91,25 @@ If you're from Pallet town, your pages might look like this:
 ```clojure
 (ns user
   (:require
-   [nuzzle.hiccup :as hiccup]
-   [nuzzle.pages :as pages))
+   [nuzzle.api :as nuzz]))
 
-(defn render-page [{:keys [title index render-content get-page] :as _page}]
+(defn render-page [{:keys [title index render-content get-pages] :as _page}]
  [:html
   [:head [:title title]
          ;; Add link to CSS file /css/main.css (must be in overlay directory)
-         (hiccup/link-css [:css :main.css])]
+         [:link {:href "/css/main.css" :rel "stylesheet"}]]
   [:body
    [:h1 title]
    (when index
      [:ul (for [url index
-                :let [{:keys [title url]} (get-page url)]]
-            ;; The url will be a vector, but Nuzzle will convert them
-            ;; into strings
+                :let [{:keys [title url]} (get-pages url)]]
+            ;; The url is a vector, but Nuzzle will convert them
+            ;; into strings when used for an :href value
             [:li title [:a {:href url}]])])
    (render-content)]])
 
 (defn md-content [md-path]
-  (fn [_page] (-> md-path slurp hiccup/md->hiccup))
+  (fn [_page] (-> md-path slurp nuzz/parse-md))
 
 ;; Here we define an author for our Atom feed
 (def ash {:name "Ash Ketchum"
@@ -148,9 +145,9 @@ If you're from Pallet town, your pages might look like this:
        {:nuzzle/title "About Ash"
         :nuzzle/render-content (md-content "markdown/about-ash.md")
         :nuzzle/render-page render-page}}
-  (pages/add-tag-pages render-page))
+  (nuzz/add-tag-pages render-page))
 
-(serve #'pages :port 8080 :build-drafts? true)
+(serve #'pages :port 8080)
 
 ;; Build this site with a sitemap and Atom feed
 ;; Overlay the directory containing the css/main.css file.
@@ -217,7 +214,7 @@ Nuzzle adds these keys to every page map:
 - `:nuzzle/url`: The key of the page (the vector of keywords representing the URL) is added to the page map.
 - `:nuzzle/index`: If a page does
 - `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which just returns nil `(fn [_] nil)`. This means it's always safe to call in a `render-page` function.
-- `:nuzzle/get-page`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
+- `:nuzzle/get-pages`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
 ### Adding Tag Index Pages
 Often people want to create index pages in static sites which link to other pages that share a common trait. Nuzzle calls these **index pages**. If you want to add index pages for all your tags defined in `:nuzzle/tags`, you can use the function `nuzzle.pages/add-tag-pages` on your pages map.
@@ -280,19 +277,19 @@ Pages are turned into and HTML string or Hiccup with the function kept under the
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw` wrapper function like so: `(raw "<h1>Title</h1>")`.
 
-### Accessing the pages with `get-page`
+### Accessing the pages with `get-pages`
 With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is heavily data-oriented, this problem becomes much easier to solve.
 
-Instead of requiring your page rendering function to accept multiple arguments, Nuzzle adds a function to each page entry map passed to your page rendering function under the key `:nuzzle/get-page`. This function can access the whole pages map, making referencing other pages a breeze.
+Instead of requiring your page rendering function to accept multiple arguments, Nuzzle adds a function to each page entry map passed to your page rendering function under the key `:nuzzle/get-pages`. This function can access the whole pages map, making referencing other pages a breeze.
 
 ```clojure
 ;; Get a single page
-(get-page [:blog-posts])
+(get-pages [:blog-posts])
 ;; Get the whole pages map
-(get-page :all)
+(get-pages :all)
 ```
 
-The `get-page` function will always return enriched pages which also have the `:nuzzle/get-page` key attached. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your whole site if need be.
+The `get-pages` function will always return enriched pages which also have the `:nuzzle/get-pages` key attached. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your whole site if need be.
 
 ## Syntax Highlighting
 Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.shell` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
