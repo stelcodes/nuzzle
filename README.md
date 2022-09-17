@@ -64,12 +64,12 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.5.320"}}}'
                                      [:h1 title]
                                      (render-content)])}})
 
-;; Start development server
-;; Pass the pages as a var to get awesome hot-reloading capabilities!
-;; The returned value is a function that stops the server.
-(nuzz/serve #'pages)
+;; Start static site server + nREPL server with nuzzle.core/develop
+;; Pass the pages as a var to get full hot-reloading capabilities!
+;; The returned value is a function that stops both servers.
+(nuzz/develop #'pages)
 
-;; Publish the static site, returns nil
+;; Publish the static site to ./dist
 (nuzz/publish pages)
 ```
 
@@ -137,15 +137,15 @@ If you're from Pallet town, your pages might look like this:
         :nuzzle/render-page render-page}}
   (nuzz/add-tag-pages render-page))
 
-(serve #'pages :port 8080)
+(nuzz/develop #'pages :port 8080)
 
 ;; Build this site with a sitemap and Atom feed
 ;; Overlay the directory containing the css/main.css file.
 
-(publish pages :base-url "https://ashketchum.com"
-               :atom-feed {:title "Ash Ketchum's Blog"
+(nuzz/publish pages :base-url "https://ashketchum.com"
+                    :atom-feed {:title "Ash Ketchum's Blog"
                            :subtitle "In a world we must defend"}
-               :overlay-dir "public")
+                    :overlay-dir "public")
 ```
 
 ## Page Entries
