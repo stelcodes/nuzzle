@@ -14,7 +14,7 @@
   (fn [request]
     (try (app request)
       (catch Throwable e
-        (log/error "Exception:" (.getMessage e))
+        (log/error (.getMessage e))
         (except/write-exception e)
         (throw e)))))
 
