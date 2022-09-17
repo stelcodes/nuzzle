@@ -23,8 +23,8 @@
     pages
     (do (expound/expound :nuzzle/user-pages pages {:theme :figwheel-theme})
       (log/error "Encountered error in Nuzzle pages:")
-      (throw (ex-info (str "Invalid Nuzzle pages! "
-                           (re-find #"failed: .*" (s/explain-str :nuzzle/user-pages pages)))
+      (throw (ex-info (str "Invalid pages:"
+                           (->> pages (s/explain-str :nuzzle/user-pages) (re-find #"failed:(.*)") second))
                       {})))))
 
 (defn create-get-pages
