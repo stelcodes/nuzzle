@@ -27,50 +27,65 @@
                            (re-find #"failed: .*" (s/explain-str :nuzzle/user-pages pages)))
                       {})))))
 
-(defn create-get-page
-  "Create the helper function get-page from the transformed pages. This
+(defn create-get-pages
+  "Create the helper function get-pages from the transformed pages. This
   function takes a pages key and returns the corresponding value with added
-  key :nuzzle/get-page with value get-page function attached."
+  key :nuzzle/get-pages with value get-pages function attached."
   [pages]
   {:pre [(map? pages)] :post [(fn? %)]}
-  (fn get-page
-    ([url]
-     (if (= url :all)
-       ;; Return the whole pages map
-       (update-vals pages #(assoc % :nuzzle/get-page get-page))
-       ;; Return a single page map
-       (if-let [page (pages url)]
-         (assoc page :nuzzle/get-page get-page)
-         (throw (ex-info (str "get-page error: Nonexistent URL " (pr-str url))
-                         {:url url :pages pages})))))))
+  (fn get-pages
+    ([]
+     (->> pages vals (map #(assoc % :nuzzle/get-pages get-pages))))
+    ([url & {:keys [children?]}]
+     ;; Return a single page map
+     (if-let [page (pages url)]
+       (if-not children?
+         (assoc page :nuzzle/get-pages get-pages)
+         (reduce-kv (fn [acc maybe-child-url maybe-child-page]
+                      (if (util/child-url? url maybe-child-url)
+                        (conj acc (assoc maybe-child-page :nuzzle/get-pages get-pages))
+                        acc))
+                    '()
+                    pages))
+       (throw (ex-info (str "get-pages error: Nonexistent URL " (pr-str url))
+                       {:url url :pages pages}))))))
 
 (defn transform-pages
   "Creates fully transformed pages with or without drafts."
   [pages]
   {:pre [(map? pages)] :post [#(map? %)]}
-  (letfn [(add-page-keys [pages]
+  (letfn [(update-render-content [render-content]
+            (if render-content
+              (fn wrap-render-content [& args]
+                (try (apply render-content args)
+                  (catch clojure.lang.ArityException _
+                    (render-content nil))))
+              (constantly nil)))
+          (add-page-keys [pages]
             (reduce-kv
              (fn [acc ckey cval]
                (assoc acc ckey
                       (-> cval
                           (assoc :nuzzle/url ckey)
-                          (update :nuzzle/render-content #(or % (constantly nil))))))
+                          (update :nuzzle/render-content update-render-content))))
              {} pages))
-          (add-get-page [pages]
-            (let [get-page (create-get-page pages)]
-              (update-vals pages #(assoc % :nuzzle/get-page get-page))))]
+          (add-get-pages [pages]
+            (let [get-pages (create-get-pages pages)]
+              (update-vals pages #(assoc % :nuzzle/get-pages get-pages))))]
     (-> pages
         add-page-keys
-        ;; Adding get-page must come after all other transformations
-        add-get-page)))
+        ;; Adding get-pages must come after all other transformations
+        add-get-pages)))
 
 (defn load-pages
   "Load a pages var or map and validate it."
-  [pages]
+  [pages & {:keys [remove-drafts?]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
-        pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
+        pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)
+        handle-drafts #(cond-> % remove-drafts? remove-draft-pages)]
     (-> pages
         validate-pages
+        handle-drafts
         transform-pages)))
 
 (defn create-site-index
