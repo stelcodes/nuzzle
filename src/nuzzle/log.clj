@@ -55,3 +55,14 @@
 
 (defn log-rendering-page [url]
   (info "Rendering page:" (pr-str url)))
+
+(defn report-dir-diff [{:keys [added removed changed]}]
+  (when (seq changed)
+    (info "Changed files:")
+    (doseq [path (sort changed)] (info (yellow "* " path))))
+  (when (seq removed)
+    (info "Removed files:")
+    (doseq [path (sort removed)] (info (magenta "- " path))))
+  (when (seq added)
+    (info "Added files:")
+    (doseq [path (sort added)] (info (green "+ " path)))))

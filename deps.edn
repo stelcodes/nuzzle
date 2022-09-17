@@ -5,8 +5,7 @@
                   :extra-paths ["dev" "test" "test-resources"],
                   :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"
                               "--interactive"]},
-           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}
-                               org.clj-commons/digest {:mvn/version "1.4.100"}}
+           :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.63.998"}}
                   :extra-paths ["test" "test-resources"]}
            :build ;; added by neil
            {:deps {io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}
@@ -15,6 +14,7 @@
  :deps {expound/expound {:mvn/version "0.9.0"}
         com.bhauman/spell-spec {:mvn/version "0.1.1"}
         io.aviso/pretty {:mvn/version "1.1.1"}
+        org.clj-commons/digest {:mvn/version "1.4.100"}
         nrepl/nrepl {:mvn/version "1.0.0"}
         ring/ring-core {:mvn/version "1.9.5"} ,
         ring/ring-devel {:mvn/version "1.9.5"} ,

@@ -1,8 +1,10 @@
 (ns nuzzle.util
   (:require
    [babashka.fs :as fs]
+   [clj-commons.digest :as digest]
    [clojure.java.shell :as sh]
    [clojure.pprint :as pprint]
+   [clojure.set :as set]
    [clojure.string :as str]))
 
 (defn spy [x] (pprint/pprint x) x)
@@ -123,3 +125,22 @@
     (when (= 1 (- child-count parent-count))
       (every? #(= (nth child-url %) (nth parent-url %))
               (range parent-count)))))
+
+(defn create-dir-diff [old-snapshot new-snapshot]
+  (let [added (set/difference (set (keys new-snapshot)) (set (keys old-snapshot)))
+        removed (set/difference (set (keys old-snapshot)) (set (keys new-snapshot)))
+        remaining (set/difference (set (keys old-snapshot)) added removed)
+        is-changed? #(not= (get old-snapshot %) (get new-snapshot %))]
+    {:added added
+     :removed removed
+     :changed (set (filter is-changed? remaining))}))
+
+(defn take-dir-snapshot
+  [dir]
+  (let [dir (fs/file dir)
+        path-len (count (-> dir fs/path str))
+        path-from-dir #(subs (-> % fs/path str) path-len)]
+    (->> (file-seq dir)
+         (filter #(re-find #"\.[^.]+$" (path-from-dir %)))
+         (map (juxt path-from-dir digest/md5))
+         (into {}))))
