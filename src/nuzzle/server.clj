@@ -27,7 +27,7 @@
           app (stasis/serve-pages stasis-pages)]
       (app request))))
 
-(defn start-server [pages & {:keys [port overlay-dir]}]
+(defn start-server [pages & {:keys [port overlay-dir remove-drafts?] :or {port 6899}}]
   (log/log-start-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
@@ -36,4 +36,4 @@
       (wrap-overlay-dir overlay-dir)
       (wrap-content-type)
       (wrap-stacktrace)
-      (http/run-server {:port (or port 6899)})))
+      (http/run-server {:port port})))
