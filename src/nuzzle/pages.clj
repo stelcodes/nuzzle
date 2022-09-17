@@ -12,9 +12,11 @@
 
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn remove-draft-pages [pages]
-  (->> pages
-       (remove :nuzzle/draft)
-       (into {})))
+  (reduce-kv (fn [acc url {:nuzzle/keys [draft?] :as page}]
+               (cond-> acc
+                 (not draft?) (assoc url page)))
+             {}
+             pages))
 
 (defn validate-pages [pages]
   (if (s/valid? :nuzzle/user-pages pages)
