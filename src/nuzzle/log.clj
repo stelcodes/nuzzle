@@ -10,11 +10,25 @@
          (map str)
          (apply println (str (util/now-trunc-sec)) level))))
 
-(def info (log-gen (ansi/bold-green "INFO")))
+#_{:clj-kondo/ignore [:unresolved-var]}
+(defn green [& args] (->> args (apply str) ansi/green))
+#_{:clj-kondo/ignore [:unresolved-var]}
+(defn yellow [& args] (->> args (apply str) ansi/yellow))
+#_{:clj-kondo/ignore [:unresolved-var]}
+(defn blue [& args] (->> args (apply str) ansi/blue))
+#_{:clj-kondo/ignore [:unresolved-var]}
+(defn red [& args] (->> args (apply str) ansi/red))
+#_{:clj-kondo/ignore [:unresolved-var]}
+(defn magenta [& args] (->> args (apply str) ansi/magenta))
+#_{:clj-kondo/ignore [:unresolved-var]}
+(defn cyan [& args] (->> args (apply str) ansi/cyan))
 
-(def warn (log-gen (ansi/bold-yellow "WARN")))
+(def info (log-gen (green "INFO")))
 
-(def error (log-gen (ansi/bold-red "ERROR")))
+(def warn (log-gen (yellow "WARN")))
+
+(def error (log-gen (red "ERROR")))
+
 
 (comment (info "test" "ok"))
 
