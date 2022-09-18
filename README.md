@@ -2,7 +2,7 @@
 <img src="./assets/nuzzle2-with-text.svg" alt="Nuzzle logo" width="400">
 </p>
 <p align="center">
-✨ A flexible and functional static site generator so smol you won't even notice it's there ✨
+✨ A functional static site generator so smol you won't even notice it's there ✨
 </p>
 <div align="center">
   <img src="https://github.com/stelcodes/nuzzle/actions/workflows/unit-tests.yaml/badge.svg" alt="unit tests">
