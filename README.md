@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./assets/nuzzle2-with-text.svg" width="400">
+<img src="./assets/nuzzle2-with-text.svg" alt="Nuzzle logo" width="400">
 </p>
 <p align="center">
 ✨ A data-oriented, REPL-driven static site generator for Clojure ✨
@@ -14,23 +14,25 @@
 > **WARNING**: Nuzzle is in the alpha stage. Expect API breakages.
 
 ## What is Nuzzle?
-Nuzzle is a static site generator for people who love:
-- Data-oriented functional programming ✨
-- REPL-driven workflows 🔁
-- The awesome combination of Clojure and Hiccup 💞
-- Simplicity 🌷
+Nuzzle is a minimal yet highly flexible and static site generator packaged as a Clojure library.
 
-Nuzzle is a Clojure library, but you could also think about it as a micro-framework. It's goal is to define a simple yet powerful process for turning data and functions into a static site.
+## Design Goals
+- Easy to use for developers new to Clojure
+- Highly flexible for advanced Clojure users
+- Great development experience with excellent hot-reloadability story
+- Semantically aligned with the [Atom feed spec](https://validator.w3.org/feed/docs/atom.html)
+- So succinct that you can add it to any existing repo and put all Clojure code using Nuzzle into a single file and run it via a Clojure CLI tool alias
+- Content can be loaded from anywhere (local files, headless CMS API calls, mix of both)
 
-**With Nuzzle you can...**
-- Manage all website data and structure declaratively in an EDN file
-- Plug in a single function to produce HTML markup (via Hiccup) for every page of the website
-- Easily retrieve all website data while inside that function
-- Utilize a built-in, REPL-driven, hot-reloading web server for lightning-fast development feedback
-- Statically render syntax highlighting for Markdown code blocks (requires either [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma))
-- Generate index pages for page groupings and tags
-- Generate an Atom feed
+## Feature List (Nuzzle users can...)
+- Generate an Atom feed with embedded HTML content
 - Generate a sitemap
+- Generate tag index pages from tag information
+- Define all markup in hiccup without ever worrying about converting it to HTML
+- Retrieve all data for any page while creating markup
+- Start dual website/nREPL servers without adding nREPL deps for lightning-fast development feedback
+- Inject a script based on [livejs](https://livejs.com/) with configurable refresh interval to automatically refresh browser view to see content/markup changes in realtime while developing
+- Transform hiccup to do any customization imaginable including statically rendering syntax highlighted code blocks with [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma)
 
 ## Real World Example
 Want to read some code already? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build my personal developer blog deployed at [stel.codes](https://stel.codes).
@@ -162,35 +164,47 @@ Each page entry in the pages map represents a single page of the static site. Ea
  ;; Required, no default
  :nuzzle/title "Learning Clojure"
 
- ;; A function that takes the page map and returns Hiccup containing the whole HTML document
+ ;; A function that takes the page data and returns hiccup containing the whole HTML document
+ ;; Must have one argument (the containing page map)
+ ;; Used by nuzzle.core/serve, publish, and develop for creating each page of the static site
  ;; Required, no default
- :nuzzle/render-page (fn [{:nuzzle/keys [title render-content]} [:html [:head [:title title]] [:h1 title] (render-content)])
+ :nuzzle/render-page (fn [{:nuzzle/keys [title render-content] :as _page}
+                       [:html [:head [:title title]] [:h1 title] (render-content)])
 
  ;; A function that takes the page map and returns Hiccup containing the page's main content
+ ;; Must have zero or one argument (the containing page map)
+ ;; Available to user's corresponding :nuzzle/render-page function
+ ;; Used by nuzzle.core/publish for creating Atom feed (for embedding HTML content directly into feed)
  ;; Optional, defaults to (constantly nil)
  :nuzzle/render-content (fn [] [:p "The first step to learning Clojure is pressing the ( key."])
 
  ;; A boolean indicating whether this page is a draft or not
+ ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts? keyword argument to remove unfinished page entries
  ;; Optional, defaults to nil
  :nuzzle/draft? false
 
  ;; A boolean indicating whether the page should be included in the optional Atom feed when publishing
+ ;; Used by nuzzle.core/publish for creating Atom feed
  ;; Optional, defaults to nil
  :nuzzle/feed? true
 
  ;; A set of keywords where each keyword represents a tag name
+ ;; Used by nuzzle.core/add-tag-pages for assoc-ing tag index pages
  ;; Optional, defaults to nil
  :nuzzle/tags #{:clojure}
 
  ;; An inst representing when the page was last updated
+ ;; Used by nuzzle.core/publish for creating sitemap and Atom feed
  ;; Optional, defaults to nil
  :nuzzle/updated #inst "2022-09-16T12:00:00Z"
 
  ;; A string summary of the page content
+ ;; Used by nuzzle.core/publish for creating Atom feed
  ;; Optional, defaults to nil
  :nuzzle/summary "An in-depth guide to learning Clojure."
 
  ;; A map representing the author of the page.
+ ;; Used by nuzzle.core/publish for creating Atom feed
  ;; Optional, defaults to nil
  :nuzzle/author {;; A string name, required per the Atom spec
                  :name "Lucy Lambda"
@@ -218,7 +232,7 @@ The `:nuzzle/tag` page keys are used to generate tag pages by using the `nuzzle.
      [:about]
      {:nuzzle/title "About"
       :nuzzle/render-page render-about-page}}
-    (nuzz/add-tag-pages my-tag-page-render-fn)
+    (nuzz/add-tag-pages render-tag-page)
 ==>
 {[:blog :foo]
  {:nuzzle/title "Foo"
@@ -259,46 +273,3 @@ Instead of complicating your page rendering functions with multiple required arg
 ```
 
 The `get-pages` function will always return pages which also have the `:nuzzle/get-pages` key attached. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your whole site if need be.
-
-## Syntax Highlighting
-Syntax-highlighted code can give your website a polished, sophisticated appearance. Nuzzle let's you painlessly plug your Markdown code-blocks into [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma). Nuzzle uses `clojure.java.shell` to interact with these programs. Since they are not available as Java or Clojure libraries, Nuzzle users must manually install them into their $PATH in order for Nuzzle to use them.
-
-- `:provider` - A keyword specifying the program to use (either `:chroma` or `:pygments`). Required.
-- `:style` - A string specifying a style for Markdown code syntax highlighting. Defaults to `nil` (HTML classes only).
-- `:line-numbers?` - A boolean indicating whether line numbers should be included.
-
-When this map is present, Nuzzle will run you code-blocks with language annotations through the chosen syntax highlighting program. If the program supports the language found in the language annotation (check their lexers list), it will output the code as HTML with the different syntax tokens wrapped in `span` elements.
-
-If `:style` is `nil`, the programs will just attach classes to these `span` elements and it's up to you to define their CSS. If `:style` is specified, the programs will attempt to apply that style as inline CSS.
-
-Background colors are not included. Nuzzle adds the class `code-block` to every `code` element that is a code-block so you can define your own code-block background color using CSS like:
-```css
-code.code-block { background-color: darkslategray; }
-```
-
-#### Pygments
-[Pygments](https://github.com/pygments/pygments) is a popular and awesome syntax highlighting program written in Python. You can install Pygments with `pip`:
-```shell
-pip install --user pygments
-```
-This should install Pygment's CLI app called `pygmentize` into your $PATH. There are also [many packages available](https://pypi.org/search/?q=pygments&o=) that define additional styles and lexers:
-```shell
-pip install --user pygments-base16 pygments-httpie
-```
-These become available to `pygmentize` simply by installing them. You can run `pygmentize -L` to see all styles and lexers available or check out the [default Pygments style gallery](https://pygments.org/styles/).
-
-Nuzzle supports Pygments versions 2.12.0 and above.
-
-#### Chroma
-[Chroma](https://github.com/alecthomas/chroma) is a syntax highlighter written in Go and based heavily on Pygments. Download with your favorite package manager, or alternatively the author [suggests](https://github.com/alecthomas/chroma/issues/533) downloading the `chroma` binary via their [GitHub releases](https://github.com/alecthomas/chroma/releases).
-
-Besides a browser, you could also use `wget` or `curl`:
-```shell
-wget https://github.com/alecthomas/chroma/releases/download/v2.0.0-alpha4/chroma-2.0.0-alpha4-linux-amd64.tar.gz
-
-curl --location https://github.com/alecthomas/chroma/releases/download/v2.0.0-alpha4/chroma-2.0.0-alpha4-linux-amd64.tar.gz --output chroma-2.0.0-alpha4-linux-amd64.tar.gz
-```
-
-You can run `chroma --list` to see all styles and lexers available or check out the [Chroma style gallery](https://xyproto.github.io/splash/docs/longer/index.html).
-
-Nuzzle supports Chroma versions 2.0.0 and above.
