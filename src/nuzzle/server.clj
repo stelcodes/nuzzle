@@ -1,5 +1,7 @@
 (ns nuzzle.server
   (:require
+   [clojure.java.io :as io]
+   [clojure.string :as str]
    [io.aviso.exception :as except]
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
@@ -25,28 +27,42 @@
       (or (file-request request overlay-dir) (app request)))
     (fn [request] (app request))))
 
+(defn load-livejs [refresh-interval]
+  (let [script (-> "nuzzle/js/livejs.js" io/resource slurp)]
+    (cond-> script
+      (and refresh-interval (not= 2500 refresh-interval))
+      (str/replace-first "2500" (str refresh-interval)))))
+
 (defn handle-page-request
   "This handler is responsible for creating an HTML document for a page when
   it's located in the page map. Otherwise return a 404 Not Found"
-  [pages & {:keys [remove-drafts?]}]
-  (fn [{:keys [uri] :as _request}]
-    (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts?)
-          {:nuzzle/keys [render-page url] :as page} (loaded-pages (util/vectorize-url uri))]
-      (if page
-        (do (log/log-rendering-page url)
-          {:status 200
-           :body (-> page render-page hiccup/hiccup->html-document)
-           :headers {"Content-Type" "text/html"}})
-        {:status 404
-         :body "<h1>Page Not Found</h1>"
-         :headers {"Content-Type" "text/html"}}))))
+  [pages & {:keys [remove-drafts? refresh-interval]}]
+  (let [livejs-script (when refresh-interval
+                        [:script {:type "text/javascript"}
+                         (-> refresh-interval load-livejs hiccup/raw-html)])]
+    (fn [{:keys [uri] :as _request}]
+      (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts?)
+            {:nuzzle/keys [render-page url] :as page} (loaded-pages (util/vectorize-url uri))]
+        (if page
+          (do (log/log-rendering-page url)
+            {:status 200
+             :body (cond-> page
+                     true render-page
+                     livejs-script (hiccup/transform-hiccup
+                                    {:body #(conj % livejs-script)})
+                     true hiccup/hiccup->html-document)
+             :headers {"Content-Type" "text/html"}})
+          {:status 404
+           :body "<h1>Page Not Found</h1>"
+           :headers {"Content-Type" "text/html"}})))))
 
-(defn start-server [pages & {:keys [port overlay-dir remove-drafts?] :or {port 6899}}]
+(defn start-server [pages & {:keys [port overlay-dir remove-drafts? refresh-interval]
+                             :or {port 6899}}]
   (log/log-site-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir))
-  (-> (handle-page-request pages :remove-drafts? remove-drafts?)
+  (-> (handle-page-request pages :remove-drafts? remove-drafts? :refresh-interval refresh-interval)
       (wrap-overlay-dir overlay-dir)
       (wrap-content-type)
       (wrap-stacktrace-log)
