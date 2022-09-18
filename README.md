@@ -185,14 +185,14 @@ Each page entry in the pages map represents a single page of the static site. Ea
  ;; Required, no default
  :nuzzle/title "Learning Clojure"
 
- ;; A function that takes the page data and returns hiccup containing the whole HTML document
+ ;; A function returns hiccup containing the whole HTML document
  ;; Must have one argument (the containing page map)
  ;; Used by nuzzle.core/serve, publish, and develop for creating each page of the static site
  ;; Required, no default
  :nuzzle/render-page (fn [{:nuzzle/keys [title render-content] :as _page}
                        [:html [:head [:title title]] [:h1 title] (render-content)])
 
- ;; A function that takes the page map and returns Hiccup containing the page's main content
+ ;; A function that returns hiccup containing the page's main content
  ;; Must have zero or one argument (the containing page map)
  ;; Available to user's corresponding :nuzzle/render-page function
  ;; Used by nuzzle.core/publish for creating Atom feed (for embedding HTML content directly into feed)
