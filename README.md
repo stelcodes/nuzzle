@@ -45,7 +45,7 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 
 ## Usage
 ```
-clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.6.392"}}}'
+clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.6.410"}}}'
 ```
 
 ```clojure
