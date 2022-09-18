@@ -103,7 +103,7 @@
 
 (defn publish-site
   [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts?]
-            :or {publish-dir "dist" sitemap? true remove-drafts? true}}]
+            :or {publish-dir "dist" remove-drafts? true}}]
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)
           "Must provide a :base-url optional arg in order to create sitemap or atom feed")
   (let [publish-dir (str/replace publish-dir #"/$" "")
