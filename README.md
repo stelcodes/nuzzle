@@ -49,8 +49,9 @@ Here's a minimal Nuzzle setup:
 `deps.edn`
 ```clojure
 {:aliases
- {:site {:extra-deps {codes.stel/nuzzle {:mvn/version "0.6.410"}}
-         :default-ns site}}}
+ {:site {:extra-deps {codes.stel/nuzzle {:mvn/version "0.6.410"}
+                      org.clojure/clojure {:mvn/version "1.11.1"}}
+         :ns-default site}}}
 ```
 
 `site.clj`
@@ -59,19 +60,20 @@ Here's a minimal Nuzzle setup:
   (:require [nuzzle.core :as nuzz]))
 
 ;; Create a pages map
-(defn pages {[]
-             {:nuzzle/title "Homepage"
-              :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
-                                    [:html
-                                     [:h1 title]
-                                     [:a {:href [:about]}] "About")}
-             [:about]
-             {:nuzzle/title "About"
-              :nuzzle/render-content #(-> "md/about.md" slurp nuzz/parse-md)
-              :nuzzle/render-page (fn [{:nuzzle/keys [render-content title] :as _page}]
-                                    [:html
-                                     [:h1 title]
-                                     (render-content)])}})
+(defn pages []
+  {[]
+   {:nuzzle/title "Homepage"
+    :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
+                          [:html
+                           [:h1 title]
+                           [:a {:href [:about]}]] "About")}
+   [:about]
+   {:nuzzle/title "About"
+    :nuzzle/render-content #(-> "md/about.md" slurp nuzz/parse-md)
+    :nuzzle/render-page (fn [{:nuzzle/keys [render-content title] :as _page}]
+                          [:html
+                           [:h1 title]
+                           (render-content)])}})
 
 ;; Start static site server + nREPL server with nuzzle.core/develop
 ;; Pass the pages as a var to get full hot-reloading capabilities!
