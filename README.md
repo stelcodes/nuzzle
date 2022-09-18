@@ -35,6 +35,8 @@ Nuzzle is a Clojure library, but you could also think about it as a micro-framew
 ## Real World Example
 Want to read some code already? Check out [this repo](https://github.com/stelcodes/dev-blog) which uses Nuzzle to build my personal developer blog deployed at [stel.codes](https://stel.codes).
 
+![Pretty logging when running nuzzle.core/develop](https://user-images.githubusercontent.com/22163194/190880734-ff36a238-a00c-4431-a720-5308c07f57a1.png)
+
 ## Requirements
 - Java >= 11
 - Clojure >= 1.11.1
