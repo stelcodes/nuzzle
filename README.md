@@ -2,7 +2,7 @@
 <img src="./assets/nuzzle2-with-text.svg" alt="Nuzzle logo" width="400">
 </p>
 <p align="center">
-✨ A data-oriented, REPL-driven static site generator for Clojure ✨
+✨ A flexible and functional static site generator so smol you won't even notice it's there ✨
 </p>
 <div align="center">
   <img src="https://github.com/stelcodes/nuzzle/actions/workflows/unit-tests.yaml/badge.svg" alt="unit tests">
@@ -14,15 +14,15 @@
 > **WARNING**: Nuzzle is in the alpha stage. Expect API breakages.
 
 ## What is Nuzzle?
-Nuzzle is a minimal yet highly flexible and static site generator packaged as a Clojure library.
+Nuzzle is a static site generator packaged as a Clojure library. It requires an astonishingly small code footprint to use. Keep all your static site data and building instructions in a single Clojure file!
 
 ## Design Goals
 - Easy to use for developers new to Clojure
 - Highly flexible for advanced Clojure users
 - Great development experience with excellent hot-reloadability story
 - Semantically aligned with the [Atom feed spec](https://validator.w3.org/feed/docs/atom.html)
-- So succinct that you can add it to any existing repo and put all Clojure code using Nuzzle into a single file and run it via a Clojure CLI tool alias
-- Content can be loaded from anywhere (local files, headless CMS API calls, mix of both)
+- Small code footprint! Your Clojure code interacting with Nuzzle can be extremely succinct such that you can keep it all in a single file and run Nuzzle functions via a Clojure CLI tool alias
+- Users can define their own process for loading content so it can be of any type (Markdown, Org, HTML, etc) and come from anywhere (local files, headless CMS API calls, mix of both, etc)
 
 ## Feature List (Nuzzle users can...)
 - Generate an Atom feed with embedded HTML content
@@ -30,7 +30,7 @@ Nuzzle is a minimal yet highly flexible and static site generator packaged as a 
 - Generate tag index pages from tag information
 - Define all markup in hiccup without ever worrying about converting it to HTML
 - Retrieve all data for any page while creating markup
-- Start dual website/nREPL servers without adding nREPL deps for lightning-fast development feedback
+- Start dual website/nREPL servers without adding nREPL deps for creating incredible development feedback loop
 - Inject a script based on [livejs](https://livejs.com/) with configurable refresh interval to automatically refresh browser view to see content/markup changes in realtime while developing
 - Transform hiccup to do any customization imaginable including statically rendering syntax highlighted code blocks with [Pygments](https://github.com/pygments/pygments) or [Chroma](https://github.com/alecthomas/chroma)
 
@@ -42,16 +42,21 @@ Want to read some code already? Check out [this repo](https://github.com/stelcod
 ## Requirements
 - Java >= 11
 - Clojure >= 1.11.1
-- [Pygments](https://github.com/pygments/pygments) >= 2.12.0 (optional)
-- [Chroma](https://github.com/alecthomas/chroma) >= 2.0.0 (optional)
 
 ## Usage
-```
-clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.6.410"}}}'
+Here's a minimal Nuzzle setup:
+
+`deps.edn`
+```clojure
+{:aliases
+ {:site {:extra-deps {codes.stel/nuzzle {:mvn/version "0.6.410"}}
+         :default-ns site}}}
 ```
 
+`site.clj`
 ```clojure
-(require '[nuzzle.core :as nuzz)
+(ns site
+  (:require [nuzzle.core :as nuzz]))
 
 ;; Create a pages map
 (defn pages {[]
@@ -71,18 +76,28 @@ clj -Sdeps '{:deps {codes.stel/nuzzle {:mvn/version "0.6.410"}}}'
 ;; Start static site server + nREPL server with nuzzle.core/develop
 ;; Pass the pages as a var to get full hot-reloading capabilities!
 ;; The returned value is a function that stops both servers.
-(nuzz/develop #'pages)
+(defn develop [_]
+  (nuzz/develop #'pages))
 
 ;; Publish the static site to ./dist
-(nuzz/publish pages)
+(defn publish [_]
+  (nuzz/publish pages))
+```
+
+Use Nuzzle by invoking the Clojure CLI tool alias from `deps.edn`:
+```bash
+# Work on site
+clj -T:site develop
+# Publish site
+clj -T:site publish
 ```
 
 ## Pages Map
 Nuzzle uses a map to model a static site where every key is a URL and every value is a map of details about the page. The pages map is validated by `clojure.spec`. You can find the [pages spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
 
-If you're from Pallet town, your pages might look like this:
+If you're from Pallet town, your `site.clj` might look like this:
 ```clojure
-(ns user
+(ns site
   (:require
    [nuzzle.core :as nuzz]))
 
@@ -141,15 +156,19 @@ If you're from Pallet town, your pages might look like this:
         :nuzzle/render-page render-page}}
   (nuzz/add-tag-pages render-page))
 
-(nuzz/develop #'pages :port 8080)
+(defn develop [opts]
+  (let [default-opts {:port 8080}]
+    (nuzz/develop #'pages (merge default-opts opts))))
 
-;; Build this site with a sitemap and Atom feed
+;; By default build this site with a sitemap and Atom feed
 ;; Overlay the directory containing the css/main.css file.
 
-(nuzz/publish pages :base-url "https://ashketchum.com"
-                    :atom-feed {:title "Ash Ketchum's Blog"
-                           :subtitle "In a world we must defend"}
-                    :overlay-dir "public")
+(defn publish [opts]
+  (let [default-opts {:base-url "https://ashketchum.com"
+                      :atom-feed {:title "Ash Ketchum's Blog"
+                                  :subtitle "In a world we must defend"}
+                      :overlay-dir "public"}]
+    (nuzz/publish pages (merge default-opts opts)))
 ```
 
 ## Page Entries
