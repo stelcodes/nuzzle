@@ -3,4 +3,4 @@
          push {:depends [test lint] :task (do (shell "git push origin") (shell "git push origin --tags"))}
          repl (shell "rlwrap bb clojure -M:test:repl")
          tag {:depends [test lint] :task (clojure "-T:build tag")}
-         test (apply clojure "-M:test -m kaocha.runner" *command-line-args*)}}
+         test (apply clojure "-M:test" *command-line-args*)}}
