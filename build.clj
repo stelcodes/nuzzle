@@ -32,9 +32,12 @@
 (comment (render-templates))
 
 (defn get-latest-version []
-  (->> (p/sh ["git" "describe" "--tags" "--abbrev=0"])
+  (->> @(p/process ["git" "describe" "--tags" "--abbrev=0"])
        :out
+       slurp
        (re-find #"[0-9\.]+")))
+
+(comment (get-latest-version))
 
 (defn update-example-deps []
   (println "Updating example deps.edn files")
