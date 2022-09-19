@@ -86,11 +86,14 @@ Here's a minimal Nuzzle setup:
   (nuzz/publish pages))
 ```
 
-Use Nuzzle by invoking the Clojure CLI tool alias from `deps.edn`:
+Call the `site/develop` or `site/publish` functions by invoking the Clojure CLI tool alias from `deps.edn`:
 ```bash
-# Work on site
+# Using Babashka (my preference)
+bb clojure -T:site develop
+bb clojure -T:site publish
+
+# Using official Clojure CLI executable
 clj -T:site develop
-# Publish site
 clj -T:site publish
 ```
 
