@@ -1,5 +1,7 @@
 (ns build
   (:require
+   [babashka.process :as p]
+   [babashka.process.pprint]
    [clojure.java.shell :as sh]
    [clojure.java.io :as io]
    [clojure.string :as str]
@@ -44,29 +46,34 @@
 
 (comment (update-example-deps))
 
-;; (defn ensure-updated-example-deps []
-;;   (->> (io/file "examples")
-;;        file-seq
-;;        (filter #(= "deps.edn" (.getName %)))
-;;        (reduce
-;;         (fn [_ file]
-;;           (when-not
-;;             (re-find
-;;              (re-pattern (str "codes\\.stel/nuzzle \\{:mvn/version \"" version "\"\\}"))
-;;              (slurp file))
-;;             (throw (ex-info (str file " needs to be updated") {}))))
-;;         nil)))
-;;
-;; (comment (ensure-updated-example-deps))
+(defn ensure-clean-tree [& _]
+  (println "Checking if working tree is clean")
+  (try
+    (-> (p/process ["git" "diff-index" "--quiet" "HEAD" "--"]) p/check)
+    (catch Throwable e
+      (println "Working tree is dirty")
+      (throw e)))
+  (println "Working tree is clean"))
 
-(defn tag [_]
-  (render-templates)
-  (when-not (-> (sh/sh "git" "diff" "--quiet") :exit (= 0))
-    (throw (ex-info "Working tree is dirty" {})))
-  (when-not (re-find (re-pattern version) (slurp "README.md"))
-    (throw (ex-info (str "Version " version " not found in README.md") {})))
-  (b/git-process {:git-args (list "tag" "-a" "-m" (str "Bump version to " git-tag) git-tag)})
+(defn ensure-tests [& _]
+  (println "Checking if tests pass")
+  (-> (p/process ["clj" "-M:test"] {:out :inherit :err :inherit})
+      p/check)
+  (println "Tests are passing"))
+
+(defn tag-head [& _]
+  (-> (p/process ["git" "tag" "-a" "-m" (str "Bump version to " git-tag) git-tag]
+                 {:out :inherit :err :inherit})
+      p/check)
   (println "Tagged latest commit with" git-tag))
+
+(defn update-docs []
+  (ensure-clean-tree)
+  (update-example-deps)
+  (render-templates)
+  (-> (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " version)]
+                 {:out :inherit :err :inherit})
+      p/check))
 
 (defn ensure-tag [_]
   (when-not (re-find (re-pattern git-tag)
@@ -100,7 +107,9 @@
            :basis basis}))
 
 (defn deploy [opts]
-  (ensure-tag nil)
+  (ensure-clean-tree)
+  (ensure-tests)
+  (tag-head)
   (jar opts)
   ((requiring-resolve 'deps-deploy.deps-deploy/deploy)
    (merge {:installer :remote
