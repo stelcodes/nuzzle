@@ -1,5 +1,6 @@
 (ns build
   (:require
+   [clojure.java.shell :as sh]
    [clojure.string :as str]
    [clojure.tools.build.api :as b]))
 
@@ -12,7 +13,25 @@
 
 (def git-tag (str "v" version))
 
+(defn render-templates [& _]
+  (letfn [(slurp-match [matches]
+            (-> matches
+                second
+                slurp
+                str/trim))
+          (render-template [file]
+            (spit (str/replace file ".template" "")
+                  (-> file
+                      slurp
+                      (str/replace #"\{\{(\S+)\}\}" slurp-match))))]
+    (render-template "README.template.md")))
+
+(comment (render-templates))
+
 (defn tag [_]
+  (render-templates)
+  (when-not (-> (sh/sh "git" "diff" "--quiet") :exit (= 0))
+    (throw (ex-info "Working tree is dirty" {})))
   (when-not (re-find (re-pattern version) (slurp "README.md"))
     (throw (ex-info (str "Version " version " not found in README.md") {})))
   (b/git-process {:git-args (list "tag" "-a" "-m" (str "Bump version to " git-tag) git-tag)})
