@@ -2,6 +2,7 @@
   ;; (:use clojure.stacktrace)
   (:require
    [clojure.spec.alpha :as s]
+   [clojure.set :as set]
    [expound.alpha :as expound]
    [nuzzle.schemas]
    [nuzzle.util :as util]
@@ -9,11 +10,19 @@
    [spell-spec.expound]))
 
 (defn remove-draft-pages [pages]
-  (reduce-kv (fn [acc url {:nuzzle/keys [draft?] :as page}]
-               (cond-> acc
-                 (not draft?) (assoc url page)))
-             {}
-             pages))
+  (let [draft-urls (->> pages
+                        vals
+                        (filter :nuzzle/draft?)
+                        (map :nuzzle/url)
+                        set)]
+    (reduce-kv (fn [acc url {:nuzzle/keys [draft? index] :as page}]
+                 (if draft?
+                   acc
+                   (assoc acc url
+                          (cond-> page
+                            index (update :nuzzle/index #(set/difference % draft-urls))))))
+               {}
+               pages)))
 
 (defn validate-pages [pages]
   (if (s/valid? :nuzzle/user-pages pages)
