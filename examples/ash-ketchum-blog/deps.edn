@@ -1,4 +1,4 @@
 {:aliases
- {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.435"}
+ {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.452"}
                 org.clojure/clojure {:mvn/version "1.11.1"}}
          :ns-default site}}}
