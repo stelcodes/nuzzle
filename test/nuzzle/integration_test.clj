@@ -38,4 +38,5 @@
                  (every? #(-> % val empty?) dist-diff))
           (fs/delete-tree new-example-path)
           (println "diff -r" example-dist-path new-example-dist-path "\n"
+                   "caddy file-server --listen :3030 --root" new-example-dist-path "\n"
                    "trash" example-dist-path "; cp -R" new-example-dist-path example-dist-path))))))
