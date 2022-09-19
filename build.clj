@@ -27,7 +27,8 @@
                   (-> file
                       slurp
                       (str/replace #"\{\{(\S+)\}\}" slurp-match))))]
-    (render-template "README.template.md")))
+    (render-template "README.template.md"))
+  (println "Finished rendering templates"))
 
 (comment (render-templates))
 
@@ -52,7 +53,12 @@
                    (slurp file)
                    #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
                    (str "codes.stel/nuzzle {:mvn/version \"" latest-version "\"}"))))
-          nil))))
+          nil)))
+  (when (-> @(p/process ["git" "diff" "--quiet"]) :exit (= 1))
+    (println "Commiting docs changes")
+    (p/check (p/process ["git" "commit" "--all" "-m" "Update Nuzzle version in example deps.edn"]
+                        {:out :inherit :err :inherit})))
+  (println "Finished updating example deps.edn files"))
 
 (comment (update-example-deps))
 
@@ -74,32 +80,29 @@
   (p/check (p/process ["clj" "-M:test"] {:out :inherit :err :inherit}))
   (println "Tests are passing"))
 
-(defn tag-head [& _]
+(defn tag-latest [& _]
   (println "Tagging latest commit")
-  ;; Make sure README is up to date before tagging
-  (render-templates)
-  (ensure-clean-tree)
-  ;; Tag HEAD commit
   (p/check (p/process ["git" "tag" "-a" "-m" (str "Bump version to " version) git-tag]
                       {:out :inherit :err :inherit}))
   (println "Tagged latest commit with" git-tag))
 
-(defn update-docs [& _]
-  (println "Updating docs")
+(defn update-templated-files [& _]
+  (println "Updating templated files")
   (ensure-clean-tree)
-  (update-example-deps)
   (render-templates)
   (when (-> @(p/process ["git" "diff" "--quiet"]) :exit (= 1))
-    (println "Commiting docs changes")
-    (p/check (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " (get-latest-version))]
-                        {:out :inherit :err :inherit}))))
+    (println "Commiting templated file changes")
+    (p/check (p/process ["git" "commit" "--all" "-m" "Update templated files"]
+                        {:out :inherit :err :inherit})))
+  (println "Finished updating templated files"))
 
 (defn push-commits-and-tags [& _]
   (println "Pushing commits")
   (ensure-clean-tree)
   (p/check (p/process ["git" "push" "origin"] {:out :inherit :err :inherit}))
   (println "Pushing tags")
-  (p/check (p/process ["git" "push" "--tags" "origin"] {:out :inherit :err :inherit})))
+  (p/check (p/process ["git" "push" "--tags" "origin"] {:out :inherit :err :inherit}))
+  (println "Finished pushing commits and tags"))
 
 (defn clean [_]
   (b/delete {:path "target"}))
@@ -130,13 +133,14 @@
 (defn deploy [opts]
   (ensure-clean-tree)
   (ensure-tests)
-  (tag-head)
+  (update-templated-files)
+  (tag-latest)
   (jar opts)
   ((requiring-resolve 'deps-deploy.deps-deploy/deploy)
    (merge {:installer :remote
            :artifact jar-file
            :pom-file (b/pom-path {:lib lib :class-dir class-dir})}
           opts))
-  (update-docs)
+  (update-example-deps)
   (push-commits-and-tags)
   opts)
