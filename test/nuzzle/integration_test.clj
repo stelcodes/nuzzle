@@ -28,5 +28,5 @@
       (t/is (every? #(-> % val empty?) dist-diff))
       (if (and (zero? exit)
                (every? #(-> % val empty?) dist-diff))
-        (fs/delete-if-exists new-example-path)
+        (fs/delete-tree new-example-path)
         (println "diff -r" example-path new-example-path)))))
