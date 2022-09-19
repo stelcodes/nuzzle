@@ -2,7 +2,6 @@
   (:require
    [babashka.process :as p]
    [babashka.process.pprint]
-   [clojure.java.shell :as sh]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.tools.build.api :as b]))
@@ -31,18 +30,24 @@
 
 (comment (render-templates))
 
+(defn get-latest-version []
+  (->> (p/sh ["git" "describe" "--tags" "--abbrev=0"])
+       :out
+       (re-find #"[0-9\.]+")))
+
 (defn update-example-deps []
-  (->> (io/file "examples")
-       file-seq
-       (filter #(= "deps.edn" (.getName %)))
-       (reduce
-        (fn [_ file]
-          (spit file
-                (str/replace-first
-                 (slurp file)
-                 #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
-                 (str "codes.stel/nuzzle {:mvn/version \"" version "\"}"))))
-        nil)))
+  (let [latest-version (get-latest-version)]
+    (->> (io/file "examples")
+         file-seq
+         (filter #(= "deps.edn" (.getName %)))
+         (reduce
+          (fn [_ file]
+            (spit file
+                  (str/replace-first
+                   (slurp file)
+                   #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
+                   (str "codes.stel/nuzzle {:mvn/version \"" latest-version "\"}"))))
+          nil))))
 
 (comment (update-example-deps))
 
@@ -62,23 +67,32 @@
   (println "Tests are passing"))
 
 (defn tag-head [& _]
-  (-> (p/process ["git" "tag" "-a" "-m" (str "Bump version to " git-tag) git-tag]
+  ;; Make sure README is up to date before tagging
+  (render-templates)
+  (ensure-clean-tree)
+  ;; Tag HEAD commit
+  (-> (p/process ["git" "tag" "-a" "-m" (str "Bump version to " version) git-tag]
                  {:out :inherit :err :inherit})
       p/check)
   (println "Tagged latest commit with" git-tag))
 
 (defn update-docs [& _]
+  (println "Updating docs")
   (ensure-clean-tree)
   (update-example-deps)
   (render-templates)
-  (-> (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " version)]
+  (-> (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " (get-latest-version))]
                  {:out :inherit :err :inherit})
       p/check))
 
-(defn ensure-tag [_]
-  (when-not (re-find (re-pattern git-tag)
-                     (b/git-process {:git-args "tag"}))
-    (throw (ex-info (str "Tag " git-tag " not found in git tags") {}))))
+(defn push-commits-and-tags [& _]
+  (println "Pushing commits")
+  (ensure-clean-tree)
+  (-> (p/process ["git" "push" "origin"] {:out :inherit :err :inherit})
+      p/check)
+  (println "Pushing tags")
+  (-> (p/process ["git" "push" "--tags" "origin"] {:out :inherit :err :inherit})
+      p/check))
 
 (defn clean [_]
   (b/delete {:path "target"}))
@@ -116,4 +130,6 @@
            :artifact jar-file
            :pom-file (b/pom-path {:lib lib :class-dir class-dir})}
           opts))
+  (update-docs)
+  (push-commits-and-tags)
   opts)
