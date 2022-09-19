@@ -11,10 +11,10 @@
    [:h1 title]
    (when index
      [:ul (for [url index
-                :let [{:nuzzle/keys [title url]} (get-pages url)]]
-            ;; The url is a vector, but Nuzzle will convert them
-            ;; into strings when used for an :href value
-            [:li title [:a {:href url}]])])
+                :let [{:nuzzle/keys [title url] :as _indexed-page} (get-pages url)]]
+            ;; The url is a vector of keywords, but Nuzzle will convert them
+            ;; into relative URL strings when used for an :href value
+            [:li [:a {:href url} title]])])
    (render-content)]])
 
 ;; Here we make a function to create a render-content function for markdown files
@@ -29,11 +29,13 @@
   (-> {[]
        {:nuzzle/title "Home"
         :nuzzle/render-content (md-content "content/intro.md")
-        :nuzzle/render-page render-page}
+        :nuzzle/render-page render-page
+        :nuzzle/index :children}
 
        [:blog-posts]
        {:nuzzle/title "Blog Posts"
-        :nuzzle/render-page render-page}
+        :nuzzle/render-page render-page
+        :nuzzle/index :children}
 
        [:blog-posts :catching-pikachu]
        {:nuzzle/title "I Caught a Pikachu!"
