@@ -1,6 +1,7 @@
 (ns build
   (:require
    [clojure.java.shell :as sh]
+   [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.tools.build.api :as b]))
 
@@ -27,6 +28,36 @@
     (render-template "README.template.md")))
 
 (comment (render-templates))
+
+(defn update-example-deps []
+  (->> (io/file "examples")
+       file-seq
+       (filter #(= "deps.edn" (.getName %)))
+       (reduce
+        (fn [_ file]
+          (spit file
+                (str/replace-first
+                 (slurp file)
+                 #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
+                 (str "codes.stel/nuzzle {:mvn/version \"" version "\"}"))))
+        nil)))
+
+(comment (update-example-deps))
+
+;; (defn ensure-updated-example-deps []
+;;   (->> (io/file "examples")
+;;        file-seq
+;;        (filter #(= "deps.edn" (.getName %)))
+;;        (reduce
+;;         (fn [_ file]
+;;           (when-not
+;;             (re-find
+;;              (re-pattern (str "codes\\.stel/nuzzle \\{:mvn/version \"" version "\"\\}"))
+;;              (slurp file))
+;;             (throw (ex-info (str file " needs to be updated") {}))))
+;;         nil)))
+;;
+;; (comment (ensure-updated-example-deps))
 
 (defn tag [_]
   (render-templates)
