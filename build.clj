@@ -57,10 +57,10 @@
   (println "Checking if working tree is clean")
   (try
     ;; Check if working tree has staged changes
-    (-> (p/process ["git" "diff-index" "--quiet" "--cached" "HEAD" "--"]) p/check)
+    (p/check (p/process ["git" "diff-index" "--quiet" "--cached" "HEAD" "--"]))
     ;; Check if working tree has meaningful changes that could be staged
     ;; Not using git diff-files here bc it returns 0 when file metadata changed
-    (-> (p/process ["git" "diff" "--quiet"]) p/check)
+    (p/check (p/process ["git" "diff" "--quiet"]))
     (catch Throwable e
       (println "Working tree is dirty")
       (throw e)))
@@ -68,8 +68,7 @@
 
 (defn ensure-tests [& _]
   (println "Checking if tests pass")
-  (-> (p/process ["clj" "-M:test"] {:out :inherit :err :inherit})
-      p/check)
+  (p/check (p/process ["clj" "-M:test"] {:out :inherit :err :inherit}))
   (println "Tests are passing"))
 
 (defn tag-head [& _]
@@ -78,9 +77,8 @@
   (render-templates)
   (ensure-clean-tree)
   ;; Tag HEAD commit
-  (-> (p/process ["git" "tag" "-a" "-m" (str "Bump version to " version) git-tag]
-                 {:out :inherit :err :inherit})
-      p/check)
+  (p/check (p/process ["git" "tag" "-a" "-m" (str "Bump version to " version) git-tag]
+                      {:out :inherit :err :inherit}))
   (println "Tagged latest commit with" git-tag))
 
 (defn update-docs [& _]
@@ -90,18 +88,15 @@
   (render-templates)
   (when (-> @(p/process ["git" "diff" "--quiet"]) :exit (= 1))
     (println "Commiting docs changes")
-    (-> (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " (get-latest-version))]
-                   {:out :inherit :err :inherit})
-        p/check)))
+    (p/check (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " (get-latest-version))]
+                        {:out :inherit :err :inherit}))))
 
 (defn push-commits-and-tags [& _]
   (println "Pushing commits")
   (ensure-clean-tree)
-  (-> (p/process ["git" "push" "origin"] {:out :inherit :err :inherit})
-      p/check)
+  (p/check (p/process ["git" "push" "origin"] {:out :inherit :err :inherit}))
   (println "Pushing tags")
-  (-> (p/process ["git" "push" "--tags" "origin"] {:out :inherit :err :inherit})
-      p/check))
+  (p/check (p/process ["git" "push" "--tags" "origin"] {:out :inherit :err :inherit})))
 
 (defn clean [_]
   (b/delete {:path "target"}))
