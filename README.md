@@ -86,7 +86,7 @@ Here's a minimal Nuzzle setup:
   (nuzz/publish pages))
 ```
 
-Call the `site/develop` or `site/publish` functions by invoking the Clojure CLI tool alias from `deps.edn`:
+Call the `site/develop` or `site/publish` functions from the command line:
 ```bash
 # Using Babashka (my preference)
 bb clojure -T:site develop
@@ -97,10 +97,11 @@ clj -T:site develop
 clj -T:site publish
 ```
 
-## Pages Map
-Nuzzle uses a map to model a static site where every key is a URL and every value is a map of details about the page. The pages map is validated by `clojure.spec`. You can find the [pages spec here](https://github.com/stelcodes/nuzzle/blob/main/src/nuzzle/schemas.clj).
+> Test it out yourself! `git clone https://github.com/stelcodes/nuzzle && cd nuzzle/examples/minimal`
 
-If you're from Pallet town, your `site.clj` might look like this:
+## Ash Ketchum Example
+If you're a trainer from Pallet town, your `site.clj` might look like this:
+
 ```clojure
 (ns site
   (:require
@@ -132,49 +133,47 @@ If you're from Pallet town, your `site.clj` might look like this:
 (defn pages []
   (-> {[]
        {:nuzzle/title "Home"
-        :nuzzle/render-content (md-content "content/homepage-introduction.md")
+        :nuzzle/render-content (md-content "content/intro.md")
         :nuzzle/render-page render-page}
 
        [:blog-posts]
        {:nuzzle/title "Blog Posts"
-        :nuzzle/render-content (md-content "content/blog-header.md")
         :nuzzle/render-page render-page}
 
        [:blog-posts :catching-pikachu]
-       {:nuzzle/title "How I Caught Pikachu"
-        :nuzzle/render-content (md-content "content/how-i-caught-pikachu.md")
+       {:nuzzle/title "I Caught a Pikachu!"
+        :nuzzle/render-content (md-content "content/caught-pikachu.md")
         :nuzzle/render-page render-page
         :nuzzle/author ash
         :nuzzle/feed? true}
 
        [:blog-posts :defeating-misty]
        {:nuzzle/draft? true
-        :nuzzle/title "How I Defeated Misty with Pikachu"
-        :nuzzle/render-content (md-content "content/how-i-defeated-misty.md")
+        :nuzzle/title "Misty's Pokemon Got Wrecked by Pikachu"
+        :nuzzle/render-content (md-content "content/defeated-misty.md")
         :nuzzle/render-page render-page
         :nuzzle/author ash
         :nuzzle/feed? true}
 
        [:about]
-       {:nuzzle/title "About Ash"
-        :nuzzle/render-content (md-content "markdown/about-ash.md")
+       {:nuzzle/title "About Me"
+        :nuzzle/render-content (md-content "content/about.md")
         :nuzzle/render-page render-page}}
-  (nuzz/add-tag-pages render-page))
+      (nuzz/add-tag-pages render-page)))
 
-(defn develop [opts]
-  (let [default-opts {:port 8080}]
-    (nuzz/develop #'pages (merge default-opts opts))))
+(defn develop [_]
+  (nuzz/develop #'pages :port 8080))
 
 ;; By default build this site with a sitemap and Atom feed
 ;; Overlay the directory containing the css/main.css file.
 
-(defn publish [opts]
-  (let [default-opts {:base-url "https://ashketchum.com"
-                      :atom-feed {:title "Ash Ketchum's Blog"
-                                  :subtitle "In a world we must defend"}
-                      :overlay-dir "public"}]
-    (nuzz/publish pages (merge default-opts opts)))
+(defn publish [_]
+  (nuzz/publish pages {:base-url "https://ashketchum.com"
+                       :atom-feed {:title "Ash Ketchum's Blog"
+                                   :subtitle "In a world we must defend"}
+                       :overlay-dir "public"}))
 ```
+> Test it out yourself! `git clone https://github.com/stelcodes/nuzzle && cd nuzzle/examples/ash-ketchum-blog`
 
 ## Page Entries
 
