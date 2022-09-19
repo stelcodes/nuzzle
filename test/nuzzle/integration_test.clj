@@ -3,19 +3,30 @@
    [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.java.shell :as sh]
+   [clojure.string :as str]
    [clojure.test :as t]
    [nuzzle.util :as util]))
 
 (t/deftest example-sites
-  (doseq [example-dir (-> "examples" io/file (.listFiles))]
-    (let [prev-build-path (-> example-dir (fs/path "dist") fs/canonicalize str)
-          prev-build-snapshot (util/create-dir-snapshot prev-build-path)
-          new-build-path (str (fs/create-temp-dir))
-          {:keys [exit out]} (sh/sh "bash" "-c"
-                                    (str "cd " example-dir " && clj -T:site publish :publish-dir '\"" new-build-path "\"'"))
-          new-build-snapshot (util/create-dir-snapshot new-build-path)
-          diff (util/create-dir-diff prev-build-snapshot new-build-snapshot)]
+  (doseq [example (-> "examples" io/file (.listFiles))]
+    (let [cwd (-> "." fs/canonicalize str)
+          example-path (-> example fs/canonicalize str)
+          dist-snapshot (util/create-dir-snapshot (str example-path "/dist"))
+          new-example-path (str (fs/create-temp-dir))
+          _ (fs/copy-tree example-path new-example-path)
+          new-deps-path (str new-example-path "/deps.edn")
+          _ (spit new-deps-path
+                  (-> new-deps-path
+                      slurp
+                      (str/replace #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
+                                   (str "codes.stel/nuzzle {:local/root " (pr-str cwd) "}"))))
+          {:keys [exit]} (sh/sh "bash" "-c"
+                                (str "cd " new-example-path " && clj -T:site publish"))
+          new-dist-snapshot (util/create-dir-snapshot (str new-example-path "/dist"))
+          dist-diff (util/create-dir-diff dist-snapshot new-dist-snapshot)]
       (t/is (zero? exit))
-      (t/is (re-find #"Publishing successful" out))
-      (t/is (every? #(-> % val empty?) diff))
-      (println "diff -r" prev-build-path new-build-path))))
+      (t/is (every? #(-> % val empty?) dist-diff))
+      (if (and (zero? exit)
+               (every? #(-> % val empty?) dist-diff))
+        (fs/delete-if-exists new-example-path)
+        (println "diff -r" example-path new-example-path)))))
