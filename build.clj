@@ -88,7 +88,7 @@
   (ensure-clean-tree)
   (update-example-deps)
   (render-templates)
-  (when (-> (p/process ["git" "diff-files" "--quiet"]) :exit (= 1))
+  (when (-> @(p/process ["git" "diff" "--quiet"]) :exit (= 1))
     (println "Commiting docs changes")
     (-> (p/process ["git" "commit" "--all" "-m" (str "Update docs to version " (get-latest-version))]
                    {:out :inherit :err :inherit})
