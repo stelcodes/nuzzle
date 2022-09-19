@@ -62,12 +62,20 @@
               (constantly nil)))
           (add-page-keys [pages]
             (reduce-kv
-             (fn [acc url {:nuzzle/keys [updated] :as page}]
+             (fn [acc url {:nuzzle/keys [updated index] :as page}]
                (assoc acc url
                       (cond-> page
                         true (assoc :nuzzle/url url)
                         true (update :nuzzle/render-content update-render-content)
-                        updated (update :nuzzle/updated #(if (= java.util.Date (class %)) (.toInstant %) %)))))
+                        updated (update :nuzzle/updated #(cond-> %
+                                                           (= java.util.Date (class %)) (.toInstant)))
+                        index (update :nuzzle/index
+                                      #(if (not= :children %) %
+                                         (reduce (fn [acc url2]
+                                                   (cond-> acc
+                                                     (util/child-url? url url2) (conj url2)))
+                                                 #{}
+                                                 (keys pages)))))))
              {} pages))
           (add-get-pages [pages]
             (let [get-pages (create-get-pages pages)]
