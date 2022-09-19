@@ -16,6 +16,7 @@
 (def git-tag (str "v" version))
 
 (defn render-templates [& _]
+  (println "Rendering templates")
   (letfn [(slurp-match [matches]
             (-> matches
                 second
@@ -36,6 +37,7 @@
        (re-find #"[0-9\.]+")))
 
 (defn update-example-deps []
+  (println "Updating example deps.edn files")
   (let [latest-version (get-latest-version)]
     (->> (io/file "examples")
          file-seq
@@ -54,7 +56,7 @@
 (defn ensure-clean-tree [& _]
   (println "Checking if working tree is clean")
   (try
-    (-> (p/process ["git" "diff-index" "--quiet" "HEAD" "--"]) p/check)
+    (-> (p/process ["git" "diff-index" "--quiet" "--cached" "HEAD" "--"]) p/check)
     (catch Throwable e
       (println "Working tree is dirty")
       (throw e)))
