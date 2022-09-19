@@ -66,10 +66,10 @@ Here's a minimal Nuzzle setup:
     :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
                           [:html
                            [:h1 title]
-                           [:a {:href [:about]}]] "About")}
+                           [:a {:href [:about]} "About"]])}
    [:about]
    {:nuzzle/title "About"
-    :nuzzle/render-content #(-> "md/about.md" slurp nuzz/parse-md)
+    :nuzzle/render-content #(-> "content/about.md" slurp nuzz/parse-md)
     :nuzzle/render-page (fn [{:nuzzle/keys [render-content title] :as _page}]
                           [:html
                            [:h1 title]
@@ -78,12 +78,12 @@ Here's a minimal Nuzzle setup:
 ;; Start static site server + nREPL server with nuzzle.core/develop
 ;; Pass the pages as a var to get full hot-reloading capabilities!
 ;; The returned value is a function that stops both servers.
-(defn develop [_]
-  (nuzz/develop #'pages))
+(defn develop [& {:as cli-opts}]
+  (nuzz/develop #'pages cli-opts))
 
 ;; Publish the static site to ./dist
-(defn publish [_]
-  (nuzz/publish pages))
+(defn publish [& {:as cli-opts}]
+  (nuzz/publish pages cli-opts))
 ```
 
 Use Nuzzle by invoking the Clojure CLI tool alias from `deps.edn`:
