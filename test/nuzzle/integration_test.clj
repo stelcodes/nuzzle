@@ -12,8 +12,10 @@
     (t/testing (str "example site " example-dir-file)
       (let [cwd (-> "." fs/canonicalize str)
             example-path (-> example-dir-file fs/canonicalize str)
-            dist-snapshot (util/create-dir-snapshot (str example-path "/dist"))
+            example-dist-path (str example-path "/dist")
+            dist-snapshot (util/create-dir-snapshot example-dist-path)
             new-example-path (str (fs/create-temp-dir))
+            new-example-dist-path (str new-example-path "/dist")
             _ (fs/copy-tree example-path new-example-path)
             new-deps-path (str new-example-path "/deps.edn")
             _ (spit new-deps-path
@@ -25,7 +27,7 @@
             {:keys [exit]} @(p/process ["bb" "clojure" "-T:site" "publish"] {:dir new-example-path
                                                                              :out *out*
                                                                              :err *out*})
-            new-dist-snapshot (util/create-dir-snapshot (str new-example-path "/dist"))
+            new-dist-snapshot (util/create-dir-snapshot new-example-dist-path)
             dist-diff (-> (util/create-dir-diff dist-snapshot new-dist-snapshot)
                           ;; The atom feed will always have different creation times
                           ;; TODO: use str/replace to replace creation time
@@ -35,4 +37,5 @@
         (if (and (zero? exit)
                  (every? #(-> % val empty?) dist-diff))
           (fs/delete-tree new-example-path)
-          (println "diff -r" example-path new-example-path))))))
+          (println "diff -r" example-dist-path new-example-dist-path "\n"
+                   "trash" example-dist-path "; cp -R" new-example-dist-path example-dist-path))))))
