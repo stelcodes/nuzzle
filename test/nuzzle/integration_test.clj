@@ -25,7 +25,10 @@
                                                                            :out *out*
                                                                            :err *out*})
           new-dist-snapshot (util/create-dir-snapshot (str new-example-path "/dist"))
-          dist-diff (util/create-dir-diff dist-snapshot new-dist-snapshot)]
+          dist-diff (-> (util/create-dir-diff dist-snapshot new-dist-snapshot)
+                        ;; The atom feed will always have different creation times
+                        ;; TODO: use str/replace to replace creation time
+                        (update :changed #(disj % "/feed.xml")))]
       (t/is (zero? exit))
       (t/is (every? #(-> % val empty?) dist-diff))
       (if (and (zero? exit)
