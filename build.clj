@@ -67,7 +67,7 @@
       p/check)
   (println "Tagged latest commit with" git-tag))
 
-(defn update-docs []
+(defn update-docs [& _]
   (ensure-clean-tree)
   (update-example-deps)
   (render-templates)
