@@ -1,0 +1,1 @@
+I finally got strong enough to battle the legendary gym leader Misty, and it was a **shocking** battle! Her Staryu had me worried, but it turns out that electric Pokemon *absolutely wreck* water Pokemon. Pikachu effortlessly took down all of Misty's Pokemon with thunderbolts. I have another gym badge now!
