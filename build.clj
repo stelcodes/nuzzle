@@ -56,7 +56,11 @@
 (defn ensure-clean-tree [& _]
   (println "Checking if working tree is clean")
   (try
+    ;; Check if working tree has staged changes
     (-> (p/process ["git" "diff-index" "--quiet" "--cached" "HEAD" "--"]) p/check)
+    ;; Check if working tree has meaningful changes that could be staged
+    ;; Not using git diff-files here bc it returns 0 when file metadata changed
+    (-> (p/process ["git" "diff" "--quiet"]) p/check)
     (catch Throwable e
       (println "Working tree is dirty")
       (throw e)))
