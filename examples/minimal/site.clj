@@ -20,9 +20,9 @@
 ;; Start static site server + nREPL server with nuzzle.core/develop
 ;; Pass the pages as a var to get full hot-reloading capabilities!
 ;; The returned value is a function that stops both servers.
-(defn develop [& {:as cli-opts}]
-  (nuzz/develop #'pages cli-opts))
+(defn develop [_]
+  (nuzz/develop #'pages))
 
 ;; Publish the static site to ./dist
-(defn publish [& {:as cli-opts}]
-  (nuzz/publish pages cli-opts))
+(defn publish [_]
+  (nuzz/publish pages))

@@ -49,8 +49,8 @@ Here's a minimal Nuzzle setup:
 `deps.edn`
 ```clojure
 {:aliases
- {:site {:extra-deps {codes.stel/nuzzle {:mvn/version "0.6.435"}
-                      org.clojure/clojure {:mvn/version "1.11.1"}}
+ {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.435"}
+                org.clojure/clojure {:mvn/version "1.11.1"}}
          :ns-default site}}}
 ```
 
@@ -78,12 +78,12 @@ Here's a minimal Nuzzle setup:
 ;; Start static site server + nREPL server with nuzzle.core/develop
 ;; Pass the pages as a var to get full hot-reloading capabilities!
 ;; The returned value is a function that stops both servers.
-(defn develop [& {:as cli-opts}]
-  (nuzz/develop #'pages cli-opts))
+(defn develop [_]
+  (nuzz/develop #'pages))
 
 ;; Publish the static site to ./dist
-(defn publish [& {:as cli-opts}]
-  (nuzz/publish pages cli-opts))
+(defn publish [_]
+  (nuzz/publish pages))
 ```
 
 Use Nuzzle by invoking the Clojure CLI tool alias from `deps.edn`:
