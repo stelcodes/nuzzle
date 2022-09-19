@@ -73,6 +73,7 @@
   (println "Tests are passing"))
 
 (defn tag-head [& _]
+  (println "Tagging latest commit")
   ;; Make sure README is up to date before tagging
   (render-templates)
   (ensure-clean-tree)
