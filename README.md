@@ -193,16 +193,16 @@ Each page entry in the pages map represents a single page of the static site. Ea
 ;; An entry for the page "/blog/the-best-thing-about-clojure/index.html"
 [:blog :learning-clojure]
 
-{;; A title for the web page
- ;; Required, no default
- :nuzzle/title "Learning Clojure"
+;; A title for the web page
+;; Required, no default
+{:nuzzle/title "Learning Clojure"
 
  ;; A function returns hiccup containing the whole HTML document
  ;; Must have one argument (the containing page map)
  ;; Used by nuzzle.core/serve, publish, and develop for creating each page of the static site
  ;; Required, no default
- :nuzzle/render-page (fn [{:nuzzle/keys [title render-content] :as _page}
-                       [:html [:head [:title title]] [:h1 title] (render-content)])
+ :nuzzle/render-page  (fn [{:nuzzle/keys [title render-content] :as _page}]
+                        [:html [:head [:title title]] [:h1 title] (render-content)])
 
  ;; A function that returns hiccup containing the page's main content
  ;; Must have zero or one argument (the containing page map)
@@ -263,18 +263,11 @@ Each page entry in the pages map represents a single page of the static site. Ea
  ;; A function that can access the whole page map, takes zero or one arguments
  ;; Zero arguments returns a list of all pages
  ;; One argument returns a page map with given vector URL
- ;; One argument with keyword argument :children returns a list of all children pages for given vector URL
- ;; Nuzzle adds this so your render-page function need only accept a single argument
+ ;; One argument with options map argument {:children true} returns a list of all children pages for given vector URL
+ ;; Nuzzle adds this so your render-page function doesn't have to accept more than one argument
  ;; Always present
  :nuzzle/get-pages (fn get-pages ...)}
 ```
-
-## Automatically Added Keys to Page Entries
-Nuzzle adds these keys to every page map:
-- `:nuzzle/url`: The key of the page (the vector of keywords representing the URL) is added to the page map.
-- `:nuzzle/index`: If a page does
-- `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which is `(constantly nil)`. This means it's always safe to call in a `render-page` function.
-- `:nuzzle/get-pages`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
 ## Creating `:nuzzle/render-page`
 Each function under the `:nuzzle/render-page` key must turn that page map into Hiccup. The function must take one parameter (a page entry map). It can return a vector of Hiccup (more flexible) or a string of HTML (wrapped with `nuzzle.hiccup/raw-html`)).
