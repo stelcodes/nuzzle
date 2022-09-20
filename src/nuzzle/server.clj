@@ -36,12 +36,12 @@
 (defn handle-page-request
   "This handler is responsible for creating an HTML document for a page when
   it's located in the page map. Otherwise return a 404 Not Found"
-  [pages & {:keys [remove-drafts? refresh-interval]}]
+  [pages & {:keys [remove-drafts? refresh-interval tag-pages]}]
   (let [livejs-script (when refresh-interval
                         [:script {:type "text/javascript"}
                          (-> refresh-interval load-livejs hiccup/raw-html)])]
     (fn [{:keys [uri] :as _request}]
-      (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts?)
+      (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts? :tag-pages tag-pages)
             {:nuzzle/keys [render-page url] :as page} (loaded-pages (util/vectorize-url uri))]
         (if page
           (do (log/log-rendering-page url)
@@ -56,13 +56,15 @@
            :body "<h1>Page Not Found</h1>"
            :headers {"Content-Type" "text/html"}})))))
 
-(defn start-server [pages & {:keys [port overlay-dir remove-drafts? refresh-interval]
+(defn start-server [pages & {:keys [port overlay-dir remove-drafts? refresh-interval tag-pages]
                              :or {port 6899}}]
   (log/log-site-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir))
-  (-> (handle-page-request pages :remove-drafts? remove-drafts? :refresh-interval refresh-interval)
+  (-> (handle-page-request pages {:remove-drafts? remove-drafts?
+                                  :refresh-interval refresh-interval
+                                  :tag-pages tag-pages})
       (wrap-overlay-dir overlay-dir)
       (wrap-content-type)
       (wrap-stacktrace-log)

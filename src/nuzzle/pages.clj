@@ -10,19 +10,45 @@
    [spell-spec.expound]))
 
 (defn remove-draft-pages [pages]
-  (let [draft-urls (->> pages
-                        vals
-                        (filter :nuzzle/draft?)
-                        (map :nuzzle/url)
-                        set)]
-    (reduce-kv (fn [acc url {:nuzzle/keys [draft? index] :as page}]
-                 (if draft?
-                   acc
-                   (assoc acc url
-                          (cond-> page
-                            index (update :nuzzle/index #(set/difference % draft-urls))))))
+  (reduce-kv (fn [acc url {:nuzzle/keys [draft?] :as page}]
+               (if draft?
+                 acc
+                 (assoc acc url page)))
+             {}
+             pages))
+
+(defn prune-indices [pages]
+  (let [urls (-> pages keys set)]
+    (reduce-kv (fn [acc url {:nuzzle/keys [index] :as page}]
+                 (assoc acc url
+                        (cond-> page
+                          index (update :nuzzle/index #(set/intersection % urls)))))
                {}
                pages)))
+
+(defn add-tag-pages
+  "Add pages page entries for pages that index all the pages which are tagged
+  with a particular tag. Each one of these tag index pages goes under the
+  /tags/ subdirectory"
+  [pages & {:keys [parent-url create-title render-page]
+            :or {parent-url [:tags] create-title #(->> % name (str "Tag "))}}]
+  (assert render-page "Must provide :render-page function in :tag-pages opts map")
+  (->> pages
+       ;; Create a map shaped like {tag-kw #{url url ...}}
+       (reduce-kv
+        (fn [acc url {:nuzzle/keys [tags] :as _page}]
+          (if tags
+            (merge-with into acc (zipmap tags (repeat #{url})))
+            acc))
+        {})
+       ;; Then change each entry into a proper page entry
+       (reduce-kv
+        (fn [acc tag urlset]
+          (assoc acc (conj parent-url tag) {:nuzzle/index urlset
+                                            :nuzzle/render-page render-page
+                                            :nuzzle/title (create-title tag)}))
+        {})
+       (util/deep-merge pages)))
 
 (defn validate-pages [pages]
   (if (s/valid? :nuzzle/user-pages pages)
@@ -96,11 +122,12 @@
 
 (defn load-pages
   "Load a pages var or map and validate it."
-  [pages & {:keys [remove-drafts?]}]
+  [pages & {:keys [remove-drafts? tag-pages]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
-        pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)
-        handle-drafts #(cond-> % remove-drafts? remove-draft-pages)]
-    (-> pages
-        validate-pages
-        handle-drafts
-        transform-pages)))
+        pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
+    (cond-> pages
+      true validate-pages
+      remove-drafts? remove-draft-pages
+      tag-pages (add-tag-pages tag-pages)
+      true transform-pages
+      true prune-indices)))

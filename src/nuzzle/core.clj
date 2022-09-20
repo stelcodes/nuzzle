@@ -44,25 +44,3 @@
         [_ _ & hiccup] (cm/parse-body md-str {:lower-fns lower-fns})]
     hiccup))
 
-(defn add-tag-pages
-  "Add pages page entries for pages that index all the pages which are tagged
-  with a particular tag. Each one of these tag index pages goes under the
-  /tags/ subdirectory"
-  [pages render-page & {:keys [parent-url title-fn]
-                        :or {parent-url [:tags] title-fn #(->> % name (str "Tag "))}}]
-  (->> pages
-       ;; Create a map shaped like {tag-kw #{url url ...}}
-       (reduce-kv
-        (fn [acc url {:nuzzle/keys [tags] :as _page}]
-          (if tags
-            (merge-with into acc (zipmap tags (repeat #{url})))
-            acc))
-        {})
-       ;; Then change each entry into a proper page entry
-       (reduce-kv
-        (fn [acc tag urlset]
-          (assoc acc (conj parent-url tag) {:nuzzle/index urlset
-                                            :nuzzle/render-page render-page
-                                            :nuzzle/title (title-fn tag)}))
-        {})
-       (util/deep-merge pages)))
