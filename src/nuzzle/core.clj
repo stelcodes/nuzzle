@@ -5,8 +5,7 @@
    [nrepl.server :as nrepl]
    [nuzzle.publish :as publish]
    [nuzzle.log :as log]
-   [nuzzle.server :as server]
-   [nuzzle.util :as util]))
+   [nuzzle.server :as server]))
 
 (defn publish
   "Publishes the website to :nuzzle/publish-dir. The overlay directory is
