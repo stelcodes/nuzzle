@@ -5,7 +5,7 @@
 ;; Required, no default
 {:nuzzle/title "Learning Clojure"
 
- ;; A function returns hiccup containing the whole HTML document
+ ;; A function that returns hiccup containing the whole HTML document
  ;; Must have one argument (the containing page map)
  ;; Used by nuzzle.core/serve, publish, and develop for creating each page of the static site
  ;; Required, no default
@@ -66,7 +66,7 @@
 
  ;; The URL vector of keywords is copied from the key into the map itself by Nuzzle
  ;; Always present
- :nuzzle/url [:blog-posts :using-nuzzle]
+ :nuzzle/url [:blog :learning-clojure]
 
  ;; A function that can access the whole page map, takes zero or one arguments
  ;; Zero arguments returns a list of all pages
