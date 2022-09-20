@@ -118,6 +118,13 @@ Each page entry in the pages map represents a single page of the static site. Ea
  ;; Optional, defaults to nil
  :nuzzle/tags #{:clojure}
 
+ ;; Either a set of vector URLs (vectors of keywords), or the keyword :children
+ ;; Describes what pages should be linked to from this page
+ ;; When set to :children, Nuzzle will replace it with set of URLs of all the pages directly "beneath" this page
+ ;; This key is always present in tag pages when enabled with the :tag-pages keyword argument to nuzzle.core/serve, develop, publish
+ ;; Optional, defaults to nil
+ :nuzzle/index :children
+
  ;; An inst representing when the page was last updated
  ;; Used by nuzzle.core/publish for creating sitemap and Atom feed
  ;; Optional, defaults to nil
@@ -136,7 +143,22 @@ Each page entry in the pages map represents a single page of the static site. Ea
                  ;; A string email, optional
                  :email "lucylamda@email.com"
                  ;; A string URL for the author's homepage, optional
-                 :url "https://lucylambda.com"}}
+                 :url "https://lucylambda.com"}
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; Automatically added keys (you don't have to add these manually)
+
+ ;; The URL vector of keywords is copied from the key into the map itself by Nuzzle
+ ;; Always present
+ :nuzzle/url [:blog-posts :using-nuzzle]
+
+ ;; A function that can access the whole page map, takes zero or one arguments
+ ;; Zero arguments returns a list of all pages
+ ;; One argument returns a page map with given vector URL
+ ;; One argument with keyword argument :children returns a list of all children pages for given vector URL
+ ;; Nuzzle adds this so your render-page function need only accept a single argument
+ ;; Always present
+ :nuzzle/get-pages (fn get-pages ...)}
 ```
 
 ## Automatically Added Keys to Page Entries
@@ -146,44 +168,14 @@ Nuzzle adds these keys to every page map:
 - `:nuzzle/render-content`: If a page doesn't have a `render-content` function,  Nuzzle adds one which is `(constantly nil)`. This means it's always safe to call in a `render-page` function.
 - `:nuzzle/get-pages`: A function that allows you to freely access your Nuzzle config from inside your `render-content` and `render-page` functions.
 
-## Adding Tag Pages
-The `:nuzzle/tag` page keys are used to generate tag pages by using the `nuzzle.core/add-tag-pages` function. This function requires a `:nuzzle/render-page` function for the tag pages.
-
-```clojure
-(-> {[:blog :foo]
-     {:nuzzle/title "Foo"
-      :nuzzle/render-page render-generic-page
-      :nuzzle/tags #{:bar :baz}}
-     [:about]
-     {:nuzzle/title "About"
-      :nuzzle/render-page render-about-page}}
-    (nuzz/add-tag-pages render-tag-page)
-==>
-{[:blog :foo]
- {:nuzzle/title "Foo"
-  :nuzzle/render-page render-generic-page
-  :nuzzle/tags #{:bar :baz}}
- [:about]
- {:nuzzle/title "About"
-  :nuzzle/render-page render-about-page}
- [:tags :bar]
- {:nuzzle/title "Tag bar"
-  :nuzzle/render-page render-tag-page
-  :nuzzle/index #{[:blog :foo]}
- [:tags :baz]
- {:nuzzle/title "Tag baz"
-  :nuzzle/render-page render-tag-page
-  :nuzzle/index #{[:blog :foo]}}}
-```
-
-## Creating a `render-page` Function
+## Creating `:nuzzle/render-page`
 Each function under the `:nuzzle/render-page` key must turn that page map into Hiccup. The function must take one parameter (a page entry map). It can return a vector of Hiccup (more flexible) or a string of HTML (wrapped with `nuzzle.hiccup/raw-html`)).
 
 > In Nuzzle, all strings in the Hiccup are automatically escaped, so if you want to add a string of raw HTML, use the `nuzzle.hiccup/raw-html` wrapper function like so: `(raw-html "<h1>Title</h1>")`.
 
 > Hiccup is a method for representing HTML using Clojure data-structures. It comes from the original [Hiccup library](https://github.com/weavejester/hiccup) written by [James Reeves](https://github.com/weavejester). For a quick guide to Hiccup, check out this [lightning tutorial](https://medium.com/makimo-tech-blog/hiccup-lightning-tutorial-6494e477f3a5).
 
-## Using the `get-pages` Function
+## Using `:nuzzle/get-pages`
 With many static site generators, accessing global data inside markup templates can be *painful*. Since Nuzzle is just playing with data and functions, this problem becomes much easier to solve.
 
 Instead of complicating your page rendering functions with multiple required arguments, Nuzzle adds a function to each page entry map under the key `:nuzzle/get-pages`. This function can access the whole pages map, making referencing other pages a breeze.
