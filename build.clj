@@ -77,8 +77,13 @@
 
 (defn ensure-tests [& _]
   (println "Checking if tests pass")
-  (p/check (p/process ["clj" "-M:test"] {:out :inherit :err :inherit}))
+  (p/check (p/process ["bb" "clojure" "-M:test"] {:out :inherit :err :inherit}))
   (println "Tests are passing"))
+
+(defn ensure-lint [& _]
+  (println "Checking for linter warnings")
+  (p/check (p/process ["bb" "clojure" "-M:clj-kondo" "--lint" "src" "test"] {:out :inherit :err :inherit}))
+  (println "No linter warnings"))
 
 (defn tag-latest [& _]
   (println "Tagging latest commit")
@@ -132,6 +137,7 @@
 
 (defn deploy [opts]
   (ensure-clean-tree)
+  (ensure-lint)
   (ensure-tests)
   (update-templated-files)
   (tag-latest)
