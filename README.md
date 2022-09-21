@@ -190,12 +190,13 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
 Each page entry in the pages map represents a single page of the static site. Each entry must have a key that is a **vector of keywords** representing a relative URL. The key `[:blog-posts :catching-pikachu]` translates to the URL `"/blog-posts/catching-pikachu"` and will be rendered to disk as `<publish-dir>/blog-posts/catching-pikachu/index.html`. The associated value must be a map with data about the page. The keys of the page are based on the [Atom feed spec](https://validator.w3.org/feed/docs/atom.html).
 
 ```clojure
-;; An entry for the page "/blog/the-best-thing-about-clojure/index.html"
+;; The key for each entry is a vector of keywords representing a relative URL
+;; This URL vector represents the URL /blog/learning-clojure/
 [:blog :learning-clojure]
 
-;; A title for the web page
+{;; A title for the web page
 ;; Required, no default
-{:nuzzle/title "Learning Clojure"
+ :nuzzle/title "Learning Clojure"
 
  ;; A function that returns hiccup containing the whole HTML document
  ;; Must have one argument (the containing page map)
