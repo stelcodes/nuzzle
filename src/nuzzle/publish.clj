@@ -19,7 +19,7 @@
 (defn create-sitemap
   ;; http://www.sitemaps.org/protocol.html
   [pages & {:keys [base-url]}]
-   (xml/emit-str
+   (xml/indent-str
     {:tag ::sm/urlset
      :content
      (for [{:nuzzle/keys [url updated]} (vals pages)
@@ -48,7 +48,7 @@
 
 (defn create-atom-feed
   [pages & {:keys [title author base-url logo icon subtitle]}]
-  (xml/emit-str
+  (xml/indent-str
    {:tag ::atom/feed
     :content
     (into [{:tag ::atom/title
@@ -120,11 +120,11 @@
     (when atom-feed
       (let [feed-file (fs/file publish-dir "feed.xml")]
         (log/log-feed feed-file)
-        (spit feed-file (str (create-atom-feed pages atom-feed) \newline))))
+        (spit feed-file (create-atom-feed pages atom-feed))))
     (when sitemap?
       (let [sitemap-file (fs/file publish-dir "sitemap.xml")]
         (log/log-sitemap sitemap-file)
-        (spit sitemap-file (str (create-sitemap pages :base-url base-url) \newline))))
+        (spit sitemap-file (create-sitemap pages :base-url base-url))))
     (->> publish-dir
          util/create-dir-snapshot
          (util/create-dir-diff last-snapshot)

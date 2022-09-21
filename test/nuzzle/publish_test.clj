@@ -1,7 +1,6 @@
 (ns nuzzle.publish-test
   (:require
    [babashka.fs :as fs]
-   [clojure.string :as str]
    [clojure.test :refer [deftest is]]
    [nuzzle.pages :as pages]
    [nuzzle.publish :as publish]
@@ -9,7 +8,7 @@
    [nuzzle.util :as util]))
 
 (deftest create-sitemap
-  (is (= (-> "test-resources/xml/empty-sitemap.xml" slurp str/trim)
+  (is (= (-> "test-resources/xml/empty-sitemap.xml" slurp)
          (publish/create-sitemap {} {}))))
 
 (deftest publish-site
