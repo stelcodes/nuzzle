@@ -146,3 +146,9 @@
          (filter #(re-find #"\.[^.]+$" (path-from-dir %)))
          (map (juxt path-from-dir digest/md5))
          (into {}))))
+
+(defn replace-in-file! [file replace-arg replace-arg-2]
+  (spit file
+        (-> file
+            slurp
+            (str/replace replace-arg replace-arg-2))))

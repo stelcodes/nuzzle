@@ -3,7 +3,6 @@
    [babashka.fs :as fs]
    [babashka.process :as p]
    [clojure.java.io :as io]
-   [clojure.string :as str]
    [clojure.test :as t]
    [nuzzle.util :as util]))
 
@@ -16,22 +15,23 @@
             dist-snapshot (util/create-dir-snapshot example-dist-path)
             new-example-path (str (fs/create-temp-dir))
             new-example-dist-path (str new-example-path "/dist")
+            new-example-deps-path (str new-example-path "/deps.edn")
+            new-example-feed-path (str new-example-dist-path "/feed.xml")
             _ (fs/copy-tree example-path new-example-path)
-            new-deps-path (str new-example-path "/deps.edn")
-            _ (spit new-deps-path
-                    (-> new-deps-path
-                        slurp
-                        (str/replace #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
-                                     (str "codes.stel/nuzzle {:local/root " (pr-str cwd) "}"))))
+            _ (util/replace-in-file! new-example-deps-path
+                                     #"codes\.stel/nuzzle \{:mvn/version \"[0-9\.]+\"\}"
+                                     (str "codes.stel/nuzzle {:local/root " (pr-str cwd) "}"))
             ;; Print both out and err to *out* so kaocha will print it upon test failure
             {:keys [exit]} @(p/process ["bb" "clojure" "-T:site" "publish"] {:dir new-example-path
                                                                              :out *out*
                                                                              :err *out*})
+            ;; Normalize atom feed creation timestamp
+            _ (when (fs/exists? new-example-feed-path)
+                (util/replace-in-file! new-example-feed-path
+                                       #"  <a:updated>\S+</a:updated>"
+                                       "  <a:updated>2022-01-01T00:00:00Z</a:updated>"))
             new-dist-snapshot (util/create-dir-snapshot new-example-dist-path)
-            dist-diff (-> (util/create-dir-diff dist-snapshot new-dist-snapshot)
-                          ;; The atom feed will always have different creation times
-                          ;; TODO: use str/replace to replace creation time
-                          (update :changed #(disj % "/feed.xml")))]
+            dist-diff (-> (util/create-dir-diff dist-snapshot new-dist-snapshot))]
         (t/is (zero? exit))
         (t/is (every? #(-> % val empty?) dist-diff))
         (if (and (zero? exit)

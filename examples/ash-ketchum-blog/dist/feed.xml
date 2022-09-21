@@ -1,1 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><a:feed xmlns:a="http://www.w3.org/2005/Atom"><a:title>Ash Ketchum's Blog</a:title><a:id>/</a:id><a:link rel="self" href="/feed.xml"/><a:updated>2022-09-20T00:32:49Z</a:updated><a:subtitle>In a world we must defend</a:subtitle><a:entry><a:title>I Caught a Pikachu!</a:title><a:id>/blog-posts/catching-pikachu/</a:id><a:content type="html">&lt;p&gt;Wow I can&amp;#x27;t believe it. I really caught a Pikachu! I&amp;#x27;m in the hospital recovering from life-threatening electric shocks but it was totally worth it!&lt;/p&gt;</a:content><a:author><a:name>Ash Ketchum</a:name><a:email>ashketchum@fastmail.com</a:email></a:author></a:entry></a:feed>
+<?xml version="1.0" encoding="UTF-8"?>
+<a:feed xmlns:a="http://www.w3.org/2005/Atom">
+  <a:title>Ash Ketchum's Blog</a:title>
+  <a:id>/</a:id>
+  <a:link rel="self" href="/feed.xml"/>
+  <a:updated>2022-01-01T00:00:00Z</a:updated>
+  <a:subtitle>In a world we must defend</a:subtitle>
+  <a:entry>
+    <a:title>I Caught a Pikachu!</a:title>
+    <a:id>/blog-posts/catching-pikachu/</a:id>
+    <a:content type="html">&lt;p&gt;Wow I can&amp;#x27;t believe it. I really caught a Pikachu! I&amp;#x27;m in the hospital recovering from life-threatening electric shocks but it was totally worth it!&lt;/p&gt;</a:content>
+    <a:author>
+      <a:name>Ash Ketchum</a:name>
+      <a:email>ashketchum@fastmail.com</a:email>
+    </a:author>
+  </a:entry>
+</a:feed>
