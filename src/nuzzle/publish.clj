@@ -16,81 +16,57 @@
 ;; the alternative is clojure.xml which is under-documented and doesn't escape
 ;; XML characters ;-;
 
+(defn render-hiccup-xml [hiccup-xml]
+  (-> hiccup-xml
+      xml/sexp-as-element
+      (xml/indent-str :encoding "UTF-8")))
+
 (defn create-sitemap
   ;; http://www.sitemaps.org/protocol.html
   [pages & {:keys [base-url]}]
-   (xml/indent-str
-    {:tag ::sm/urlset
-     :content
-     (for [{:nuzzle/keys [url updated]} (vals pages)
-           :let [abs-url (str base-url (util/stringify-url url))]]
-       {:tag ::sm/url
-        :content
-        [{:tag ::sm/loc
-          :content [abs-url]}
-         (when updated
-           {:tag ::sm/lastmod
-            :content (str updated)})]})}
-    {:encoding "UTF-8"}))
+  (render-hiccup-xml
+   [::sm/urlset
+    (for [{:nuzzle/keys [url updated]} (vals pages)
+          :let [abs-url (str base-url (util/stringify-url url))]]
+      [::sm/url
+       [::sm/loc abs-url]
+       (when updated
+         [::sm/lastmod (str updated)])])]))
 
 (defn create-author-element
   [{:keys [name email url] :as author}]
   (when-not name (throw (ex-info (str "Invalid author keyword: " (pr-str author)) {:author author})))
-  {:tag ::atom/author
-   :content [{:tag ::atom/name
-              :content name}
-             (when email
-               {:tag ::atom/email
-                :content email})
-             (when url
-               {:tag ::atom/uri
-                :content url})]})
+  [::atom/author
+   [::atom/name name]
+   (when email
+     [::atom/email email])
+   (when url
+     [::atom/uri url])])
 
 (defn create-atom-feed
   [pages & {:keys [title author base-url logo icon subtitle]}]
-  (xml/indent-str
-   {:tag ::atom/feed
-    :content
-    (into [{:tag ::atom/title
-            :content title}
-           {:tag ::atom/id
-            :content (if (-> base-url last (= \/)) base-url (str base-url "/"))}
-           {:tag ::atom/link
-            :attrs {:rel "self" :href (str base-url "/feed.xml")}}
-           {:tag ::atom/updated
-            :content (str (util/now-trunc-sec))}
-           (when-let [feed-author author]
-             (create-author-element feed-author))
-           (when icon
-             {:tag ::atom/icon
-              :content icon})
-           (when logo
-             {:tag ::atom/logo
-              :content logo})
-           (when subtitle
-             {:tag ::atom/subtitle
-              :content subtitle})]
-          (for [{:nuzzle/keys [url updated summary author title render-content feed?] :as page} (vals pages)
-                :let [content (when render-content (render-content page))
-                      abs-url (str base-url (util/stringify-url url))]
-                :when feed?]
-            {:tag ::atom/entry
-             :content [{:tag ::atom/title
-                        :content title}
-                       {:tag ::atom/id
-                        :content abs-url}
-                       (when content
-                         {:tag ::atom/content
-                          :attrs {:type "html"}
-                          :content (hiccup/hiccup->html content)})
-                       (when updated
-                         {:tag ::atom/updated
-                          :content (str updated)})
-                       (when summary
-                         {:tag ::atom/summary
-                          :content summary})
-                       (when author (create-author-element author))]}))}
-   {:encoding "UTF-8"}))
+  (render-hiccup-xml
+   [::atom/feed
+    [::atom/title title]
+    [::atom/id (if (-> base-url last (= \/)) base-url (str base-url "/"))]
+    [::atom/link {:rel "self" :href (str base-url "/feed.xml")}]
+    [::atom/updated (str (util/now-trunc-sec))]
+    (when-let [feed-author author]
+      (create-author-element feed-author))
+    (when icon [::atom/icon icon])
+    (when logo [::atom/logo logo])
+    (when subtitle [::atom/subtitle subtitle])
+    (for [{:nuzzle/keys [url updated summary author title render-content feed?] :as page} (vals pages)
+          :let [content (when render-content (render-content page))
+                abs-url (str base-url (util/stringify-url url))]
+          :when feed?]
+      [::atom/entry
+       [::atom/title title]
+       [::atom/id abs-url]
+       (when content [::atom/content {:type "html"} (hiccup/hiccup->html content)])
+       (when updated [::atom/updated (str updated)])
+       (when summary [::atom/summary summary])
+       (when author (create-author-element author))])]))
 
 (defn export-pages [pages publish-dir]
   (doseq [{:nuzzle/keys [url render-page] :as page} (vals pages)
