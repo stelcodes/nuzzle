@@ -66,7 +66,8 @@
 
 (defn develop [_]
   (nuzz/develop #'pages {:remove-drafts? false
-                         :tag-pages {:render-page render-page}}))
+                         :tag-pages {:render-page render-page}
+                         :overlay-dir "public"}))
 
 ;; By default build this site with a sitemap and Atom feed
 ;; Overlay the directory containing the css/main.css file.
