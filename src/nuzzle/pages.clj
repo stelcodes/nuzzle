@@ -17,15 +17,6 @@
              {}
              pages))
 
-(defn prune-indices [pages]
-  (let [urls (-> pages keys set)]
-    (reduce-kv (fn [acc url {:nuzzle/keys [index] :as page}]
-                 (assoc acc url
-                        (cond-> page
-                          index (update :nuzzle/index #(set/intersection % urls)))))
-               {}
-               pages)))
-
 (defn add-tag-pages
   "Add pages page entries for pages that index all the pages which are tagged
   with a particular tag. Each one of these tag index pages goes under the
@@ -95,7 +86,17 @@
                   (catch clojure.lang.ArityException _
                     (render-content))))
               (constantly nil)))
-          (add-page-keys [pages]
+          (update-index [url all-urls index]
+            (if (= :children index)
+              ;; Add index of all pages directly "beneath" this page
+              (reduce (fn [acc maybe-child-url]
+                        (cond-> acc
+                          (util/child-url? url maybe-child-url) (conj maybe-child-url)))
+                      #{}
+                      all-urls)
+              ;; Remove any URLs from index that don't exist
+              (set/intersection index (set all-urls))))
+          (update-pages [pages]
             (reduce-kv
              (fn [acc url {:nuzzle/keys [updated index] :as page}]
                (assoc acc url
@@ -104,19 +105,13 @@
                         true (update :nuzzle/render-content update-render-content)
                         updated (update :nuzzle/updated #(cond-> %
                                                            (= java.util.Date (class %)) (.toInstant)))
-                        index (update :nuzzle/index
-                                      #(if (not= :children %) %
-                                         (reduce (fn [acc url2]
-                                                   (cond-> acc
-                                                     (util/child-url? url url2) (conj url2)))
-                                                 #{}
-                                                 (keys pages)))))))
+                        index (update :nuzzle/index (partial update-index url (keys pages))))))
              {} pages))
           (add-get-pages [pages]
             (let [get-pages (create-get-pages pages)]
               (update-vals pages #(assoc % :nuzzle/get-pages get-pages))))]
     (-> pages
-        add-page-keys
+        update-pages
         ;; Adding get-pages must come after all other transformations
         add-get-pages)))
 
@@ -129,5 +124,4 @@
       true validate-pages
       remove-drafts? remove-draft-pages
       tag-pages (add-tag-pages tag-pages)
-      true transform-pages
-      true prune-indices)))
+      true transform-pages)))
