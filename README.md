@@ -49,7 +49,7 @@ Here's a minimal Nuzzle setup:
 `deps.edn`
 ```clojure
 {:aliases
- {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.466"}
+ {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.472"}
                 org.clojure/clojure {:mvn/version "1.11.1"}}
          :ns-default site}}}
 ```
@@ -60,7 +60,7 @@ Here's a minimal Nuzzle setup:
   (:require [nuzzle.core :as nuzz]))
 
 ;; Create a pages map
-(def pages
+(defn pages []
   {[]
    {:nuzzle/title "Homepage"
     :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
@@ -130,7 +130,7 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
 (def ash {:name "Ash Ketchum"
           :email "ashketchum@fastmail.com"})
 
-(def pages
+(defn pages []
   {[]
    {:nuzzle/title "Home"
     :nuzzle/render-content (md-content "content/intro.md")
@@ -171,7 +171,8 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
 
 (defn develop [_]
   (nuzz/develop #'pages {:remove-drafts? false
-                         :tag-pages {:render-page render-page}}))
+                         :tag-pages {:render-page render-page}
+                         :overlay-dir "public"}))
 
 ;; By default build this site with a sitemap and Atom feed
 ;; Overlay the directory containing the css/main.css file.

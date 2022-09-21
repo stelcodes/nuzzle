@@ -25,7 +25,7 @@
 (def ash {:name "Ash Ketchum"
           :email "ashketchum@fastmail.com"})
 
-(def pages
+(defn pages []
   {[]
    {:nuzzle/title "Home"
     :nuzzle/render-content (md-content "content/intro.md")

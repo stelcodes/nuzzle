@@ -2,7 +2,7 @@
   (:require [nuzzle.core :as nuzz]))
 
 ;; Create a pages map
-(def pages
+(defn pages []
   {[]
    {:nuzzle/title "Homepage"
     :nuzzle/render-page (fn [{:nuzzle/keys [title] :as _page}]
