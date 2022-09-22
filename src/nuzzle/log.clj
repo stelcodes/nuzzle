@@ -2,9 +2,12 @@
   (:require
    [babashka.fs :as fs]
    [io.aviso.ansi :as ansi]
+   [nuzzle.schemas :as schemas]
    [nuzzle.util :as util]))
 
-(defn log-gen [level]
+(defn log-gen
+  {:malli/schema [:=> [:cat string?] fn?]}
+  [level]
   (fn [& items]
     (->> items
          (map str)
@@ -32,7 +35,8 @@
 
 (comment (info "test" "ok"))
 
-(defn log-overlay-dir [overlay-dir]
+(defn log-overlay-dir
+  [overlay-dir]
   (info "Using overlay directory:" (fs/canonicalize overlay-dir)))
 
 (defn log-feed [feed-file]
@@ -44,19 +48,29 @@
 (defn log-publish-start [publish-dir]
   (info "Publishing static site to:" (fs/canonicalize publish-dir)))
 
-(defn log-publish-end []
+(defn log-publish-end
+  {:malli/schema [:=> [:cat] nil?]}
+  []
   (info "Publishing successful"))
 
-(defn log-site-server [port]
+(defn log-site-server
+  {:malli/schema [:=> [:cat int?] nil?]}
+  [port]
   (info "Starting static site server on port" port))
 
-(defn log-nrepl-server [port]
+(defn log-nrepl-server
+  {:malli/schema [:=> [:cat int?] nil?]}
+  [port]
   (info "Starting nREPL server on port" port))
 
-(defn log-rendering-page [url]
+(defn log-rendering-page
+  {:malli/schema [:=> [:cat schemas/vec-url] nil?]}
+  [url]
   (info "Rendering page:" (pr-str url)))
 
-(defn report-dir-diff [{:keys [added removed changed]}]
+(defn report-dir-diff
+  {:malli/schema [:=> [:cat schemas/dir-diff] nil?]}
+  [{:keys [added removed changed]}]
   (when (seq changed)
     (info "Changed files:")
     (doseq [path (sort changed)] (info (yellow "* " path))))

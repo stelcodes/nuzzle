@@ -4,12 +4,14 @@
    [clojure.spec.alpha :as s]
    [clojure.set :as set]
    [expound.alpha :as expound]
-   [nuzzle.schemas]
+   [nuzzle.schemas :as schemas]
    [nuzzle.util :as util]
    ;; Register spell-spec expound helpers after requiring expound.alpha
    [spell-spec.expound]))
 
-(defn remove-draft-pages [pages]
+(defn remove-draft-pages
+  {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
+  [pages]
   (reduce-kv (fn [acc url {:nuzzle/keys [draft?] :as page}]
                (if draft?
                  acc
@@ -21,6 +23,7 @@
   "Add pages page entries for pages that index all the pages which are tagged
   with a particular tag. Each one of these tag index pages goes under the
   /tags/ subdirectory"
+  {:malli/schema [:=> [:cat schemas/pages [:? schemas/tag-pages-opts]] schemas/pages]}
   [pages & {:keys [parent-url create-title render-page]
             :or {parent-url [:tags] create-title #(->> % name (str "Tag "))}}]
   (assert render-page "Must provide :render-page function in :tag-pages opts map")
@@ -41,7 +44,9 @@
         {})
        (util/deep-merge pages)))
 
-(defn validate-pages [pages]
+(defn validate-pages
+  {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
+  [pages]
   (if (s/valid? :nuzzle/user-pages pages)
     pages
     (do (expound/expound :nuzzle/user-pages pages {:theme :figwheel-theme
@@ -56,6 +61,7 @@
   "Create the helper function get-pages from the transformed pages. This
   function takes a pages key and returns the corresponding value with added
   key :nuzzle/get-pages with value get-pages function attached."
+  {:malli/schema [:=> [:cat schemas/pages] fn?]}
   [pages]
   {:pre [(map? pages)] :post [(fn? %)]}
   (fn get-pages
@@ -77,6 +83,7 @@
 
 (defn transform-pages
   "Creates fully transformed pages with or without drafts."
+  {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
   [pages]
   {:pre [(map? pages)] :post [#(map? %)]}
   (letfn [(update-render-content [render-content]
@@ -117,6 +124,9 @@
 
 (defn load-pages
   "Load a pages var or map and validate it."
+  {:malli/schema [:=>
+                  [:cat [:or var? fn? map?] [:? schemas/load-pages-opts]]
+                  schemas/pages]}
   [pages & {:keys [remove-drafts? tag-pages]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
