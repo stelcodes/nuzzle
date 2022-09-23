@@ -17,6 +17,7 @@
         com.bhauman/spell-spec {:mvn/version "0.1.1"}
         io.aviso/pretty {:mvn/version "1.1.1"}
         org.clj-commons/digest {:mvn/version "1.4.100"}
+        metosin/malli {:mvn/version "0.8.9"}
         nrepl/nrepl {:mvn/version "1.0.0"}
         ring/ring-core {:mvn/version "1.9.5"} ,
         ring/ring-devel {:mvn/version "1.9.5"} ,

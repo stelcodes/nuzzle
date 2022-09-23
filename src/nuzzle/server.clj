@@ -6,13 +6,16 @@
    [nuzzle.hiccup :as hiccup]
    [nuzzle.log :as log]
    [nuzzle.pages :as pages]
+   [nuzzle.schemas :as schemas]
    [nuzzle.util :as util]
    [org.httpkit.server :as http]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.file :refer [file-request]]
    [ring.middleware.stacktrace :refer [wrap-stacktrace-web]]))
 
-(defn wrap-stacktrace-log [app]
+(defn wrap-stacktrace-log
+  {:malli/schema [:=> [:cat fn?] fn?]}
+  [app]
   (fn [request]
     (try (app request)
       (catch Throwable e
@@ -21,13 +24,16 @@
         (throw e)))))
 
 (defn wrap-overlay-dir
+  {:malli/schema [:=> [:cat fn? string?] fn?]}
   [app overlay-dir]
   (if overlay-dir
     (fn [request]
       (or (file-request request overlay-dir) (app request)))
     (fn [request] (app request))))
 
-(defn load-livejs [refresh-interval]
+(defn load-livejs
+  {:malli/schema [:=> [:cat int?] string?]}
+  [refresh-interval]
   (let [script (-> "nuzzle/js/livejs.js" io/resource slurp)]
     (cond-> script
       (and refresh-interval (not= 2500 refresh-interval))
@@ -36,12 +42,13 @@
 (defn handle-page-request
   "This handler is responsible for creating an HTML document for a page when
   it's located in the page map. Otherwise return a 404 Not Found"
+  {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/handle-page-request-opts]] fn?]}
   [pages & {:keys [remove-drafts? refresh-interval tag-pages]}]
   (let [livejs-script (when refresh-interval
                         [:script {:type "text/javascript"}
                          (-> refresh-interval load-livejs hiccup/raw-html)])]
     (fn [{:keys [uri] :as _request}]
-      (let [loaded-pages (pages/load-pages pages :remove-drafts? remove-drafts? :tag-pages tag-pages)
+      (let [loaded-pages (pages/load-pages pages {:remove-drafts? remove-drafts? :tag-pages tag-pages})
             {:nuzzle/keys [render-page url] :as page} (loaded-pages (util/vectorize-url uri))]
         (if page
           (do (log/log-rendering-page url)
@@ -56,8 +63,10 @@
            :body "<h1>Page Not Found</h1>"
            :headers {"Content-Type" "text/html"}})))))
 
-(defn start-server [pages & {:keys [port overlay-dir remove-drafts? refresh-interval tag-pages]
-                             :or {port 6899}}]
+(defn start-server
+  {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/serve-opts]] fn?]}
+  [pages & {:keys [port overlay-dir remove-drafts? refresh-interval tag-pages]
+            :or {port 6899}}]
   (log/log-site-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)

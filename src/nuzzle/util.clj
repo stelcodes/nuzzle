@@ -12,7 +12,7 @@
 
 ;; Taken from https://clojuredocs.org/clojure.core/merge
 (defn deep-merge
-  {:malli/schema [:=> [:* map?] map?]}
+  {:malli/schema [:=> [:cat [:* map?]] map?]}
   [a & maps]
   (if (map? a)
     (apply merge-with deep-merge a maps)
@@ -89,7 +89,7 @@
 
 (defn find-hiccup-str
   "Find first string matching regular expression in deeply nested Hiccup tree"
-  {:malli/schema [:=> [:cat vector? schemas/regex] string?]}
+  {:malli/schema [:=> [:cat vector? schemas/regex?] string?]}
   [hiccup regex]
   (reduce
    (fn [_ item]
@@ -136,7 +136,7 @@
               (range parent-count)))))
 
 (defn create-dir-diff
-  {:malli/schema [:=> [:cat [schemas/dir-snapshot schemas/dir-snapshot]] schemas/dir-diff]}
+  {:malli/schema [:=> [:cat schemas/dir-snapshot schemas/dir-snapshot] schemas/dir-diff]}
   [old-snapshot new-snapshot]
   (let [added (set/difference (set (keys new-snapshot)) (set (keys old-snapshot)))
         removed (set/difference (set (keys old-snapshot)) (set (keys new-snapshot)))
@@ -160,10 +160,7 @@
          (into {}))))
 
 (defn replace-in-file!
-  {:malli/schema [:=> [:or
-                       [:cat string? string?]
-                       [:cat schemas/regex [:or string? fn?]]]
-                  nil?]}
+  {:malli/schema [:=> [:cat [:alt string? schemas/regex?] [:alt string? fn?]] nil?]}
   [file replace-arg replace-arg-2]
   (spit file
         (-> file

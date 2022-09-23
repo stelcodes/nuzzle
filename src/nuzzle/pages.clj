@@ -61,7 +61,7 @@
   "Create the helper function get-pages from the transformed pages. This
   function takes a pages key and returns the corresponding value with added
   key :nuzzle/get-pages with value get-pages function attached."
-  {:malli/schema [:=> [:cat schemas/pages] fn?]}
+  {:malli/schema [:=> [:cat schemas/enriched-pages] fn?]}
   [pages]
   {:pre [(map? pages)] :post [(fn? %)]}
   (fn get-pages
@@ -83,7 +83,7 @@
 
 (defn transform-pages
   "Creates fully transformed pages with or without drafts."
-  {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
+  {:malli/schema [:=> [:cat schemas/pages] schemas/enriched-pages]}
   [pages]
   {:pre [(map? pages)] :post [#(map? %)]}
   (letfn [(update-render-content [render-content]
@@ -124,9 +124,7 @@
 
 (defn load-pages
   "Load a pages var or map and validate it."
-  {:malli/schema [:=>
-                  [:cat [:or var? fn? map?] [:? schemas/load-pages-opts]]
-                  schemas/pages]}
+  {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/load-pages-opts]] schemas/pages]}
   [pages & {:keys [remove-drafts? tag-pages]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
