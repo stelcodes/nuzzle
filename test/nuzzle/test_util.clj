@@ -25,7 +25,7 @@
    {:nuzzle/render-content #(-> "test-resources/markdown/favorite-color.md" slurp parse-md),
     :nuzzle/render-page render-page
     :nuzzle/updated #inst "2022-05-09T12:00Z"
-    :nuzzle/feed? true,
+    :nuzzle/feed true,
     :nuzzle/author (authors :josie)
     :nuzzle/tags #{:colors},
     :nuzzle/title "What's My Favorite Color? It May Suprise You."},
@@ -35,7 +35,7 @@
     :nuzzle/render-page render-page
     :nuzzle/updated #inst "2022-05-09T12:00Z",
     :nuzzle/author (authors :shelly)
-    :nuzzle/feed? true,
+    :nuzzle/feed true,
     :nuzzle/tags #{:nuzzle},
     :nuzzle/title "10 Reasons Why Nuzzle Rocks"},
 
@@ -43,7 +43,7 @@
    {:nuzzle/render-content #(-> "test-resources/markdown/why-nuzzle.md" slurp parse-md),
     :nuzzle/render-page render-page
     :nuzzle/updated #inst "2022-05-09T12:00Z"
-    :nuzzle/feed? true,
+    :nuzzle/feed true,
     :nuzzle/author (authors :donna)
     :nuzzle/tags #{:nuzzle},
     :nuzzle/title "Why I Made Nuzzle"}})

@@ -48,7 +48,7 @@
     :nuzzle/render-page render-page
     :nuzzle/tags #{:pokedex}
     :nuzzle/author ash
-    :nuzzle/feed? true}
+    :nuzzle/feed true}
 
    [:blog-posts :defeating-misty]
    {:nuzzle/draft? true
@@ -57,7 +57,7 @@
     :nuzzle/render-page render-page
     :nuzzle/tags #{:gym-battle}
     :nuzzle/author ash
-    :nuzzle/feed? true}
+    :nuzzle/feed true}
 
    [:tags]
    {:nuzzle/title "Tags"

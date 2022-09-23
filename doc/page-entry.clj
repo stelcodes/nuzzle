@@ -28,7 +28,7 @@
  ;; A boolean indicating whether the page should be included in the optional Atom feed when publishing
  ;; Used by nuzzle.core/publish for creating Atom feed
  ;; Optional, defaults to nil
- :nuzzle/feed? true
+ :nuzzle/feed true
 
  ;; A set of keywords where each keyword represents a tag name
  ;; Used by nuzzle.core/add-tag-pages for assoc-ing tag index pages

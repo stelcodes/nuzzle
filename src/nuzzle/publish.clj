@@ -63,10 +63,10 @@
     (when icon [::atom/icon icon])
     (when logo [::atom/logo logo])
     (when subtitle [::atom/subtitle subtitle])
-    (for [{:nuzzle/keys [url updated summary author title render-content feed?] :as page} (vals pages)
+    (for [{:nuzzle/keys [url updated summary author title render-content feed] :as page} (vals pages)
           :let [content (when render-content (render-content page))
                 abs-url (str base-url (util/stringify-url url))]
-          :when feed?]
+          :when feed]
       [::atom/entry
        [::atom/title title]
        [::atom/id abs-url]
