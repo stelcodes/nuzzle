@@ -22,14 +22,14 @@
 (s/def :nuzzle/feed boolean?)
 (s/def :nuzzle/updated inst?)
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
-(s/def :nuzzle/draft? boolean?)
+(s/def :nuzzle/draft boolean?)
 (s/def :nuzzle/index (s/or :urlset :nuzzle/urlset :children-literal #(= :children %)))
 (s/def :nuzzle/render-page fn?)
 
 (s/def :nuzzle/page
   (spell/keys :req [:nuzzle/title :nuzzle/render-page]
               :opt [:nuzzle/tags :nuzzle/render-content :nuzzle/updated :nuzzle/feed
-                    :nuzzle/draft? :nuzzle/summary :nuzzle/subtitle :nuzzle/index :nuzzle/author]))
+                    :nuzzle/draft :nuzzle/summary :nuzzle/subtitle :nuzzle/index :nuzzle/author]))
 
 (s/def :nuzzle/user-pages
   (s/map-of :nuzzle/url :nuzzle/page))
@@ -58,7 +58,7 @@
    [:nuzzle/feed {:optional true} [:maybe boolean?]]
    [:nuzzle/updated {:optional true} [:maybe inst?]]
    [:nuzzle/tags {:optional true} [:maybe tags]]
-   [:nuzzle/draft? {:optional true} [:maybe boolean?]]
+   [:nuzzle/draft {:optional true} [:maybe boolean?]]
    [:nuzzle/index {:optional true} [:maybe index]]
    [:nuzzle/author {:optional true} [:maybe author]]
    [:nuzzle/summary {:optional true} [:maybe string?]]

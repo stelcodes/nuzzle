@@ -156,7 +156,7 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
     :nuzzle/feed true}
 
    [:blog-posts :defeating-misty]
-   {:nuzzle/draft? true
+   {:nuzzle/draft true
     :nuzzle/title "Misty's Pokemon Got Wrecked by Pikachu"
     :nuzzle/render-content (md-content "content/defeated-misty.md")
     :nuzzle/render-page render-page
@@ -216,7 +216,7 @@ Each page entry in the pages map represents a single page of the static site. Ea
  ;; A boolean indicating whether this page is a draft or not
  ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts keyword argument to remove unfinished page entries
  ;; Optional, defaults to nil
- :nuzzle/draft? false
+ :nuzzle/draft false
 
  ;; A boolean indicating whether the page should be included in the optional Atom feed when publishing
  ;; Used by nuzzle.core/publish for creating Atom feed

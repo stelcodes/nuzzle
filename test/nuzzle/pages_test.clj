@@ -6,7 +6,7 @@
 
 (deftest remove-draft-pages
   (let [x {[:foo :bar]
-           {:nuzzle/draft? true}}]
+           {:nuzzle/draft true}}]
     (is (= {} (pages/remove-draft-pages x)))))
 
 (comment (remove-draft-pages))

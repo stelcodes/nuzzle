@@ -12,8 +12,8 @@
 (defn remove-draft-pages
   {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
   [pages]
-  (reduce-kv (fn [acc url {:nuzzle/keys [draft?] :as page}]
-               (if draft?
+  (reduce-kv (fn [acc url {:nuzzle/keys [draft] :as page}]
+               (if draft
                  acc
                  (assoc acc url page)))
              {}

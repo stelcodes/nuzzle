@@ -23,7 +23,7 @@
  ;; A boolean indicating whether this page is a draft or not
  ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts keyword argument to remove unfinished page entries
  ;; Optional, defaults to nil
- :nuzzle/draft? false
+ :nuzzle/draft false
 
  ;; A boolean indicating whether the page should be included in the optional Atom feed when publishing
  ;; Used by nuzzle.core/publish for creating Atom feed

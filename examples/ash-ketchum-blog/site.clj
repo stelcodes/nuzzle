@@ -51,7 +51,7 @@
     :nuzzle/feed true}
 
    [:blog-posts :defeating-misty]
-   {:nuzzle/draft? true
+   {:nuzzle/draft true
     :nuzzle/title "Misty's Pokemon Got Wrecked by Pikachu"
     :nuzzle/render-content (md-content "content/defeated-misty.md")
     :nuzzle/render-page render-page
