@@ -170,7 +170,7 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
     :nuzzle/index :children}})
 
 (defn develop [_]
-  (nuzz/develop #'pages {:remove-drafts? false
+  (nuzz/develop #'pages {:remove-drafts false
                          :tag-pages {:render-page render-page}
                          :overlay-dir "public"}))
 
@@ -214,7 +214,7 @@ Each page entry in the pages map represents a single page of the static site. Ea
  :nuzzle/render-content (fn [] [:p "The first step to learning Clojure is pressing the ( key."])
 
  ;; A boolean indicating whether this page is a draft or not
- ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts? keyword argument to remove unfinished page entries
+ ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts keyword argument to remove unfinished page entries
  ;; Optional, defaults to nil
  :nuzzle/draft? false
 

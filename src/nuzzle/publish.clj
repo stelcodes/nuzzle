@@ -88,12 +88,12 @@
 
 (defn publish-site
   {:malli/schema [:=> [:cat schemas/enriched-pages [:? schemas/publish-opts]] nil?]}
-  [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts? tag-pages]
-            :or {publish-dir "dist" remove-drafts? true}}]
+  [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts tag-pages]
+            :or {publish-dir "dist" remove-drafts true}}]
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)
           "Must provide a :base-url optional arg in order to create sitemap or atom feed")
   (let [publish-dir (str/replace publish-dir #"/$" "")
-        pages (pages/load-pages pages {:remove-drafts? remove-drafts? :tag-pages tag-pages})
+        pages (pages/load-pages pages {:remove-drafts remove-drafts :tag-pages tag-pages})
         last-snapshot (util/create-dir-snapshot publish-dir)]
     (log/log-publish-start publish-dir)
     (fs/create-dirs publish-dir)

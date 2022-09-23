@@ -125,11 +125,11 @@
 (defn load-pages
   "Load a pages var or map and validate it."
   {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/load-pages-opts]] schemas/pages]}
-  [pages & {:keys [remove-drafts? tag-pages]}]
+  [pages & {:keys [remove-drafts tag-pages]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
     (cond-> pages
       true validate-pages
-      remove-drafts? remove-draft-pages
+      remove-drafts remove-draft-pages
       tag-pages (add-tag-pages tag-pages)
       true transform-pages)))

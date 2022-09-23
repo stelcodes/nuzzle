@@ -97,7 +97,7 @@
 (def load-pages-opts
   [:map {:closed true}
    [:tag-pages {:optional true} [:maybe tag-pages-opts]]
-   [:remove-drafts? {:optional true} [:maybe boolean?]]])
+   [:remove-drafts {:optional true} [:maybe boolean?]]])
 
 (def dir-snapshot
   [:map-of string? string?])
@@ -123,7 +123,7 @@
    [:base-url {:optional true} [:maybe http-url]]
    [:publish-dir {:optional true} [:maybe string?]]
    [:overlay-dir {:optional true} [:maybe string?]]
-   [:remove-drafts? {:optional true} [:maybe boolean?]]
+   [:remove-drafts {:optional true} [:maybe boolean?]]
    [:site-map? {:optional true} [:maybe boolean?]]
    [:atom-feed {:optional true} [:maybe atom-feed]]])
 
@@ -131,12 +131,12 @@
   [:map {:closed true}
    [:port {:optional true} [:maybe int?]]
    [:overlay-dir {:optional true} [:maybe string?]]
-   [:remove-drafts? {:optional true} [:maybe boolean?]]
+   [:remove-drafts {:optional true} [:maybe boolean?]]
    [:refresh-interval {:optional true} [:maybe int?]]
    [:tag-pages {:optional true} [:maybe tag-pages-opts]]])
 
 (def handle-page-request-opts
   [:map {:closed true}
-   [:remove-drafts? {:optional true} [:maybe boolean?]]
+   [:remove-drafts {:optional true} [:maybe boolean?]]
    [:refresh-interval {:optional true} [:maybe int?]]
    [:tag-pages {:optional true} [:maybe tag-pages-opts]]])

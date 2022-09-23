@@ -65,7 +65,7 @@
     :nuzzle/index :children}})
 
 (defn develop [_]
-  (nuzz/develop #'pages {:remove-drafts? false
+  (nuzz/develop #'pages {:remove-drafts false
                          :tag-pages {:render-page render-page}
                          :overlay-dir "public"}))
 

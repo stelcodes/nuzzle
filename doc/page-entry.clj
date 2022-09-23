@@ -21,7 +21,7 @@
  :nuzzle/render-content (fn [] [:p "The first step to learning Clojure is pressing the ( key."])
 
  ;; A boolean indicating whether this page is a draft or not
- ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts? keyword argument to remove unfinished page entries
+ ;; Used by nuzzle.core/serve, develop, and publish via :remove-drafts keyword argument to remove unfinished page entries
  ;; Optional, defaults to nil
  :nuzzle/draft? false
 
