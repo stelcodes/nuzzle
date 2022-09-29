@@ -49,7 +49,7 @@ Here's a minimal Nuzzle setup:
 `deps.edn`
 ```clojure
 {:aliases
- {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.491"}
+ {:site {:deps {codes.stel/nuzzle {:mvn/version "0.6.493"}
                 org.clojure/clojure {:mvn/version "1.11.1"}}
          :ns-default site}}}
 ```
