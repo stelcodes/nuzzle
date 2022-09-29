@@ -86,10 +86,13 @@
   (println "No linter warnings"))
 
 (defn tag-latest [& _]
-  (println "Tagging latest commit")
-  (p/check (p/process ["git" "tag" "-a" "-m" (str "Bump version to " version) git-tag]
-                      {:out :inherit :err :inherit}))
-  (println "Tagged latest commit with" git-tag))
+  (println "Attempting to tag" git-tag)
+  (if (= git-tag (-> @(p/process ["git" "describe" "--tags"]) :out slurp str/trim))
+    (println "HEAD already has tag" git-tag)
+    (do (println "Tagging latest commit")
+      (p/check (p/process ["git" "tag" "-a" "-m" (str "Bump version to " version) git-tag]
+                          {:out :inherit :err :inherit}))
+      (println "Tagged latest commit with" git-tag))))
 
 (defn update-templated-files [& _]
   (println "Updating templated files")
