@@ -1,5 +1,6 @@
 (ns nuzzle.server
   (:require
+   [clojure.java.browse :as browse]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [io.aviso.exception :as except]
@@ -65,17 +66,20 @@
 
 (defn start-server
   {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/serve-opts]] fn?]}
-  [pages & {:keys [port overlay-dir remove-drafts refresh-interval tag-pages]
+  [pages & {:keys [port overlay-dir remove-drafts refresh-interval tag-pages open-browser]
             :or {port 6899}}]
   (log/log-site-server port)
   (when overlay-dir
     (log/log-overlay-dir overlay-dir)
     (util/ensure-overlay-dir overlay-dir))
-  (-> (handle-page-request pages {:remove-drafts remove-drafts
-                                  :refresh-interval refresh-interval
-                                  :tag-pages tag-pages})
-      (wrap-overlay-dir overlay-dir)
-      (wrap-content-type)
-      (wrap-stacktrace-log)
-      (wrap-stacktrace-web)
-      (http/run-server {:port port})))
+  (let [stop-fn (-> (handle-page-request pages
+                                         {:remove-drafts remove-drafts
+                                          :refresh-interval refresh-interval
+                                          :tag-pages tag-pages})
+                    (wrap-overlay-dir overlay-dir)
+                    (wrap-content-type)
+                    (wrap-stacktrace-log)
+                    (wrap-stacktrace-web)
+                    (http/run-server {:port port}))]
+    (when open-browser (browse/browse-url (str "http://localhost:" port)))
+    stop-fn))
