@@ -105,12 +105,14 @@
               (set/intersection index (set all-urls))))
           (update-pages [pages]
             (reduce-kv
-             (fn [acc url {:nuzzle/keys [updated index] :as page}]
+             (fn [acc url {:nuzzle/keys [published updated index] :as page}]
                (assoc acc url
                       (cond-> page
                         true (assoc :nuzzle/url url)
                         true (update :nuzzle/render-content update-render-content)
                         updated (update :nuzzle/updated #(cond-> %
+                                                           (= java.util.Date (class %)) (.toInstant)))
+                        published (update :nuzzle/published #(cond-> %
                                                            (= java.util.Date (class %)) (.toInstant)))
                         index (update :nuzzle/index (partial update-index url (keys pages))))))
              {} pages))
