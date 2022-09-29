@@ -383,7 +383,9 @@
   "Render an element vector as a HTML element."
   [element sb]
   (when-not (nothing? element)
-    (let [[tag id classes attrs children] (normalize-element element)]
+    (if (fn? (first element))
+      (-render-html (apply (first element) (rest element)) sb)
+      (let [[tag id classes attrs children] (normalize-element element)]
       (if (or (= "*" tag)
               (= "<>" tag))
         ;; React Fragment
@@ -409,7 +411,7 @@
           (if (= "select" tag)
             (binding [*select-value* (get-value attrs)]
               (render-content! tag attrs children  sb))
-            (render-content! tag attrs children  sb)))))))
+            (render-content! tag attrs children  sb))))))))
 
 (extend-protocol HtmlRenderer
   IPersistentVector
