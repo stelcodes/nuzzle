@@ -368,7 +368,7 @@
       (append! sb (escape-html value))
       true)))
 
-(defn render-content! [tag attrs children  sb]
+(defn render-content! [tag attrs children sb]
   (if (and (nil? children)
            (contains? void-tags tag))
     (append! sb "/>")
@@ -377,7 +377,9 @@
       (or (render-textarea-value! tag attrs sb)
           (render-inner-html! attrs children sb)
           (doseq [child children]
-            (-render-html child  sb)))
+            (if (and (= tag "script") (string? child))
+              (append! sb child)
+              (-render-html child sb))))
       (append! sb "</" tag ">"))))
 
 (defn render-element!
