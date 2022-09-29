@@ -21,6 +21,7 @@
 (s/def :nuzzle/render-content fn?)
 (s/def :nuzzle/feed boolean?)
 (s/def :nuzzle/updated inst?)
+(s/def :nuzzle/published inst?)
 (s/def :nuzzle/tags (s/coll-of keyword? :kind set?))
 (s/def :nuzzle/draft boolean?)
 (s/def :nuzzle/index (s/or :urlset :nuzzle/urlset :children-literal #(= :children %)))
@@ -28,7 +29,7 @@
 
 (s/def :nuzzle/page
   (spell/keys :req [:nuzzle/title :nuzzle/render-page]
-              :opt [:nuzzle/tags :nuzzle/render-content :nuzzle/updated :nuzzle/feed
+              :opt [:nuzzle/tags :nuzzle/render-content :nuzzle/updated :nuzzle/feed :nuzzle/published
                     :nuzzle/draft :nuzzle/summary :nuzzle/subtitle :nuzzle/index :nuzzle/author]))
 
 (s/def :nuzzle/user-pages
@@ -57,6 +58,7 @@
    [:nuzzle/render-content {:optional true} [:maybe fn?]]
    [:nuzzle/feed {:optional true} [:maybe boolean?]]
    [:nuzzle/updated {:optional true} [:maybe inst?]]
+   [:nuzzle/published {:optional true} [:maybe inst?]]
    [:nuzzle/tags {:optional true} [:maybe tags]]
    [:nuzzle/draft {:optional true} [:maybe boolean?]]
    [:nuzzle/index {:optional true} [:maybe index]]

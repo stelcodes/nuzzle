@@ -63,7 +63,7 @@
     (when icon [::atom/icon icon])
     (when logo [::atom/logo logo])
     (when subtitle [::atom/subtitle subtitle])
-    (for [{:nuzzle/keys [url updated summary author title render-content feed] :as page} (vals pages)
+    (for [{:nuzzle/keys [url published updated summary author title render-content feed] :as page} (vals pages)
           :let [content (when render-content (render-content page))
                 abs-url (str base-url (util/stringify-url url))]
           :when feed]
@@ -72,6 +72,7 @@
        [::atom/id abs-url]
        (when content [::atom/content {:type "html"} (hiccup/hiccup->html content)])
        (when updated [::atom/updated (str updated)])
+       (when published [::atom/published (str published)])
        (when summary [::atom/summary summary])
        (when author (create-author-element author))])]))
 
