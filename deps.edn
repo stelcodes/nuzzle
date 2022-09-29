@@ -25,6 +25,8 @@
         com.kiranshila/cybermonday {:mvn/version "0.4.184"}
         babashka/fs {:mvn/version "0.1.11"},
         babashka/process {:mvn/version "0.1.7"}
+        cider/cider-nrepl {:mvn/version "0.28.6"}
+        refactor-nrepl/refactor-nrepl {:mvn/version "3.5.5"}
         org.clojure/clojure {:mvn/version "1.11.1"},
         org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}}
  :paths ["src" "resources"]}

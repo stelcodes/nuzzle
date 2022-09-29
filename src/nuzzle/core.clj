@@ -1,12 +1,14 @@
 (ns nuzzle.core
   (:require
+   [cider.nrepl :as cider]
    [cybermonday.core :as cm]
    [nrepl.cmdline :as nrepl-cmdline]
    [nrepl.server :as nrepl]
    [nuzzle.publish :as publish]
    [nuzzle.log :as log]
    [nuzzle.server :as server]
-   [nuzzle.schemas :as schemas]))
+   [nuzzle.schemas :as schemas]
+   [refactor-nrepl.middleware :as refactor]))
 
 (defn publish
   "Publishes the website to :nuzzle/publish-dir. The overlay directory is
@@ -27,7 +29,8 @@
   setup"
   {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/serve-opts]] fn?]}
   [pages & {:as opts}]
-  (let [nrepl-server (nrepl/start-server)
+  (let [nrepl-server (nrepl/start-server {:handler (-> cider/cider-nrepl-handler
+                                                       refactor/wrap-refactor)})
         stop-site-server (serve pages opts)]
     (nrepl-cmdline/save-port-file nrepl-server {})
     (log/log-nrepl-server (:port nrepl-server))
