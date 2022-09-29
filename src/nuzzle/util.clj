@@ -155,7 +155,7 @@
         path-len (count (-> dir fs/path str))
         path-from-dir #(subs (-> % fs/path str) path-len)]
     (->> (file-seq dir)
-         (filter #(re-find #"\.[^.]+$" (path-from-dir %)))
+         (remove fs/directory?)
          (map (juxt path-from-dir digest/md5))
          (into {}))))
 
