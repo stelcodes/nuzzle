@@ -1,6 +1,7 @@
 (ns nuzzle.hiccup-compiler
   (:require
    [clojure.string :as str]
+   [nuzzle.log :as log]
    [nuzzle.util :as util])
   (:import
    [clojure.lang IPersistentVector ISeq Ratio Keyword]))
@@ -416,7 +417,13 @@
 (extend-protocol HtmlRenderer
   IPersistentVector
   (-render-html [this sb]
-    (render-element! this sb))
+    (try (render-element! this sb)
+      (catch Throwable e
+        (if (-> e ex-data :type (not= :hiccup-error))
+          (let [error-message (str "Invalid hiccup: " (->> this pr-str (take 20) str) "...")]
+            (log/error "Invalid hiccup:" (pr-str this))
+            (throw (ex-info error-message {:cause e :type :hiccup-error})))
+          (throw e)))))
 
   ISeq
   (-render-html [this sb]
