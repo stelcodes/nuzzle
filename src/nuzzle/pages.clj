@@ -67,10 +67,10 @@
   (fn get-pages
     ([]
      (->> pages vals (map #(assoc % :nuzzle/get-pages get-pages))))
-    ([url & {:keys [children?]}]
+    ([url & {:keys [children]}]
      ;; Return a single page map
      (if-let [page (pages url)]
-       (if-not children?
+       (if-not children
          (assoc page :nuzzle/get-pages get-pages)
          (reduce-kv (fn [acc maybe-child-url maybe-child-page]
                       (if (util/child-url? url maybe-child-url)

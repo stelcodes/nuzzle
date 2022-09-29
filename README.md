@@ -289,7 +289,7 @@ Instead of complicating your page rendering functions with multiple required arg
 ;; Get a single page
 (get-pages [:blog-posts])
 ;; Get a list of all the direct children of a page
-(get-pages [:blog-posts] :children? true)
+(get-pages [:blog-posts] :children true)
 ```
 
 The `get-pages` function will always return pages which also have the `:nuzzle/get-pages` key attached. This naturally lends itself to a convention where most Hiccup-generating functions can accept a page entry map as its first or only argument while still being able to access any data in your whole site if need be.
