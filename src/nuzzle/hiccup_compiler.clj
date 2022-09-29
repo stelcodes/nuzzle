@@ -323,7 +323,7 @@
   (let [attr (normalize-attr-key key)]
     (cond
       (= "type" attr)  :nop ;; rendered manually in render-element! before id
-      (= "style" attr) (render-style! value sb)
+      (and (= "style" attr) (map? value)) (render-style! value sb)
       (= "key" attr)   :nop
       (= "ref" attr)   :nop
       (= "class" attr) :nop
