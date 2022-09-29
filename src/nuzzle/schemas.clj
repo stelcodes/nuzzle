@@ -43,7 +43,7 @@
 (def vec-url [:vector keyword?])
 
 (def urlset [:set vec-url])
-(def author [:map {:closed true}
+(def author [:map
              [:name string?]
              [:email {:optional true} [:maybe string?]]
              [:url {:optional true} [:maybe http-url]]])
