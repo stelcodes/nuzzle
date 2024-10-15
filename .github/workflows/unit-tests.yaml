@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup babashka
-        uses: turtlequeue/setup-babashka@v1.5.0
+        uses: turtlequeue/setup-babashka@v1.7.0
         with:
           babashka-version: 0.8.156
       - name: Run unit tests
