@@ -18,7 +18,7 @@
 ;; XML characters ;-;
 
 (defn render-hiccup-xml
-  {:malli/schema [:=> [:cat vector?] string?]}
+  {:malli/schema [:-> vector? string?]}
   [hiccup-xml]
   (-> hiccup-xml
       xml/sexp-as-element
@@ -26,7 +26,7 @@
 
 (defn create-sitemap
   ;; http://www.sitemaps.org/protocol.html
-  {:malli/schema [:=> [:cat schemas/enriched-pages [:? [:map [:base-url schemas/http-url]]]] vector?]}
+  {:malli/schema [:-> schemas/enriched-pages [:? [:map [:base-url schemas/http-url]]] vector?]}
   [pages & {:keys [base-url]}]
   (render-hiccup-xml
    [::sm/urlset
@@ -38,7 +38,7 @@
          [::sm/lastmod (str updated)])])]))
 
 (defn create-author-element
-  {:malli/schema [:=> [:cat schemas/author] vector?]}
+  {:malli/schema [:-> schemas/author vector?]}
   [{:keys [name email url] :as author}]
   (when-not name (throw (ex-info (str "Invalid author keyword: " (pr-str author)) {:author author})))
   [::atom/author
@@ -49,8 +49,7 @@
      [::atom/uri url])])
 
 (defn create-atom-feed
-  {:malli/schema [:=> [:cat schemas/enriched-pages [:? (conj schemas/atom-feed [:base-url schemas/http-url])]]
-                  vector?]}
+  {:malli/schema [:-> schemas/enriched-pages [:? (conj schemas/atom-feed [:base-url schemas/http-url])] vector?]}
   [pages & {:keys [title author base-url logo icon subtitle]}]
   (render-hiccup-xml
    [::atom/feed
@@ -77,7 +76,7 @@
        (when author (create-author-element author))])]))
 
 (defn export-pages
-  {:malli/schema [:=> [:cat schemas/enriched-pages string?] nil?]}
+  {:malli/schema [:-> schemas/enriched-pages string? nil?]}
   [pages publish-dir]
   (doseq [{:nuzzle/keys [url render-page] :as page} (vals pages)
           :let [str-url (util/stringify-url url)
@@ -88,7 +87,7 @@
     (spit file-path (-> page render-page hiccup/hiccup->html-document))))
 
 (defn publish-site
-  {:malli/schema [:=> [:cat schemas/enriched-pages [:? schemas/publish-opts]] nil?]}
+  {:malli/schema [:-> schemas/enriched-pages [:? schemas/publish-opts] nil?]}
   [pages & {:keys [base-url publish-dir overlay-dir atom-feed sitemap? remove-drafts tag-pages]
             :or {publish-dir "dist" remove-drafts true}}]
   (assert (or (and (not sitemap?) (not atom-feed)) base-url)

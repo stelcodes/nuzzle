@@ -15,7 +15,7 @@
    [ring.middleware.stacktrace :refer [wrap-stacktrace-web]]))
 
 (defn wrap-stacktrace-log
-  {:malli/schema [:=> [:cat fn?] fn?]}
+  {:malli/schema [:-> fn? fn?]}
   [app]
   (fn [request]
     (try (app request)
@@ -25,7 +25,7 @@
         (throw e)))))
 
 (defn wrap-overlay-dir
-  {:malli/schema [:=> [:cat fn? string?] fn?]}
+  {:malli/schema [:-> fn? string? fn?]}
   [app overlay-dir]
   (if overlay-dir
     (fn [request]
@@ -33,7 +33,7 @@
     (fn [request] (app request))))
 
 (defn load-livejs
-  {:malli/schema [:=> [:cat int?] string?]}
+  {:malli/schema [:-> int? string?]}
   [refresh-interval]
   (let [script (-> "nuzzle/js/livejs.js" io/resource slurp)]
     (cond-> script
@@ -43,7 +43,7 @@
 (defn handle-page-request
   "This handler is responsible for creating an HTML document for a page when
   it's located in the page map. Otherwise return a 404 Not Found"
-  {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/handle-page-request-opts]] fn?]}
+  {:malli/schema [:-> schemas/alt-pages [:? schemas/handle-page-request-opts] fn?]}
   [pages & {:keys [remove-drafts refresh-interval tag-pages]}]
   (let [livejs-script (when refresh-interval
                         [:script {:type "text/javascript"}
@@ -65,7 +65,7 @@
            :headers {"Content-Type" "text/html"}})))))
 
 (defn start-server
-  {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/serve-opts]] fn?]}
+  {:malli/schema [:-> schemas/alt-pages [:? schemas/serve-opts] fn?]}
   [pages & {:keys [port overlay-dir remove-drafts refresh-interval tag-pages open-browser]
             :or {port 6899}}]
   (log/log-site-server port)

@@ -10,7 +10,7 @@
    [spell-spec.expound]))
 
 (defn remove-draft-pages
-  {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
+  {:malli/schema [:-> schemas/pages schemas/pages]}
   [pages]
   (reduce-kv (fn [acc url {:nuzzle/keys [draft] :as page}]
                (if draft
@@ -23,7 +23,7 @@
   "Add pages page entries for pages that index all the pages which are tagged
   with a particular tag. Each one of these tag index pages goes under the
   /tags/ subdirectory"
-  {:malli/schema [:=> [:cat schemas/pages [:? schemas/tag-pages-opts]] schemas/pages]}
+  {:malli/schema [:-> schemas/pages [:? schemas/tag-pages-opts] schemas/pages]}
   [pages & {:keys [parent-url create-title render-page]
             :or {parent-url [:tags] create-title #(->> % name (str "Tag "))}}]
   (assert render-page "Must provide :render-page function in :tag-pages opts map")
@@ -45,23 +45,23 @@
        (util/deep-merge pages)))
 
 (defn validate-pages
-  {:malli/schema [:=> [:cat schemas/pages] schemas/pages]}
+  {:malli/schema [:-> schemas/pages schemas/pages]}
   [pages]
   (if (s/valid? :nuzzle/user-pages pages)
     pages
     (do (expound/expound :nuzzle/user-pages pages {:theme :figwheel-theme
                                                    :print-specs? false})
-      (throw (ex-info (str "Invalid pages:"
-                           (->> pages
-                                (s/explain-str :nuzzle/user-pages)
-                                (re-find #"failed:(.*)") second))
-                      {})))))
+        (throw (ex-info (str "Invalid pages:"
+                             (->> pages
+                                  (s/explain-str :nuzzle/user-pages)
+                                  (re-find #"failed:(.*)") second))
+                        {})))))
 
 (defn create-get-pages
   "Create the helper function get-pages from the transformed pages. This
   function takes a pages key and returns the corresponding value with added
   key :nuzzle/get-pages with value get-pages function attached."
-  {:malli/schema [:=> [:cat schemas/enriched-pages] fn?]}
+  {:malli/schema [:-> schemas/enriched-pages fn?]}
   [pages]
   {:pre [(map? pages)] :post [(fn? %)]}
   (fn get-pages
@@ -83,15 +83,15 @@
 
 (defn transform-pages
   "Creates fully transformed pages with or without drafts."
-  {:malli/schema [:=> [:cat schemas/pages] schemas/enriched-pages]}
+  {:malli/schema [:-> schemas/pages schemas/enriched-pages]}
   [pages]
   {:pre [(map? pages)] :post [#(map? %)]}
   (letfn [(update-render-content [render-content]
             (if render-content
               (fn wrap-render-content [& {:as page}]
                 (try (render-content page)
-                  (catch clojure.lang.ArityException _
-                    (render-content))))
+                     (catch clojure.lang.ArityException _
+                       (render-content))))
               (constantly nil)))
           (update-index [url all-urls index]
             (if (= :children index)
@@ -113,7 +113,7 @@
                         updated (update :nuzzle/updated #(cond-> %
                                                            (= java.util.Date (class %)) (.toInstant)))
                         published (update :nuzzle/published #(cond-> %
-                                                           (= java.util.Date (class %)) (.toInstant)))
+                                                               (= java.util.Date (class %)) (.toInstant)))
                         index (update :nuzzle/index (partial update-index url (keys pages))))))
              {} pages))
           (add-get-pages [pages]
@@ -126,7 +126,7 @@
 
 (defn load-pages
   "Load a pages var or map and validate it."
-  {:malli/schema [:=> [:cat schemas/alt-pages [:? schemas/load-pages-opts]] schemas/pages]}
+  {:malli/schema [:-> schemas/alt-pages [:? schemas/load-pages-opts] schemas/pages]}
   [pages & {:keys [remove-drafts tag-pages]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]

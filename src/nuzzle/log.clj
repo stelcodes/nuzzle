@@ -6,7 +6,7 @@
    [nuzzle.util :as util]))
 
 (defn log-gen
-  {:malli/schema [:=> [:cat string?] fn?]}
+  {:malli/schema [:-> string? fn?]}
   [level]
   (fn [& items]
     (->> items
@@ -49,27 +49,27 @@
   (info "Publishing static site to:" (fs/canonicalize publish-dir)))
 
 (defn log-publish-end
-  {:malli/schema [:=> [:cat] nil?]}
+  {:malli/schema [:-> nil?]}
   []
   (info "Publishing successful"))
 
 (defn log-site-server
-  {:malli/schema [:=> [:cat int?] nil?]}
+  {:malli/schema [:-> int? nil?]}
   [port]
   (info "Starting static site server on port" port))
 
 (defn log-nrepl-server
-  {:malli/schema [:=> [:cat int?] nil?]}
+  {:malli/schema [:-> int? nil?]}
   [port]
   (info "Starting nREPL server on port" port))
 
 (defn log-rendering-page
-  {:malli/schema [:=> [:cat schemas/vec-url] nil?]}
+  {:malli/schema [:-> schemas/vec-url nil?]}
   [url]
   (info "Rendering page:" (pr-str url)))
 
 (defn report-dir-diff
-  {:malli/schema [:=> [:cat schemas/dir-diff] nil?]}
+  {:malli/schema [:-> schemas/dir-diff nil?]}
   [{:keys [added removed changed]}]
   (when (seq changed)
     (info "Changed files:")

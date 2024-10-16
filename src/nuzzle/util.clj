@@ -12,21 +12,21 @@
 
 ;; Taken from https://clojuredocs.org/clojure.core/merge
 (defn deep-merge
-  {:malli/schema [:=> [:cat [:* map?]] map?]}
+  {:malli/schema [:-> [:* map?] map?]}
   [a & maps]
   (if (map? a)
     (apply merge-with deep-merge a maps)
     (apply merge-with deep-merge maps)))
 
 (defn stringify-url
-  {:malli/schema [:=> [:cat schemas/vec-url] string?]}
+  {:malli/schema [:-> schemas/vec-url string?]}
   [url]
   {:pre [(vector? url)]}
   (if (= [] url) "/"
     (str "/" (str/join "/" (map name url)) "/")))
 
 (defn vectorize-url
-  {:malli/schema [:=> [:cat string?] schemas/vec-url]}
+  {:malli/schema [:-> string? schemas/vec-url]}
   [url]
   {:pre [(string? url)]}
   (->> (str/split url #"/")
@@ -89,7 +89,7 @@
 
 (defn find-hiccup-str
   "Find first string matching regular expression in deeply nested Hiccup tree"
-  {:malli/schema [:=> [:cat vector? schemas/regex?] string?]}
+  {:malli/schema [:-> vector? schemas/regex? string?]}
   [hiccup regex]
   (reduce
    (fn [_ item]
@@ -100,7 +100,7 @@
 
 (defn path->last-mod-inst
   "Returns Instant of last modified time of a file specified by path"
-  {:malli/schema [:=> [:cat string?] inst?]}
+  {:malli/schema [:-> string? inst?]}
   [path]
   (-> path
       fs/last-modified-time
@@ -127,7 +127,7 @@
     ["pygmentize" "-f" "html" "-l" language "-O" (str/join "," options) file-path]))
 
 (defn child-url?
-  {:malli/schema [:=> [:cat schemas/vec-url schemas/vec-url] [:or boolean? nil?]]}
+  {:malli/schema [:-> schemas/vec-url schemas/vec-url [:or boolean? nil?]]}
   [parent-url child-url]
   (let [parent-count (count parent-url)
         child-count (count child-url)]
@@ -136,7 +136,7 @@
               (range parent-count)))))
 
 (defn create-dir-diff
-  {:malli/schema [:=> [:cat schemas/dir-snapshot schemas/dir-snapshot] schemas/dir-diff]}
+  {:malli/schema [:-> schemas/dir-snapshot schemas/dir-snapshot schemas/dir-diff]}
   [old-snapshot new-snapshot]
   (let [added (set/difference (set (keys new-snapshot)) (set (keys old-snapshot)))
         removed (set/difference (set (keys old-snapshot)) (set (keys new-snapshot)))
@@ -149,7 +149,7 @@
        :changed changed}))
 
 (defn create-dir-snapshot
-  {:malli/schema [:=> [:cat string?] schemas/dir-snapshot]}
+  {:malli/schema [:-> string? schemas/dir-snapshot]}
   [dir]
   (let [dir (fs/file dir)
         path-len (count (-> dir fs/path str))
@@ -160,7 +160,7 @@
          (into {}))))
 
 (defn replace-in-file!
-  {:malli/schema [:=> [:cat [:alt string? schemas/regex?] [:alt string? fn?]] nil?]}
+  {:malli/schema [:-> [:alt string? schemas/regex?] [:alt string? fn?] nil?]}
   [file replace-arg replace-arg-2]
   (spit file
         (-> file
