@@ -23,7 +23,7 @@
   [url]
   {:pre [(vector? url)]}
   (if (= [] url) "/"
-    (str "/" (str/join "/" (map name url)) "/")))
+      (str "/" (str/join "/" (map name url)) "/")))
 
 (defn vectorize-url
   {:malli/schema [:-> string? schemas/vec-url]}
@@ -41,8 +41,8 @@
        (str/join " ")))
 
 (comment
- (str/split (name :educational-media) #"-")
- (kebab-case->title-case :educational-media))
+  (str/split (name :educational-media) #"-")
+  (kebab-case->title-case :educational-media))
 
 (defn kebab-case->lower-case
   [s]
@@ -64,8 +64,8 @@
 
 (defn safe-sh [command & args]
   (try (apply sh/sh command (remove nil? args))
-    (catch Exception _
-      {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
+       (catch Exception _
+         {:exit 1 :err (str "Command failed. Please ensure " command " is installed.")})))
 
 (defn time-str->?inst
   "Converts date, datetime, or zoned datetime string into Instant. Returns nil
@@ -74,14 +74,14 @@
   (letfn [(parse-date [ts] (try (-> (java.time.LocalDate/parse ts)
                                     (.atStartOfDay (java.time.ZoneId/systemDefault))
                                     (.toInstant))
-                             (catch Throwable _ nil)))
+                                (catch Throwable _ nil)))
           (parse-datetime [ts] (try (-> (java.time.LocalDateTime/parse ts)
                                         (.atZone (java.time.ZoneId/systemDefault))
                                         (.toInstant))
-                                 (catch Throwable _ nil)))
+                                    (catch Throwable _ nil)))
           (parse-zoned-datetime [ts] (try (-> (java.time.ZonedDateTime/parse ts)
                                               (.toInstant))
-                                       (catch Throwable _ nil)))]
+                                          (catch Throwable _ nil)))]
     (or (parse-date time-str) (parse-datetime time-str) (parse-zoned-datetime time-str))))
 
 (defn now-trunc-sec []
@@ -144,9 +144,9 @@
         changed (->> remaining
                      (filter #(not= (get old-snapshot %) (get new-snapshot %)))
                      set)]
-      {:added added
-       :removed removed
-       :changed changed}))
+    {:added added
+     :removed removed
+     :changed changed}))
 
 (defn create-dir-snapshot
   {:malli/schema [:-> string? schemas/dir-snapshot]}
@@ -166,3 +166,14 @@
         (-> file
             slurp
             (str/replace replace-arg replace-arg-2))))
+
+(defn seek
+  "Returns first item from coll for which (pred item) returns true.
+   Returns nil if no such item is present, or the not-found value if supplied."
+  ([pred coll] (seek pred coll nil))
+  ([pred coll not-found]
+   (reduce (fn [_ x]
+             (if (pred x)
+               (reduced x)
+               not-found))
+           not-found coll)))

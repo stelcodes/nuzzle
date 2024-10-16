@@ -23,7 +23,7 @@
           {:nuzzle/index #{[:blog :foo]},
            :nuzzle/render-page test-util/render-page
            :nuzzle/title "Tag baz"}}
-         (pages/add-tag-pages {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}} :render-page test-util/render-page)))
+         (pages/add-tag-pages {[:blog :foo] {:nuzzle/tags #{:bar :baz}} [:about] {}})))
   (is (= (merge
           test-util/twin-peaks-pages
           {[:tags :nuzzle]
@@ -34,7 +34,7 @@
           {:nuzzle/index #{[:blog :favorite-color]},
            :nuzzle/render-page test-util/render-page
            :nuzzle/title "Tag colors"}})
-         (pages/add-tag-pages test-util/twin-peaks-pages :render-page test-util/render-page))))
+         (pages/add-tag-pages test-util/twin-peaks-pages))))
 
 (deftest create-get-pages
   (let [get-pages (-> test-util/twin-peaks-pages pages/load-pages pages/create-get-pages)]

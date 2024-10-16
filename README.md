@@ -171,7 +171,6 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
 
 (defn develop [_]
   (nuzz/develop #'pages {:remove-drafts false
-                         :tag-pages {:render-page render-page}
                          :overlay-dir "public"}))
 
 ;; By default build this site with a sitemap and Atom feed
@@ -179,7 +178,6 @@ If you're a trainer from Pallet town, your `site.clj` might look like this:
 
 (defn publish [_]
   (nuzz/publish pages {:base-url "https://ashketchum.com"
-                       :tag-pages {:render-page render-page}
                        :atom-feed {:title "Ash Ketchum's Blog"
                                    :subtitle "In a world we must defend"}
                        :overlay-dir "public"}))

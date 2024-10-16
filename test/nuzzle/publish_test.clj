@@ -22,7 +22,6 @@
     (with-redefs [nuzzle.util/now-trunc-sec (constantly "2022-09-15T12:00Z")]
       (publish/publish-site pages :overlay-dir "test-resources/public"
                             :base-url "https://foobar.com"
-                            :tag-pages {:render-page test-util/render-page}
                             :publish-dir temp-site-dir
                             :atom-feed atom-feed))
     (let [site-snapshot (util/create-dir-snapshot temp-site-dir)

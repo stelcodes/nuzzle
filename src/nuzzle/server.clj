@@ -44,12 +44,12 @@
   "This handler is responsible for creating an HTML document for a page when
   it's located in the page map. Otherwise return a 404 Not Found"
   {:malli/schema [:-> schemas/alt-pages [:? schemas/handle-page-request-opts] fn?]}
-  [pages & {:keys [remove-drafts refresh-interval tag-pages]}]
+  [pages & {:keys [remove-drafts refresh-interval]}]
   (let [livejs-script (when refresh-interval
                         [:script {:type "text/javascript"}
                          (-> refresh-interval load-livejs hiccup/raw-html)])]
     (fn [{:keys [uri] :as _request}]
-      (let [loaded-pages (pages/load-pages pages {:remove-drafts remove-drafts :tag-pages tag-pages})
+      (let [loaded-pages (pages/load-pages pages {:remove-drafts remove-drafts})
             {:nuzzle/keys [render-page url] :as page} (loaded-pages (util/vectorize-url uri))]
         (if page
           (do (log/log-rendering-page url)
@@ -66,7 +66,7 @@
 
 (defn start-server
   {:malli/schema [:-> schemas/alt-pages [:? schemas/serve-opts] fn?]}
-  [pages & {:keys [port overlay-dir remove-drafts refresh-interval tag-pages open-browser]
+  [pages & {:keys [port overlay-dir remove-drafts refresh-interval open-browser]
             :or {port 6899}}]
   (log/log-site-server port)
   (when overlay-dir
@@ -74,8 +74,7 @@
     (util/ensure-overlay-dir overlay-dir))
   (let [stop-fn (-> (handle-page-request pages
                                          {:remove-drafts remove-drafts
-                                          :refresh-interval refresh-interval
-                                          :tag-pages tag-pages})
+                                          :refresh-interval refresh-interval})
                     (wrap-overlay-dir overlay-dir)
                     (wrap-content-type)
                     (wrap-stacktrace-log)

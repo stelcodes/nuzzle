@@ -21,26 +21,27 @@
   "Add pages page entries for pages that index all the pages which are tagged
   with a particular tag. Each one of these tag index pages goes under the
   /tags/ subdirectory"
-  {:malli/schema [:-> schemas/pages [:? schemas/tag-pages-opts] schemas/pages]}
-  [pages & {:keys [parent-url create-title render-page]
-            :or {parent-url [:tags] create-title #(->> % name (str "Tag "))}}]
-  (assert render-page "Must provide :render-page function in :tag-pages opts map")
-  (->> pages
-       ;; Create a map shaped like {tag-kw #{url url ...}}
-       (reduce-kv
-        (fn [acc url {:nuzzle/keys [tags] :as _page}]
-          (if tags
-            (merge-with into acc (zipmap tags (repeat #{url})))
-            acc))
-        {})
-       ;; Then change each entry into a proper page entry
-       (reduce-kv
-        (fn [acc tag urlset]
-          (assoc acc (conj parent-url tag) {:nuzzle/index urlset
-                                            :nuzzle/render-page render-page
-                                            :nuzzle/title (create-title tag)}))
-        {})
-       (util/deep-merge pages)))
+  {:malli/schema [:-> schemas/pages schemas/pages]}
+  [pages]
+  (let [[template-url template-page] (util/seek #(= :nuzzle/tag (-> % key last)) pages)]
+    (if template-url
+      (->> pages
+           ;; Create a map shaped like {:tag #{[:some :url] [:another :url] ...}}
+           (reduce-kv
+            (fn [acc url {:nuzzle/keys [tags] :as _page}]
+              (if tags
+                (merge-with into acc (zipmap tags (repeat #{url})))
+                acc))
+            {})
+           ;; Then convert each tag into a page entry
+           (reduce-kv
+            (fn [acc tag urls-with-tag]
+              (assoc acc (conj (pop template-url) tag)
+                     (assoc template-page :nuzzle/index urls-with-tag)))
+            {})
+           ;; Could just use normal merge since new pages shouldn't be in users page map
+           (util/deep-merge pages))
+      pages)))
 
 (defn validate-pages
   {:malli/schema [:-> schemas/pages nil?]}
@@ -124,11 +125,11 @@
 (defn load-pages
   "Load a pages var or map and validate it."
   {:malli/schema [:-> schemas/alt-pages [:? schemas/load-pages-opts] schemas/pages]}
-  [pages & {:keys [remove-drafts tag-pages]}]
+  [pages & {:keys [remove-drafts]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
     (validate-pages pages)
     (cond-> pages
       remove-drafts remove-draft-pages
-      tag-pages (add-tag-pages tag-pages)
+      true add-tag-pages
       true transform-pages)))

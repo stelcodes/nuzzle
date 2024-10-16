@@ -92,15 +92,8 @@
 
 (def alt-pages [:alt pages [:fn var?] fn?])
 
-(def tag-pages-opts
-  [:map {:closed true}
-   [:render-page fn?]
-   [:create-title {:optional true} [:maybe fn?]]
-   [:parent-url {:optional true} [:maybe vec-url]]])
-
 (def load-pages-opts
   [:map {:closed true}
-   [:tag-pages {:optional true} [:maybe tag-pages-opts]]
    [:remove-drafts {:optional true} [:maybe boolean?]]])
 
 (def dir-snapshot
@@ -136,11 +129,9 @@
    [:port {:optional true} [:maybe int?]]
    [:overlay-dir {:optional true} [:maybe string?]]
    [:remove-drafts {:optional true} [:maybe boolean?]]
-   [:refresh-interval {:optional true} [:maybe int?]]
-   [:tag-pages {:optional true} [:maybe tag-pages-opts]]])
+   [:refresh-interval {:optional true} [:maybe int?]]])
 
 (def handle-page-request-opts
   [:map {:closed true}
    [:remove-drafts {:optional true} [:maybe boolean?]]
-   [:refresh-interval {:optional true} [:maybe int?]]
-   [:tag-pages {:optional true} [:maybe tag-pages-opts]]])
+   [:refresh-interval {:optional true} [:maybe int?]]])

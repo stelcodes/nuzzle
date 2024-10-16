@@ -61,12 +61,14 @@
 
    [:tags]
    {:nuzzle/title "Tags"
-    :nuzzle/render-page render-page
-    :nuzzle/index :children}})
+    :nuzzle/index :children}
+   
+   [:tags :nuzzle/tag]
+   {:nuzzle/title "Tag"
+    :nuzzle/render-page render-page}})
 
 (defn develop [_]
   (nuzz/develop #'pages {:remove-drafts false
-                         :tag-pages {:render-page render-page}
                          :overlay-dir "public"}))
 
 ;; By default build this site with a sitemap and Atom feed
@@ -74,7 +76,6 @@
 
 (defn publish [_]
   (nuzz/publish pages {:base-url "https://ashketchum.com"
-                       :tag-pages {:render-page render-page}
                        :atom-feed {:title "Ash Ketchum's Blog"
                                    :subtitle "In a world we must defend"}
                        :overlay-dir "public"}))

@@ -38,7 +38,6 @@
  ;; Either a set of vector URLs (vectors of keywords), or the keyword :children
  ;; Describes what pages should be linked to from this page
  ;; When set to :children, Nuzzle will replace it with set of URLs of all the pages directly "beneath" this page
- ;; This key is always present in tag pages when enabled with the :tag-pages keyword argument to nuzzle.core/serve, develop, publish
  ;; Optional, defaults to nil
  :nuzzle/index :children
 
