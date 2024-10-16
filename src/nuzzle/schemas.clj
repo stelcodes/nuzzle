@@ -66,6 +66,9 @@
    [:nuzzle/summary {:optional true} [:maybe string?]]
    [:nuzzle/subtitle {:optional true} [:maybe string?]]])
 
+(def validate-page
+  (mu/merge page [:map [:nuzzle/url vec-url]]))
+
 (def enriched-page
   (mu/merge page
             [:map

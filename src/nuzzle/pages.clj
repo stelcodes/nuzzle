@@ -1,13 +1,11 @@
 (ns nuzzle.pages
   ;; (:use clojure.stacktrace)
   (:require
-   [clojure.spec.alpha :as s]
    [clojure.set :as set]
-   [expound.alpha :as expound]
+   [malli.core :as m]
+   [malli.dev.pretty :as mp]
    [nuzzle.schemas :as schemas]
-   [nuzzle.util :as util]
-   ;; Register spell-spec expound helpers after requiring expound.alpha
-   [spell-spec.expound]))
+   [nuzzle.util :as util]))
 
 (defn remove-draft-pages
   {:malli/schema [:-> schemas/pages schemas/pages]}
@@ -45,17 +43,16 @@
        (util/deep-merge pages)))
 
 (defn validate-pages
-  {:malli/schema [:-> schemas/pages schemas/pages]}
+  {:malli/schema [:-> schemas/pages nil?]}
   [pages]
-  (if (s/valid? :nuzzle/user-pages pages)
-    pages
-    (do (expound/expound :nuzzle/user-pages pages {:theme :figwheel-theme
-                                                   :print-specs? false})
-        (throw (ex-info (str "Invalid pages:"
-                             (->> pages
-                                  (s/explain-str :nuzzle/user-pages)
-                                  (re-find #"failed:(.*)") second))
-                        {})))))
+  (let [pages-with-url (reduce-kv (fn [acc url page] (conj acc (assoc page :nuzzle/url url)))
+                                  []
+                                  pages)]
+    (doall (map #(when (not (m/validate schemas/validate-page %))
+                   (mp/explain schemas/validate-page %)
+                   (throw (ex-info (str "Invalid pages:" %)
+                                   {})))
+                pages-with-url))))
 
 (defn create-get-pages
   "Create the helper function get-pages from the transformed pages. This
@@ -130,8 +127,8 @@
   [pages & {:keys [remove-drafts tag-pages]}]
   (let [resolved-pages (if (var? pages) (var-get pages) pages)
         pages (if (fn? resolved-pages) (resolved-pages) resolved-pages)]
+    (validate-pages pages)
     (cond-> pages
-      true validate-pages
       remove-drafts remove-draft-pages
       tag-pages (add-tag-pages tag-pages)
       true transform-pages)))
