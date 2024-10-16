@@ -13,7 +13,6 @@
    [nuzzle.schemas :as schemas]
    [refactor-nrepl.middleware :as refactor]))
 
-;; (mi/instrument!)
 (defn publish
   "Publishes the website to :nuzzle/publish-dir. The overlay directory is
   overlayed on top of the publish directory after the web pages have been
@@ -56,7 +55,7 @@
         [_ _ & hiccup] (cm/parse-body md-str {:lower-fns lower-fns})]
     hiccup))
 
-(md/start! {:report (pretty/reporter
+#_(md/start! {:report (pretty/reporter
                        (pretty/-printer {:width 80
                                          :print-length 10
                                          :print-level 3
