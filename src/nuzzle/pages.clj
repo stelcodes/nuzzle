@@ -64,20 +64,18 @@
   {:pre [(map? pages)] :post [(fn? %)]}
   (fn get-pages
     ([]
-     (->> pages vals (map #(assoc % :nuzzle/get-pages get-pages))))
-    ([url & {:keys [children]}]
-     ;; Return a single page map
-     (if-let [page (pages url)]
-       (if-not children
-         (assoc page :nuzzle/get-pages get-pages)
-         (reduce-kv (fn [acc maybe-child-url maybe-child-page]
-                      (if (util/child-url? url maybe-child-url)
-                        (conj acc (assoc maybe-child-page :nuzzle/get-pages get-pages))
-                        acc))
-                    '()
-                    pages))
-       (throw (ex-info (str "get-pages error: Nonexistent URL " (pr-str url))
-                       {:url url :pages pages}))))))
+     ;; Return a list of all pages
+     (apply get-pages (keys pages)))
+    ([urlset]
+     ;; Return a list of pages of specified urls or a single page map
+     (reduce (fn [acc url]
+               (if (contains? pages url)
+                 (conj acc (-> pages (get url) (assoc :nuzzle/url url :nuzzle/get-pages get-pages)))
+                 (throw (ex-info (str "get-pages error: Nonexistent URL " (pr-str url))
+                                 {:url url}))))
+
+             []
+             urlset))))
 
 (defn transform-pages
   "Creates fully transformed pages with or without drafts."
@@ -113,7 +111,7 @@
                                                            (= java.util.Date (class %)) (.toInstant)))
                         published (update :nuzzle/published #(cond-> %
                                                                (= java.util.Date (class %)) (.toInstant)))
-                        index (update :nuzzle/index (partial update-index url (keys pages))))))
+                        true (update :nuzzle/index (partial update-index url (keys pages))))))
              {} pages))
           (add-get-pages [pages]
             (let [get-pages (create-get-pages pages)]
