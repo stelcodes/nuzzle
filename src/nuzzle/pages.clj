@@ -103,11 +103,12 @@
                       all-urls)))
           (update-pages [pages]
             (reduce-kv
-             (fn [acc url {:nuzzle/keys [published updated index] :as page}]
+             (fn [acc url {:nuzzle/keys [title published updated index] :as page}]
                (assoc acc url
                       (cond-> page
                         true (assoc :nuzzle/url url)
                         true (update :nuzzle/render-content update-render-content)
+                        (fn? title) (assoc :nuzzle/title (title url))
                         updated (update :nuzzle/updated #(cond-> %
                                                            (= java.util.Date (class %)) (.toInstant)))
                         published (update :nuzzle/published #(cond-> %
