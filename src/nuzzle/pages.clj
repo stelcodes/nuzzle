@@ -91,15 +91,15 @@
                        (render-content))))
               (constantly nil)))
           (update-index [url all-urls index]
-            (if (= :children index)
+            (if index
+              ;; Remove any URLs from index that don't exist
+              (set/intersection index (set all-urls))
               ;; Add index of all pages directly "beneath" this page
               (reduce (fn [acc maybe-child-url]
                         (cond-> acc
                           (util/child-url? url maybe-child-url) (conj maybe-child-url)))
                       #{}
-                      all-urls)
-              ;; Remove any URLs from index that don't exist
-              (set/intersection index (set all-urls))))
+                      all-urls)))
           (update-pages [pages]
             (reduce-kv
              (fn [acc url {:nuzzle/keys [published updated index] :as page}]

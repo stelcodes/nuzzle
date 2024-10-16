@@ -48,7 +48,6 @@
              [:email {:optional true} [:maybe string?]]
              [:url {:optional true} [:maybe http-url]]])
 (def tags [:set keyword?])
-(def index [:or urlset [:= :children]])
 
 ;; A single page map
 (def page
@@ -61,13 +60,13 @@
    [:nuzzle/published {:optional true} [:maybe inst?]]
    [:nuzzle/tags {:optional true} [:maybe tags]]
    [:nuzzle/draft {:optional true} [:maybe boolean?]]
-   [:nuzzle/index {:optional true} [:maybe index]]
+   [:nuzzle/index {:optional true} [:maybe urlset]]
    [:nuzzle/author {:optional true} [:maybe author]]
    [:nuzzle/summary {:optional true} [:maybe string?]]
    [:nuzzle/subtitle {:optional true} [:maybe string?]]])
 
 (def validate-page
-  (mu/merge page [:map [:nuzzle/url vec-url]]))
+  (mu/merge page [:map [:nuzzle/url vec-url] [:nuzzle/title [:or :string fn?]]]))
 
 (def enriched-page
   (mu/merge page
